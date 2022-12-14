@@ -1,0 +1,31 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    docker-compose.yml                                 :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: gtoubol <marvin@42.fr>                     +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2022/12/13 09:12:15 by gtoubol           #+#    #+#              #
+#    Updated: 2022/12/13 09:12:15 by gtoubol          ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+volumes:
+  tr_data:
+    name: tr_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "${TR_BACK_SRCS}"
+
+services:
+  backend:
+    container_name: backend
+    build: ./img_backend
+    ports:
+      - 3000:3000
+    volumes:
+      - "tr_data:/root/srcs"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost:3000"]
