@@ -4,5 +4,9 @@
 # dont save credentials
 .env
 
+# installation marker
 .installed
+# large files folder
 node_modules
+# compiled files
+dist
