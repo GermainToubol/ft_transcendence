@@ -13,8 +13,17 @@
 # Volumes
 # ------------------------------------------------------------------------
 volumes:
-  tr_data:
-    name: tr_data
+  front_data:
+    name: front_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "${TR_FRONT_SRCS}"
+
+  # --------------------------
+  back_data:
+    name: back_data
     driver: local
     driver_opts:
       type: none
@@ -35,6 +44,16 @@ networks:
 # Servicies
 # ------------------------------------------------------------------------
 services:
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    ports:
+      - "3500:3500"
+    volumes:
+      - "front_data:/root/srcs"
+    networks:
+      - private-net
+
   # --------------------------
   backend:
     container_name: backend
@@ -42,7 +61,7 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - "tr_data:/root/srcs"
+      - "back_data:/root/srcs"
     networks:
       - private-net
     healthcheck:
