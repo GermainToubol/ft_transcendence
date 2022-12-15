@@ -35,22 +35,10 @@ networks:
 # Servicies
 # ------------------------------------------------------------------------
 services:
-  backend-install:
-    container_name: backend-install
-    build:
-      context: ./img_backend
-      dockerfile: Dockerfile
-      target: backend-installer
-    volumes:
-      - "tr_data:/root/srcs"
-
   # --------------------------
   backend:
     container_name: backend
-    build:
-      context: ./img_backend
-      dockerfile: Dockerfile
-      target: backend-runner
+    build: ./backend
     ports:
       - 3000:3000
     volumes:
@@ -59,9 +47,6 @@ services:
       - private-net
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost:3000"]
-    depends_on:
-      backend-install:
-        condition: service_completed_successfully
 
   # --------------------------
   database:
