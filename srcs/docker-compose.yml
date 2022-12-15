@@ -20,12 +20,27 @@ volumes:
       device: "${TR_BACK_SRCS}"
 
 services:
+  backend-install:
+    container_name: backend-install
+    build:
+      context: ./img_backend
+      dockerfile: Dockerfile
+      target: backend-installer
+    volumes:
+      - "tr_data:/root/srcs"
+
   backend:
     container_name: backend
-    build: ./img_backend
+    build:
+      context: ./img_backend
+      dockerfile: Dockerfile
+      target: backend-runner
     ports:
       - 3000:3000
     volumes:
       - "tr_data:/root/srcs"
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost:3000"]
+    depends_on:
+      backend-install:
+        condition: service_completed_successfully

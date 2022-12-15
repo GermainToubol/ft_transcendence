@@ -32,4 +32,4 @@ ENTRYPOINT ["/bin/sh", "/tmp/install.sh"]
 FROM backend-base AS backend-runner
 
 WORKDIR /root/srcs
-ENTRYPOINT ["/bin/npm", "run", "start:dev"]
+ENTRYPOINT ["npm", "run", "start:dev"]

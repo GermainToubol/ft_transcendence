@@ -3,3 +3,6 @@
 
 # dont save credentials
 .env
+
+.installed
+node_modules

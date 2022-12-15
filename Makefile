@@ -13,7 +13,7 @@ CONF =	./srcs/docker-compose.yml
 
 
 all: 	clean
-		docker compose -f $(CONF) up --build --force-recreate -d
+		docker compose -f $(CONF) up --build --force-recreate
 
 
 clean:
