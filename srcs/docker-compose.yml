@@ -66,6 +66,10 @@ services:
       - private-net
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost:3000"]
+    environment:
+      - API_UID=${API_UID}
+      - API_SECRET=${API_SECRET}
+      - JW_SECRET=${JW_SECRET}
 
   # --------------------------
   database:
