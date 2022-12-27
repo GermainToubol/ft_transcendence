@@ -69,7 +69,7 @@ services:
     environment:
       - API_UID=${API_UID}
       - API_SECRET=${API_SECRET}
-      - JW_SECRET=${JW_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
 
   # --------------------------
   database:
