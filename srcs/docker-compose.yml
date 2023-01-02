@@ -73,6 +73,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_NAME=${POSTGRES_USER}
 
   # --------------------------
   database:
