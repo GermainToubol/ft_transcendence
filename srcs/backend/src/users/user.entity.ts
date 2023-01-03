@@ -13,6 +13,15 @@ export class User {
 	username: string;
 
 	@Column()
+	email: string;
+
+    @Column({ default: false })
+    is2faEnabled: boolean;
+
+	@Column({ nullable: true })
+    twoFactorAuthSecret?: string;
+
+	@Column()
 	avatar: string;
 
 	@Column({ default: true })

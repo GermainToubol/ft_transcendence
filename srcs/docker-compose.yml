@@ -74,6 +74,7 @@ services:
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - DB_NAME=${POSTGRES_USER}
+      - TWO_FACTOR_AUTHENTICATION_APP_NAME=${TWO_FACTOR_AUTHENTICATION_APP_NAME}
 
   # --------------------------
   database:
