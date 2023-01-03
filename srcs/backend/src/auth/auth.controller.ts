@@ -26,10 +26,11 @@ export class AuthController {
     /* Route: get the user who logged in 
         http://${host}:${port}/auth/profile
     */
-    @Get('/profil')
+    @Get('/profile')
     @HttpCode(200)
     @UseGuards(JwtAuthGuard)
-    getProfile(@Req() _req: any): Promise<any> {
-        return _req.user;
+    getProfile(@Req() req: any): Promise<any> {
+		console.log(req.user);
+        return req.user;
     }
 }

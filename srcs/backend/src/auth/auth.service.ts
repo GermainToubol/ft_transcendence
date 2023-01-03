@@ -15,9 +15,9 @@ export class AuthService {
 
     /* an async function  used for validate the user if exist in database */
     async validateUser(payload: JwtPayload): Promise<User> {
-        const { id } = payload;
+        const login = payload.login;
         try {
-            const user = await this.usersService.findOne(Number(id));
+            const user = await this.usersService.findOne(login);
             if (!user) {
                 return null;
             }
@@ -30,7 +30,7 @@ export class AuthService {
     /* function used for creating the user if not exist and sign it */
     async login(req: any, res: any): Promise<any> {
         try {
-            let user = await this.usersService.findOne(Number(req.user.id));
+            let user = await this.usersService.findOne(req.user.login);
             let url: string;
             if (user && user.is2faEnabled) {
                 res.cookie('key', user.id);
@@ -44,7 +44,7 @@ export class AuthService {
 			else {
                 url = 'http://localhost:3000/'; // redirect to Home page
             }
-            const payload: JwtPayload = { id: user.id, username: user.username, email: user.email };
+            const payload: JwtPayload = { id: user.id, login: user.usual_full_name, email: user.email };
             const token = this.jwtService.sign(payload);
             res.cookie('accessToken', token);
             return res.redirect(url);
@@ -58,8 +58,8 @@ export class AuthService {
             const payload: JwtPayload = this.jwtService.verify(token, {
                 secret: this.configService.get('JWT_SECRET'),
             });
-            if (payload.id) {
-                return await this.usersService.findOne(Number(payload.id));
+            if (payload.login) {
+                return await this.usersService.findOne(payload.login);
             }
             return null;
         } catch (err) {

@@ -41,8 +41,8 @@ export class TwoFactorAuthService {
         return res.status(200).json(dataUrl);
     }
 
-    verifyCode = async (key: number, code: string, bool: boolean): Promise<any> => {
-        const user = await this.usersService.findOne(Number(key));
+    verifyCode = async (key: string, code: string, bool: boolean): Promise<any> => {
+        const user = await this.usersService.findOne(key);
         if (!user) {
             throw new NotFoundException('User not found');
         }
@@ -55,7 +55,7 @@ export class TwoFactorAuthService {
         }
         const payload: JwtPayload = {
             id: user.id,
-            username: user.username,
+            login: user.usual_full_name,
             email: user.email
         };
         const token: string = this.jwtService.sign(payload, {

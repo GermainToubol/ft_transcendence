@@ -10,7 +10,7 @@ export class User {
 	login: string;
 
 	@Column()
-	username: string;
+	usual_full_name: string;
 
 	@Column()
 	email: string;
@@ -21,7 +21,7 @@ export class User {
 	@Column({ nullable: true })
     twoFactorAuthSecret?: string;
 
-	@Column()
+	@Column({ default: null })
 	avatar: string;
 
 	@Column({ default: true })

@@ -32,6 +32,8 @@ export class TwoFactorAuthController {
     sendEmail(
         @ReqUser() user: User,
         @Res() res: Response): Promise<any> {
+			console.log('Test');
+			console.log(user);
         return this.twoFactorAuthService.generateTwoFactorAuthSecretAndQRCode(user, res);
     }
 
@@ -42,13 +44,13 @@ export class TwoFactorAuthController {
         @ReqUser() user: User,
         @Body('code') code: string,
     ): Promise<any> {
-        return this.twoFactorAuthService.verifyCode(user.id, code, false);
+        return this.twoFactorAuthService.verifyCode(user.usual_full_name, code, false);
     }
 
     @Post('verify')
     @HttpCode(200)
     verifyLogin(
-        @Body('key', ParseIntPipe) key: number,
+        @Body('key', ParseIntPipe) key: string,
         @Body('code') code: string,
     ): Promise<any> {
         return this.twoFactorAuthService.verifyCode(key, code, true);

@@ -20,7 +20,7 @@ import { User } from './user.entity';
     async create(user: UserDto): Promise<User> {
       try {
         return await this.usersRepository.save(user);
-      } catch (e) {
+      } catch (err) {
         throw new ForbiddenException(`Forbidden: cannot create user.`);
       }
     }
@@ -33,23 +33,23 @@ import { User } from './user.entity';
       }
     }
   
-    async findOne(id: number): Promise<User> {
-      try {
-        const user = await this.usersRepository.findOneBy({id: id});
+    async findOne(login: string): Promise<User> {
+    //   try {
+        const user = await this.usersRepository.findOneBy({login: login});
         if (!user) {
           return null;
         }
         return user;
-      } catch (err) {
-        return null;
-      }
+    //   } catch (err) {
+    //     return null;
+    //   }
     }
 
     async remove(id: number | string): Promise<any> {
       try {
         return await this.usersRepository.delete(id);
       }
-      catch (e) {
+      catch (err) {
         throw new NotFoundException('User not found.');
       }
     }

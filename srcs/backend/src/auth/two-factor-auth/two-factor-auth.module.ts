@@ -7,6 +7,8 @@ import { ConfigService } from "@nestjs/config";
 import { UsersService } from "src/users/users.service";
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../../users/user.entity';
+import { JwtStrategy } from "../strategies/jwt.strategy";
+import { AuthService } from "../auth.service";
 
 @Module({
     imports: [
@@ -15,6 +17,6 @@ import { User } from '../../users/user.entity';
         TypeOrmModule.forFeature([User]),
     ],
     controllers: [TwoFactorAuthController],
-    providers: [TwoFactorAuthService, ConfigService, UsersService],
+    providers: [TwoFactorAuthService, ConfigService, UsersService, JwtStrategy, AuthService],
 })
 export class TwoFactorAuthModule { }
