@@ -12,7 +12,7 @@ export class IntraStrategy extends PassportStrategy(Strategy, 'intra') {
             tokenURL: 'https://api.intra.42.fr/oauth/token',
             clientID: process.env.API_UID,
             clientSecret: process.env.API_SECRET,
-            callbackURL: `${process.env.DOMAIN}/auth/intra`,
+            callbackURL: `${process.env.DOMAIN}/auth`,
             scope: 'public',
             profileFields: {
                 'id': function (obj: any) { return String(obj.id); },
@@ -25,7 +25,7 @@ export class IntraStrategy extends PassportStrategy(Strategy, 'intra') {
                 'phoneNumbers.0.value': 'phone',
                 'photos.0.value': 'image_url'
             }
-        }); // Config
+        });
     }
 
     async validate(accessToken: string, refreshToken: string, profile: any, done: Function): Promise<any> {
@@ -37,7 +37,7 @@ export class IntraStrategy extends PassportStrategy(Strategy, 'intra') {
             display_name: displayName,
             avatar_url: photos[0].value,
         }
-        done(null, user);
+		done(null, user);
     }
 
 }

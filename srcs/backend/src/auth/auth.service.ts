@@ -1,11 +1,8 @@
-import {
-    ForbiddenException,
-    Injectable
-} from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { Injectable, ForbiddenException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { User } from "../users/user.entity";
 import { UsersService } from "../users/users.service";
+import { ConfigService } from "@nestjs/config";
+import { User } from "../users/user.entity";
 import { JwtPayload } from "./type/jwt-payload.type";
 
 @Injectable()
@@ -13,7 +10,7 @@ export class AuthService {
     constructor(
         private usersService: UsersService,
         private jwtService: JwtService,
-        private configService: ConfigService
+        private configService: ConfigService,
     ) { }
 
     /* an async function  used for validate the user if exist in database */
@@ -31,25 +28,26 @@ export class AuthService {
     }
 
     /* function used for creating the user if not exist and sign it */
-    async login(_req: any, _res: any): Promise<any> {
+    async login(req: any, res: any): Promise<any> {
         try {
-            let user = await this.usersService.findOne(Number(_req.user.id));
+            let user = await this.usersService.findOne(Number(req.user.id));
             let url: string;
             if (user && user.is2faEnabled) {
-                _res.cookie('key', user.id);
-                url = 'http://localhost:3000/#/verify-page';
-                return _res.redirect(url);
+                res.cookie('key', user.id);
+                url = 'http://localhost:3000/#/verify';
+                return res.redirect(url);
             }
             else if (!user) {
-                user = await this.usersService.create(_req.user);
-                url = 'http://localhost:3000/#/complete-info'; // redirect to complete-info page
-            } else {
+                user = await this.usersService.create(req.user);
+                url = 'http://localhost:3000/#/complete'; // redirect to complete page
+            }
+			else {
                 url = 'http://localhost:3000/'; // redirect to Home page
             }
-            const payload: JwtPayload = { id: user.id, user_name: user.username, email: user.email };
+            const payload: JwtPayload = { id: user.id, username: user.username, email: user.email };
             const token = this.jwtService.sign(payload);
-            _res.cookie('accessToken', token);
-            return _res.redirect(url);
+            res.cookie('accessToken', token);
+            return res.redirect(url);
         } catch (err) {
             throw new ForbiddenException('Forbidden: user cannot log in');
         }

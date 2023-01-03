@@ -55,7 +55,7 @@ export class TwoFactorAuthService {
         }
         const payload: JwtPayload = {
             id: user.id,
-            user_name: user.username,
+            username: user.username,
             email: user.email
         };
         const token: string = this.jwtService.sign(payload, {

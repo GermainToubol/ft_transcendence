@@ -11,32 +11,27 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { TwoFactorAuthModule } from './two-factor-auth/two-factor-auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../users/user.entity';
+import { jwtConstants } from './constants';
 
 @Module({
     imports: [
-        UsersModule,
+		TypeOrmModule.forFeature([User]),
         PassportModule,
-        JwtModule.registerAsync({
-            imports: [ConfigModule],
-            inject: [ConfigService, JwtService],
-            useFactory: (configService: ConfigService) => ({
-                secret: configService.get('JWT_SECRET'),
-                signOptions: {
-                    expiresIn: configService.get('JWT_EXPIRESIN'),
-                }
-            })
-        }),
+		JwtModule.register({
+			secret: jwtConstants.secret,
+			signOptions: { expiresIn: '3600s' }, }),
+		UsersModule,
         TwoFactorAuthModule,
-        TypeOrmModule.forFeature([User]),
     ],
-    controllers: [AuthController],
+    controllers: [
+		AuthController,
+	],
     providers: [
         AuthService,
-        UsersService,
         IntraStrategy,
+        UsersService,
         JwtStrategy,
         ConfigService,
     ],
-    exports: [AuthService]
 })
 export class AuthModule { }
