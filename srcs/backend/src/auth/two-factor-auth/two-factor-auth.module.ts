@@ -9,11 +9,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../../users/user.entity';
 import { JwtStrategy } from "../strategies/jwt.strategy";
 import { AuthService } from "../auth.service";
+import { AuthModule } from "../auth.module";
 
 @Module({
     imports: [
         JwtModule.register({}),
         UsersModule,
+		AuthModule,
         TypeOrmModule.forFeature([User]),
     ],
     controllers: [TwoFactorAuthController],

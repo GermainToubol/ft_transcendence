@@ -19,8 +19,10 @@ export class AuthController {
     @Get()
     @HttpCode(200)
     @UseGuards(IntraAuthGuard)
-    login(@Req() req: any, @Res() res: any): Promise<any> {
-        return this.authService.login(req, res);
+    login(@Req() req: any, @Res() res: any) {
+		const tst = this.authService.login(req, res);
+		console.log(tst);
+        return tst;
     }
 
     /* Route: get the user who logged in 

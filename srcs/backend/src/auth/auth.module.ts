@@ -21,7 +21,6 @@ import { jwtConstants } from './constants';
 			secret: jwtConstants.secret,
 			signOptions: { expiresIn: '3600s' }, }),
 		UsersModule,
-        TwoFactorAuthModule,
     ],
     controllers: [
 		AuthController,

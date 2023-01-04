@@ -31,23 +31,21 @@ export class AuthService {
     async login(req: any, res: any): Promise<any> {
         try {
             let user = await this.usersService.findOne(req.user.login);
-            let url: string;
+			let enable2fa: Boolean;
             if (user && user.is2faEnabled) {
-                res.cookie('key', user.id);
-                url = 'http://localhost:3000/#/verify';
-                return res.redirect(url);
+				enable2fa = true;
             }
             else if (!user) {
+				enable2fa = false;
                 user = await this.usersService.create(req.user);
-                url = 'http://localhost:3000/#/complete'; // redirect to complete page
             }
 			else {
-                url = 'http://localhost:3000/'; // redirect to Home page
+				enable2fa = false;
             }
-            const payload: JwtPayload = { id: user.id, login: user.usual_full_name, email: user.email };
+            const payload: JwtPayload = { id: user.id, login: user.login, email: user.email };
             const token = this.jwtService.sign(payload);
             res.cookie('accessToken', token);
-            return res.redirect(url);
+            return token;
         } catch (err) {
             throw new ForbiddenException('Forbidden: user cannot log in');
         }

@@ -6,10 +6,12 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { User } from './users/user.entity';
+import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.module';
 
 @Module({
     imports: [
 		AuthModule,
+		TwoFactorAuthModule,
 		UsersModule,
 		TypeOrmModule.forRoot({
 			type: 'postgres',

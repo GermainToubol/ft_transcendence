@@ -12,7 +12,7 @@ export class IntraStrategy extends PassportStrategy(Strategy, 'intra') {
             tokenURL: 'https://api.intra.42.fr/oauth/token',
             clientID: process.env.API_UID,
             clientSecret: process.env.API_SECRET,
-            callbackURL: `${process.env.DOMAIN}/auth`,
+            callbackURL: `${process.env.DOMAIN}/auth/`,
             scope: 'public',
         });
     }
