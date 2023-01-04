@@ -1,16 +1,15 @@
 import { Injectable, ForbiddenException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { UsersService } from "../users/users.service";
-import { ConfigService } from "@nestjs/config";
 import { User } from "../users/user.entity";
 import { JwtPayload } from "./type/jwt-payload.type";
+import { jwtConstants } from "./constants";
 
 @Injectable()
 export class AuthService {
     constructor(
         private usersService: UsersService,
         private jwtService: JwtService,
-        private configService: ConfigService,
     ) { }
 
     /* an async function  used for validate the user if exist in database */
@@ -28,7 +27,7 @@ export class AuthService {
     }
 
     /* function used for creating the user if not exist and sign it */
-    async login(req: any, res: any): Promise<any> {
+    async login(req: any): Promise<any> {
         try {
             let user = await this.usersService.findOne(req.user.login);
 			let enable2fa: Boolean;
@@ -42,10 +41,9 @@ export class AuthService {
 			else {
 				enable2fa = false;
             }
-            const payload: JwtPayload = { id: user.id, login: user.login, email: user.email };
+            const payload: JwtPayload = { id: user.id, login: user.login, email: user.email, twoFa: false };
             const token = this.jwtService.sign(payload);
-            res.cookie('accessToken', token);
-            return token;
+            return {token: token, enable2fa: enable2fa};
         } catch (err) {
             throw new ForbiddenException('Forbidden: user cannot log in');
         }
@@ -54,7 +52,7 @@ export class AuthService {
     getUserFromToken = async (token: string): Promise<User> => {
         try {
             const payload: JwtPayload = this.jwtService.verify(token, {
-                secret: this.configService.get('JWT_SECRET'),
+                secret: jwtConstants.secret,
             });
             if (payload.login) {
                 return await this.usersService.findOne(payload.login);

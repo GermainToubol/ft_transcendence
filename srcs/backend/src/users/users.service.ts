@@ -4,7 +4,6 @@ import {
     NotFoundException,
   } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserDto } from './user.dto';
 import { User } from './user.entity';
@@ -14,7 +13,6 @@ import { User } from './user.entity';
     constructor(
       @InjectRepository(User)
       private usersRepository: Repository<User>,
-      private configService: ConfigService
     ) { }
   
     async create(user: UserDto): Promise<User> {

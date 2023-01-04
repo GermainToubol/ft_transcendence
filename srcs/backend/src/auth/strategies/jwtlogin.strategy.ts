@@ -6,7 +6,7 @@ import { JwtPayload } from '../type/jwt-payload.type';
 import { jwtConstants } from '../constants';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtLoginStrategy extends PassportStrategy(Strategy, 'jwtlogin') {
   constructor(
     private readonly authService: AuthService,
   ) {
@@ -17,26 +17,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-//   async validate(payload: JwtPayload): Promise<User> {
-//     const user = await this.authService.validateUser(payload);
-//     if (!user) {
-//       throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
-//     }
-// 	else if (user.is2faEnabled && !payload.twoFa) {
-// 		throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
-// 	}
-//     return user;
-//   }
-
   async validate(payload: JwtPayload, done: VerifiedCallback) {
     const user = await this.authService.validateUser(payload);
     if (!user) {
       throw done(new HttpException('Invalid token', HttpStatus.UNAUTHORIZED));
     }
-	else if (user.is2faEnabled && !payload.twoFa) {
-		throw done(new HttpException('Invalid token', HttpStatus.UNAUTHORIZED));
-	}
     return done(null, user);
   }
-
 }

@@ -12,6 +12,7 @@ import { ConfigService } from "@nestjs/config";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
 import { Response } from "express";
+import { jwtConstants } from "../constants";
 
 dotenv.config();
 @Injectable()
@@ -23,13 +24,13 @@ export class TwoFactorAuthService {
     ) { }
 
     /* method used for changing 2fa bool */
-    enableDisableTwoFactorAuth = async (userId: number, bool: boolean) => {
+    async enableDisableTwoFactorAuth(userId: number, bool: boolean) {
         return this.usersService.turnOnOffTwoFactorAuth(userId, bool);
     }
 
     //*  All the new change will be here
     //* code:
-    generateTwoFactorAuthSecretAndQRCode = async (user: User, res: Response): Promise<any> => {
+    async generateTwoFactorAuthSecretAndQRCode (user: User, res: Response): Promise<any>{
         const secret = authenticator.generateSecret();
         const otpauth = authenticator.keyuri(
             user.email,
@@ -41,7 +42,7 @@ export class TwoFactorAuthService {
         return res.status(200).json(dataUrl);
     }
 
-    verifyCode = async (key: string, code: string, bool: boolean): Promise<any> => {
+    async verifyCode (key: string, code: string, bool: boolean): Promise<any> {
         const user = await this.usersService.findOne(key);
         if (!user) {
             throw new NotFoundException('User not found');
@@ -56,11 +57,12 @@ export class TwoFactorAuthService {
         const payload: JwtPayload = {
             id: user.id,
             login: user.login,
-            email: user.email
+            email: user.email,
+			twoFa: true,
         };
         const token: string = this.jwtService.sign(payload, {
-            secret: this.configService.get('JWT_SECRET'),
-            expiresIn: this.configService.get('JWT_EXPIRESIN'),
+            secret: jwtConstants.secret,
+            expiresIn: jwtConstants.expire,
         });
         return {
             token: token,

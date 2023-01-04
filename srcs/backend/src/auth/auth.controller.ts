@@ -1,9 +1,8 @@
 import {
     Controller,
     Get,
-    HttpCode,
     Req,
-    Res, UseGuards
+	UseGuards
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { IntraAuthGuard } from "./guards/intra-auth.guard";
@@ -17,22 +16,17 @@ export class AuthController {
         http://${host}:${port}/auth/
     */
     @Get()
-    @HttpCode(200)
     @UseGuards(IntraAuthGuard)
-    login(@Req() req: any, @Res() res: any) {
-		const tst = this.authService.login(req, res);
-		console.log(tst);
-        return tst;
+    login(@Req() req: any) {
+        return this.authService.login(req).then();
     }
 
     /* Route: get the user who logged in 
         http://${host}:${port}/auth/profile
     */
     @Get('/profile')
-    @HttpCode(200)
     @UseGuards(JwtAuthGuard)
     getProfile(@Req() req: any): Promise<any> {
-		console.log(req.user);
         return req.user;
     }
 }
