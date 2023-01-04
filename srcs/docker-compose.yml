@@ -36,8 +36,8 @@ volumes:
 # Networks
 # ------------------------------------------------------------------------
 networks:
-  private-net:
-    name: "private-net"
+  backend-net:
+    name: "backend-net"
     driver: "bridge"
 
 
@@ -52,7 +52,7 @@ services:
     volumes:
       - "front_data:/root/srcs"
     networks:
-      - private-net
+      - backend-net
 
   # --------------------------
   backend:
@@ -63,9 +63,16 @@ services:
     volumes:
       - "back_data:/root/srcs"
     networks:
-      - private-net
+      - backend-net
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost:3000"]
+    environment:
+      - DOMAIN=${DOMAIN}
+      - API_UID=${API_UID}
+      - API_SECRET=${API_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
 
   # --------------------------
   database:
@@ -73,7 +80,7 @@ services:
     image: postgres:alpine
     restart: always
     networks:
-      - private-net
+      - backend-net
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -88,4 +95,4 @@ services:
     ports:
       - 8080:8080
     networks:
-      - private-net
+      - backend-net
