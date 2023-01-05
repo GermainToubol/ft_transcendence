@@ -20,18 +20,17 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import('../views/LoginView.vue')
     },
     {
       path: '/callback',
       name: 'callback',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import('../views/CallBackView.vue')
+    },
+    {
+      path: '/login/2fa',
+      name: '2fa',
+      component: () => import('../views/2FAFormView.vue')
     }
   ]
 })

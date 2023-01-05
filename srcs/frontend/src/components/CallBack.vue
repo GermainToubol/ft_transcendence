@@ -20,3 +20,4 @@ export default {
 
 <template>
     <div>Salut!</div>
+  </template>

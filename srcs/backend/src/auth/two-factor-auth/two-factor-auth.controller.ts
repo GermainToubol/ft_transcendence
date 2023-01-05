@@ -47,6 +47,8 @@ export class TwoFactorAuthController {
         @Body('key') key: string,
         @Body('code') code: string,
     ): Promise<any> {
+        console.log(code)
+        console.log(key)
         return this.twoFactorAuthService.verifyCode(key, code, true);
     }
 } 
