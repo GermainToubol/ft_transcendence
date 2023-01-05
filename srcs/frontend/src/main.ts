@@ -13,4 +13,5 @@ app.use(pinia)
 app.use(router)
 
 const jwtstore = useJwtStore();
+app.use(jwtstore);
 app.mount('#app')

@@ -1,3 +1,14 @@
+<script lang="ts">
+import axios from "axios";
+import useJwtStore from "../stores/store";
+
+const jwtstore2 = useJwtStore();
+export default {
+    created() {
+        console.log(jwtstore2.$state.token)
+    }
+}
+</script>
 
 
 <template>
