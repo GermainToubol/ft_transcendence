@@ -71,8 +71,10 @@ services:
       - API_UID=${API_UID}
       - API_SECRET=${API_SECRET}
       - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRESIN=${JWT_EXPIRESIN}
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_NAME=${POSTGRES_USER}
 
   # --------------------------
   database:

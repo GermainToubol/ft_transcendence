@@ -1,9 +1,8 @@
-import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
+import { PassportStrategy } from "@nestjs/passport";
 import { Strategy } from 'passport-oauth2';
+import { AuthService } from '../auth.service';
 import axios from 'axios';
-
-import { AuthService } from './auth.service';
 
 @Injectable()
 export class IntraStrategy extends PassportStrategy(Strategy, 'intra') {
@@ -13,8 +12,8 @@ export class IntraStrategy extends PassportStrategy(Strategy, 'intra') {
             tokenURL: 'https://api.intra.42.fr/oauth/token',
             clientID: process.env.API_UID,
             clientSecret: process.env.API_SECRET,
-            callbackURL: `${process.env.DOMAIN}/auth/intra`,
-            scope: 'public'
+            callbackURL: `${process.env.DOMAIN}/auth/`,
+            scope: 'public',
         });
     }
 
@@ -22,6 +21,7 @@ export class IntraStrategy extends PassportStrategy(Strategy, 'intra') {
         const data = await axios.get('https://api.intra.42.fr/v2/me', {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
-        return this.authService.verifyUser(data['data'].login);
+		return data['data'];
     }
+
 }
