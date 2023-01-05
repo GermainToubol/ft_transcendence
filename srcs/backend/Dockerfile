@@ -13,7 +13,7 @@
 FROM node:alpine AS backend-base
 
 RUN npm i -g @nestjs/cli
-RUN mkdir -p /root/srcs
+RUN mkdir -p /root/srcs /var/front
 
 WORKDIR /root/srcs
 ENTRYPOINT ["sh", "-c", "npm install && npm run start:dev"]

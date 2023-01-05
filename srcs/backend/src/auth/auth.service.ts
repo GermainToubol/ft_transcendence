@@ -29,14 +29,15 @@ export class AuthService {
     /* function used for creating the user if not exist and sign it */
     async login(req: any): Promise<any> {
         try {
-            let user = await this.usersService.findOne(req.user.login);
+            let user = await this.usersService.findOne(req.login);
 			let enable2fa: Boolean;
             if (user && user.is2faEnabled) {
 				enable2fa = true;
             }
             else if (!user) {
 				enable2fa = false;
-                user = await this.usersService.create(req.user);
+                user = await this.usersService.create(req);
+
             }
 			else {
 				enable2fa = false;
