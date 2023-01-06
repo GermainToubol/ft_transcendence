@@ -4,7 +4,7 @@ import { DataSource } from 'typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from './users/user.module';
 import { User } from './users/user.entity';
 import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.module';
 

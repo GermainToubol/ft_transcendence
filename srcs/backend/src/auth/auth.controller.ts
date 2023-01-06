@@ -8,6 +8,8 @@ import {
 import axios from "axios";
 import { AuthService } from "./auth.service";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
+import { ReqUser } from "../users/req-user.decorator";
+import { User } from "../users/user.entity";
 
 @Controller('auth')
 export class AuthController {
@@ -16,7 +18,7 @@ export class AuthController {
     /* Route: OAuth42 
         http://${host}:${port}/auth/
     */
-    @Get()
+    @Get('/login')
     async login(@Query('code') code: string, @Req() req: any) {
         const token: {access_token: string} = await axios.post('https://api.intra.42.fr/oauth/token', {
             grant_type: "authorization_code", client_id: process.env.API_UID,
@@ -30,12 +32,9 @@ export class AuthController {
         return this.authService.login(data).then();
     }
 
-    /* Route: get the user who logged in 
-        http://${host}:${port}/auth/profile
-    */
-    @Get('/profile')
+	@Get('/validate')
     @UseGuards(JwtAuthGuard)
-    getProfile(@Req() req: any): Promise<any> {
-        return req.user;
+    async validate(@ReqUser() user: string): Promise<any> {
+        return user;
     }
 }

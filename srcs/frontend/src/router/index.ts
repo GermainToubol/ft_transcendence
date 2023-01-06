@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import useJwtStore from "../stores/store";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,14 +7,11 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: () => import('../views/HomeView.vue')
     },
     {
       path: '/about',
       name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue')
     },
     {
@@ -31,7 +28,27 @@ const router = createRouter({
       path: '/login/2fa',
       name: '2fa',
       component: () => import('../views/2FAFormView.vue')
-    }
+    },
+	{
+		path: '/2fa/generate',
+		name: 'generate2fa',
+		component: () => import('../views/2FAGenerateView.vue')
+	},
+	{
+		path: '/2fa/enable',
+		name: 'enable2fa',
+		component: () => import('../views/2FAActivateView.vue')
+	},
+	{
+		path: '/avatar',
+		name: 'avatar',
+		component: () => import('../views/AvatarView.vue')
+	},
+	{
+		path: '/pseudo',
+		name: 'pseudo',
+		component: () => import('../views/PseudoView.vue')
+	},
   ]
 })
 

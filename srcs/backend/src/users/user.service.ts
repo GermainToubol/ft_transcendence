@@ -43,6 +43,21 @@ import { User } from './user.entity';
     //   }
     }
 
+	async getPseudo(login: string): Promise<string> {
+		const user = await this.usersRepository.findOneBy({login: login});
+		if (!user) {
+		  return null;
+		}
+		return user.usual_full_name;
+	}
+
+	async setPseudo(user: any, usual_full_name: string) {
+		
+		console.log(user);
+		const res = await this.usersRepository.update(user.id, { usual_full_name: usual_full_name });
+		console.log(res);
+	}
+
     async remove(id: number | string): Promise<any> {
       try {
         return await this.usersRepository.delete(id);

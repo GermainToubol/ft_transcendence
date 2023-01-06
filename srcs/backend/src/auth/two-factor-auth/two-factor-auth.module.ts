@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
-import { UsersModule } from "../../users/users.module";
+import { UsersModule } from "../../users/user.module";
 import { TwoFactorAuthController } from "./two-factor-auth.controller";
 import { TwoFactorAuthService } from "./two-factor-auth.service";
-import { UsersService } from "src/users/users.service";
+import { UsersService } from "src/users/user.service";
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../../users/user.entity';
 import { JwtStrategy } from "../strategies/jwt.strategy";

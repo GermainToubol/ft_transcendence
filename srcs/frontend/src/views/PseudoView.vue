@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import FAForm from '@/components/Auth/2FAForm.vue';
+import Pseudo from '@/components/Pseudo.vue';
 </script>
 
 <template>
   <main>
-    <FAForm />
+    <Pseudo />
   </main>
 </template>

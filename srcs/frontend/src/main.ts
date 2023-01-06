@@ -7,11 +7,10 @@ import router from './router'
 import './assets/main.css'
 import useJwtStore from "./stores/store";
 
-const app = createApp(App)
 const pinia = createPinia();
+const app = createApp(App)
 app.use(pinia)
 app.use(router)
 
 const jwtstore = useJwtStore();
-app.use(jwtstore);
 app.mount('#app')

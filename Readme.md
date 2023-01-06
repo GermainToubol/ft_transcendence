@@ -8,4 +8,4 @@ You need to define the following environment variables to start the project:
 `PGDATA`: recommended: /var/lib/postgresql/data/pgdata
 
 
-curl -X GET http://localhost:3000/2fa/enable -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibG9naW4iOiJqY2Fsb24iLCJlbWFpbCI6ImpjYWxvbkBzdHVkZW50LjQyLmZyIiwidHdvRmEiOnRydWUsImlhdCI6MTY3Mjg1MDU2MywiZXhwIjoxNjcyODU0MTYzfQ.w6pxszx7PlYjxkDs382OtKyrUmrM_bwebIkEVgC6Tik"
+curl -X GET http://localhost:3000/2fa/generate -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibG9naW4iOiJqY2Fsb24iLCJlbWFpbCI6ImpjYWxvbkBzdHVkZW50LjQyLmZyIiwidHdvRmEiOnRydWUsImlhdCI6MTY3Mjg1MDU2MywiZXhwIjoxNjcyODU0MTYzfQ.w6pxszx7PlYjxkDs382OtKyrUmrM_bwebIkEVgC6Tik"

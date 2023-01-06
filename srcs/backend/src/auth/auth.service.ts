@@ -1,6 +1,6 @@
 import { Injectable, ForbiddenException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { UsersService } from "../users/users.service";
+import { UsersService } from "../users/user.service";
 import { User } from "../users/user.entity";
 import { JwtPayload } from "./type/jwt-payload.type";
 import { jwtConstants } from "./constants";
@@ -31,20 +31,21 @@ export class AuthService {
         try {
             let user = await this.usersService.findOne(req.login);
 			let enable2fa: Boolean;
+			let pseudo: string;
             if (user && user.is2faEnabled) {
 				enable2fa = true;
             }
             else if (!user) {
 				enable2fa = false;
-                user = await this.usersService.create(req);
-
+                user = await this.usersService.create(req).then();
             }
 			else {
 				enable2fa = false;
             }
+			pseudo = await this.usersService.getPseudo(user.login).then();
             const payload: JwtPayload = { id: user.id, login: user.login, email: user.email, twoFa: false };
             const token = this.jwtService.sign(payload);
-            return {token: token, enable2fa: enable2fa};
+            return {token: token, enable2fa: enable2fa, pseudo: pseudo};
         } catch (err) {
             throw new ForbiddenException('Forbidden: user cannot log in');
         }

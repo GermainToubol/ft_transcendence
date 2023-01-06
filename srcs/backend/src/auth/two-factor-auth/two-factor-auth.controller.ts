@@ -32,23 +32,18 @@ export class TwoFactorAuthController {
         return this.twoFactorAuthService.generateTwoFactorAuthSecretAndQRCode(user, res);
     }
 
-    @Post('first-verify')
-    @UseGuards(JwtAuthGuard)
-    verifyFirstTime(
-        @ReqUser() user: User,
-        @Body('code') code: string,
-    ): Promise<any> {
-        return this.twoFactorAuthService.verifyCode(user.login, code, false);
-    }
+    // @Post('first-verify')
+    // @UseGuards(JwtAuthGuard)
+    // verifyFirstTime(
+    //     @ReqUser() user: User,
+    //     @Body('code') code: string,
+    // ): Promise<any> {
+    //     return this.twoFactorAuthService.verifyCode(user.login, code, false);
+    // }
 
     @Post('verify')
 	@UseGuards(JwtLoginAuthGuard)
-    verifyLogin(
-        @Body('key') key: string,
-        @Body('code') code: string,
-    ): Promise<any> {
-        console.log(code)
-        console.log(key)
-        return this.twoFactorAuthService.verifyCode(key, code, true);
+    verifyLogin(@ReqUser() user: string, @Body('code') code: string): Promise<any> {
+        return this.twoFactorAuthService.verifyCode(user, code, true);
     }
 } 

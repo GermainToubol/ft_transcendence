@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import * as dotenv from "dotenv";
 import { JwtService } from "@nestjs/jwt";
-import { UsersService } from "../../users/users.service";
+import { UsersService } from "../../users/user.service";
 import { User } from "../../users/user.entity";
 import { JwtPayload } from "../type/jwt-payload.type";
 import { ConfigService } from "@nestjs/config";
@@ -42,8 +42,8 @@ export class TwoFactorAuthService {
         return res.status(200).json(dataUrl);
     }
 
-    async verifyCode (key: string, code: string, bool: boolean): Promise<any> {
-        const user = await this.usersService.findOne(key);
+    async verifyCode (data: any, code: string, bool: boolean): Promise<any> {
+        const user = await this.usersService.findOne(data.login);
         if (!user) {
             throw new NotFoundException('User not found');
         }
@@ -65,9 +65,7 @@ export class TwoFactorAuthService {
             expiresIn: jwtConstants.expire,
         });
         return {
-            token: token,
-            redirect: bool
-        };// redirect to Home page
+            token: token};// redirect to Home page
     }
     //* end
 }

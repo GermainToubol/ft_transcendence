@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import CallBackRedirect from '@/components/CallBack.vue';
+import CallBackRedirect from '@/components/Auth/CallBack.vue';
 </script>
 
 <template>
