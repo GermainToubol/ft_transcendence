@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserDto } from './user.dto';
 import { User } from './user.entity';
 import LocalFilesService from '../localfiles/localFiles.service';
+import { ok } from 'assert';
   
   @Injectable()
   export class UsersService {
@@ -60,10 +61,11 @@ import LocalFilesService from '../localfiles/localFiles.service';
 	}
 
 	async setPseudo(user: any, usual_full_name: string) {
-		
-		console.log(user);
+		const check = await this.usersRepository.findOneBy({usual_full_name: usual_full_name});
+		if (check)
+			return null;
 		const res = await this.usersRepository.update(user.id, { usual_full_name: usual_full_name });
-		console.log(res);
+		return "OK";
 	}
 
 	async addAvatar(user: any, fileData: LocalFileDto) {

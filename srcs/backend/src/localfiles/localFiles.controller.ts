@@ -13,7 +13,6 @@ constructor(
 
 @Get(':id')
 async getDatabaseFileById(@Param('id', ParseIntPipe) id: number, @Res({ passthrough: true }) response: Response) {
-	console.log("TST")
 	const file = await this.localFilesService.getFileById(id);
 
 	const stream = createReadStream(join(file.path));

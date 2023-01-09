@@ -8,13 +8,8 @@ export default {
 	data() {
         return {
 			avatar: "",
-            verified: false,
         }
     },
-	async mounted() {
-		if (await jwtstore.validateToken(jwtstore.$state.token).then((t) => t))
-			this.verified = true;
-	},
 	methods: {
 		uploadFile( event: any ) {
 			this.avatar = event.target.files[0];
@@ -28,9 +23,6 @@ export default {
                         Authorization: `Bearer ${jwtstore.$state.token}`,
                     }
             }).then((t) => t.data);
-			console.log('TST')
-			console.log(avatarId)
-			console.log("TST")
 			jwtstore.setAvatar(`http://localhost:3000/local-files/${avatarId}`);
             router.push('/');
 		}
@@ -39,10 +31,7 @@ export default {
 </script>
 
 <template>
-	<div v-if=!verified>
-		You can't be here
-	</div>
-	<div v-else>
+	<div>
 		<input type="file" @change="uploadFile( $event )">
         <button @click="submitFile">Upload!</button>
 	</div>

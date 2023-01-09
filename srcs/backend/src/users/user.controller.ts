@@ -19,7 +19,7 @@ export class UserController {
 	@Post('setpseudo')
 	@UseGuards(JwtAuthGuard)
 	async setPseudo(@ReqUser() user: any, @Body('pseudo') pseudo: string) {
-		await this.usersService.setPseudo(user, pseudo).then()
+		return await this.usersService.setPseudo(user, pseudo).then()
 	}
 
 	@Post('avatar')
@@ -38,7 +38,6 @@ export class UserController {
 		  }
 	}))
 	async setAvatar(@ReqUser() user: any, @UploadedFile() file: Express.Multer.File) {
-		console.log("TEST")
 		return this.usersService.addAvatar(user, {
 			path: file.path,
 			filename: file.originalname,

@@ -44,9 +44,7 @@ export class AuthService {
 				enable2fa = false;
             }
 			pseudo = await this.usersService.getPseudo(user.login).then();
-			console.log(pseudo)
 			avatar = await this.usersService.getAvatarId(user.login).then();
-			console.log(avatar)
             const payload: JwtPayload = { id: user.id, login: user.login, email: user.email, twoFa: false };
             const token = this.jwtService.sign(payload);
             return {token: token, enable2fa: enable2fa, pseudo: pseudo, avatar: avatar};

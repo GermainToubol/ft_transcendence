@@ -8,36 +8,40 @@ export default {
 	data() {
         return {
 			pseudo: "",
-            verified: false,
+			pseudoOK: true,
         }
     },
-	async mounted() {
-		if (await jwtstore.validateToken(jwtstore.$state.token).then((t) => t))
-			this.verified = true;
-	},
     methods: {
         async SetPseudo() {
-            await axios.post(
+            const ret = await axios.post(
                 "http://localhost:3000/user/setpseudo",
                  {pseudo: this.pseudo},
                 {
                     headers: {
                         Authorization: `Bearer ${jwtstore.$state.token}`,
                     }
-            }).then();
-            jwtstore.setPseudo(this.pseudo);
-            router.push('/');
+            }).then((t) => t.data);
+			if (ret)
+			{
+				jwtstore.setPseudo(this.pseudo);
+				router.push('/');
+			}
+			else
+			{
+				this.pseudoOK = false;
+			}
         }
     }
 }
 </script>
 
 <template>
-	<div v-if=!verified>
-		You can't be here
+	<div v-if="pseudoOK">
+		<input id="pseudo" v-model="pseudo" type="text"/>
+		<button @click="SetPseudo">coucou {{ pseudo }}</button>
 	</div>
 	<div v-else>
 		<input id="pseudo" v-model="pseudo" type="text"/>
-		<button @click="SetPseudo">coucou {{ pseudo }}</button>
+		<button @click="SetPseudo">ALREADY USED BY SOMEONE {{ pseudo }}</button>
 	</div>
 </template>

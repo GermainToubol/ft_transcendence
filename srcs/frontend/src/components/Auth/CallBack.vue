@@ -9,7 +9,6 @@ export default {
         const ret: {token: string, enable2fa: boolean, pseudo: string, avatar: number} = await axios.get(`http://localhost:3000/auth/login?code=${this.$route.query.code}`).then((t) => t.data);
         jwtstore.setToken(ret.token)
 		jwtstore.setPseudo(ret.pseudo)
-		console.log(ret.pseudo)
 		if (ret.avatar != 0)
 			jwtstore.setAvatar(`http://localhost:3000/local-files/${ret.avatar}`)
 		else
