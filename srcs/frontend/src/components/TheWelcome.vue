@@ -36,7 +36,7 @@ export default {
 			<img :src='imgPath'>
 		</div>
 		<div>
-			{{ pseudo }}
+			PSEUDO: {{ pseudo }}
 		</div>
 	</div>
 	<div v-else>LOG TOI</div>

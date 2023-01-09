@@ -22,15 +22,16 @@ export default {
 		async submitFile() {
 			const formData = new FormData();
 			formData.append('file', this.avatar);
-			await axios.post('http://localhost:3000/user/avatar', formData,
+			const avatarId = await axios.post('http://localhost:3000/user/avatar', formData,
 			{
                     headers: {
                         Authorization: `Bearer ${jwtstore.$state.token}`,
                     }
-            }).then((res) => {
-				res.data.files; // binary representation of the file
-				res.status; // HTTP status
-			}).then();
+            }).then((t) => t.data);
+			console.log('TST')
+			console.log(avatarId)
+			console.log("TST")
+			jwtstore.setAvatar(`http://localhost:3000/local-files/${avatarId}`);
             router.push('/');
 		}
 	}

@@ -13,9 +13,10 @@ constructor(
 
 @Get(':id')
 async getDatabaseFileById(@Param('id', ParseIntPipe) id: number, @Res({ passthrough: true }) response: Response) {
+	console.log("TST")
 	const file = await this.localFilesService.getFileById(id);
 
-	const stream = createReadStream(join(process.cwd(), file.path));
+	const stream = createReadStream(join(file.path));
 
 	response.set({
 	'Content-Disposition': `inline; filename="${file.filename}"`,

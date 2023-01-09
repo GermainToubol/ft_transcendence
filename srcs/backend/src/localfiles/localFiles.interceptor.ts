@@ -15,7 +15,7 @@ function LocalFilesInterceptor (options: LocalFilesInterceptorOptions): Type<Nes
   class Interceptor implements NestInterceptor {
     fileInterceptor: NestInterceptor;
     constructor() {
-      const filesDestination = '/root/srcs/src';
+      const filesDestination = '/root/srcs';
 	  // METTRE UNE VARIABLE GLOBALE
  
       const destination = `${filesDestination}${options.path}`

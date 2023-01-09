@@ -49,6 +49,16 @@ import LocalFilesService from '../localfiles/localFiles.service';
 		return user.usual_full_name;
 	}
 
+	async getAvatarId(login: string): Promise<number> {
+		const user = await this.usersRepository.findOneBy({login: login});
+		if (!user) {
+		  return null;
+		}
+		if (user.avatarId == null)
+			return 0;
+		return user.avatarId;
+	}
+
 	async setPseudo(user: any, usual_full_name: string) {
 		
 		console.log(user);
@@ -61,6 +71,7 @@ import LocalFilesService from '../localfiles/localFiles.service';
 		await this.usersRepository.update(user.id, {
 		  avatarId: avatar.id
 		})
+		return (await this.findOne(user.login)).avatarId
 	  }
 
     async remove(id: number | string): Promise<any> {

@@ -8,12 +8,14 @@ import { UsersModule } from './users/user.module';
 import { User } from './users/user.entity';
 import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.module';
 import LocalFile from './localfiles/localFile.entity';
+import { LocalFileModule } from './localfiles/localFiles.module';
 
 @Module({
     imports: [
 		AuthModule,
 		TwoFactorAuthModule,
 		UsersModule,
+		LocalFileModule,
 		TypeOrmModule.forRoot({
 			type: 'postgres',
 			host: 'database.backend-net',
