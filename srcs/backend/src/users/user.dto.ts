@@ -14,7 +14,7 @@ export class UserDto {
     @IsString()
     @IsNotEmpty()
     @IsAlphanumeric()
-    user_name?: string;
+    usual_full_name?: string;
 
     @IsString()
     @IsEmail()

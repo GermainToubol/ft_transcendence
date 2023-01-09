@@ -16,7 +16,16 @@ import { ok } from 'assert';
   
     async create(user: UserDto): Promise<User> {
       try {
-        return await this.usersRepository.save(user);
+        while (true) {
+          console.log(user.usual_full_name)
+          let has_same_name = await this.usersRepository.findOneBy({usual_full_name: user.usual_full_name});
+          if (has_same_name) {
+              user.usual_full_name += '_';
+              continue ;
+          }
+          console.log(user.usual_full_name)
+          return await this.usersRepository.save(user);
+        }
       } catch (err) {
         throw new ForbiddenException(`Forbidden: cannot create user.`);
       }
