@@ -1,3 +1,5 @@
+import { BACK_SERVER } from "./config.ts";
+
 export const server = {
-    baseURL: 'http://localhost:3000'
+    baseURL: BACK_SERVER
 }

@@ -1,7 +1,8 @@
 <script lang="ts">
 import router from "@/router";
 import axios from "axios";
-import useJwtStore from "../stores/store";
+ import useJwtStore from "../stores/store";
+ import { BACK_SERVER } from "../config.ts";
 
 const jwtstore = useJwtStore();
 export default {
@@ -9,12 +10,13 @@ export default {
         return {
 			pseudo: "",
 			pseudoOK: true,
+			back: BACK_SERVER,
         }
     },
     methods: {
         async SetPseudo() {
             const ret = await axios.post(
-                "http://localhost:3000/user/setpseudo",
+                `${this.back}/user/setpseudo`,
                  {pseudo: this.pseudo},
                 {
                     headers: {

@@ -2,6 +2,7 @@
 import router from "@/router";
 import axios from "axios";
 import useJwtStore from "../../stores/store";
+import { BACK_SERVER } from "../../config.ts";
 
 const jwtstore = useJwtStore();
 export default {
@@ -14,7 +15,7 @@ export default {
         async ValidityState() {
             console.log(`TOKEN Gen: ${jwtstore.$state.token}`)
             const test = await axios.get(
-                "http://localhost:3000/2fa/generate",
+                `${BACK_SERVER}/2fa/generate`,
                 {
                     headers: {
                         Authorization: `Bearer ${jwtstore.$state.token}`,

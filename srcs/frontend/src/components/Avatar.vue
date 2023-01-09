@@ -2,6 +2,7 @@
 import router from "@/router";
 import axios from "axios";
 import useJwtStore from "../stores/store";
+import { BACK_SERVER } from "../config.ts";
 
 const jwtstore = useJwtStore();
 export default {
@@ -17,13 +18,13 @@ export default {
 		async submitFile() {
 			const formData = new FormData();
 			formData.append('file', this.avatar);
-			const avatarId = await axios.post('http://localhost:3000/user/avatar', formData,
+			const avatarId = await axios.post(`${BACK_SERVER}/user/avatar`, formData,
 			{
                     headers: {
                         Authorization: `Bearer ${jwtstore.$state.token}`,
                     }
             }).then((t) => t.data);
-			jwtstore.setAvatar(`http://localhost:3000/local-files/${avatarId}`);
+			jwtstore.setAvatar(`${BACK_SERVER}/local-files/${avatarId}`);
             router.push('/');
 		}
 	}

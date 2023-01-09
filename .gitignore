@@ -10,3 +10,4 @@ node_modules
 dist
 public
 avatar
+**/frontend/src/config.ts

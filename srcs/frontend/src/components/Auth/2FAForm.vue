@@ -1,7 +1,8 @@
 <script lang="ts">
 import router from "@/router";
 import axios from "axios";
-import useJwtStore from "../../stores/store";
+ import useJwtStore from "../../stores/store";
+ import { BACK_SERVER } from "../../config.ts";
 
 const jwtstore = useJwtStore();
 export default {
@@ -14,8 +15,8 @@ export default {
         async ValidityState() {
             console.log(`TOKEN Before: ${jwtstore.$state.token}`)
             const test: {token: string} = await axios.post(
-                "http://localhost:3000/2fa/verify",
-                 {code: this.authcode},
+                `${BACK_SERVER}/2fa/verify`,
+                {code: this.authcode},
                 {
                     headers: {
                         Authorization: `Bearer ${jwtstore.$state.token}`,

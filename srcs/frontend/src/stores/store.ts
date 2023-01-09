@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import axios from "axios";
+import { BACK_SERVER } from "../config.ts";
 
 const useJwtStore = defineStore('jwt', {
   state() {
@@ -21,7 +22,7 @@ const useJwtStore = defineStore('jwt', {
 	},
 	async validateToken(token: string): Promise<boolean> {
 		const test = await axios.get(
-			"http://localhost:3000/auth/validate",
+			`${BACK_SERVER}/auth/validate`,
 			{
 				headers: {
 					Authorization: `Bearer ${token}`,
