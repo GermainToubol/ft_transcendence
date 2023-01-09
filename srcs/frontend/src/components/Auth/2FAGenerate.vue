@@ -8,13 +8,8 @@ export default {
     data() {
         return {
             qrcode: "",
-			verified: false,
         }
     },
-	async mounted() {
-		if (await jwtstore.validateToken(jwtstore.$state.token).then((t) => t))
-			this.verified = true;
-	},
     methods: {
         async ValidityState() {
             console.log(`TOKEN Gen: ${jwtstore.$state.token}`)
@@ -32,7 +27,6 @@ export default {
 </script>
 
 <template>
-		<div v-if="!verified">You can't be here</div>
-		<div v-else-if="qrcode">DONT FORGET TO SCAN BEFORE LEAVING THIS PAGE<img v-bind:src="qrcode" /></div>
+		<div v-if="qrcode">DONT FORGET TO SCAN BEFORE LEAVING THIS PAGE<img v-bind:src="qrcode" /></div>
  		<div v-else>Oh no 😢<button @click="ValidityState">coucou</button></div>
 </template>

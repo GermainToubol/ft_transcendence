@@ -19,7 +19,7 @@ export default {
 <template>
 	<div v-if="verified">You are already logged-in</div>
 	<div v-else>
-		<a href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-b4f39a7072067aaad128fceab9acb89eacf241f34949950be3e51384bf81dd0a&redirect_uri=http%3A%2F%2Flocalhost%3A3500%2Fcallback&response_type=code">
+		<a href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-a0180e44fbdd685d1e0f4566d64cd26295af63c2f88a6a356866c14836ac0cf4&redirect_uri=http%3A%2F%2Flocalhost%3A3500%2Fcallback&response_type=code">
 		  <button>Log in with 42</button>
 		</a>
 	</div>

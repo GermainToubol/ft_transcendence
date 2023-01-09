@@ -52,4 +52,25 @@ const router = createRouter({
   ]
 })
 
+async function isAuthenticated() {
+	let jwtStore = useJwtStore();
+	try {
+		if (await jwtStore.validateToken(jwtStore.$state.token).then((t) => t)) {
+			return true;
+		}
+		return false;
+	}
+	catch {
+		return false;
+	}
+}
+
+router.beforeEach(async (to, from) => {
+	if (to.name === 'callback' || to.name === 'login' || to.name === '2fa')
+		return
+	const allowed = await isAuthenticated();
+	if (!allowed)
+		return '/login';
+})
+
 export default router

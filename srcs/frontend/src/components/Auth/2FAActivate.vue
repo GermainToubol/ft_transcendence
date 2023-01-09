@@ -5,15 +5,6 @@ import useJwtStore from "../../stores/store";
 
 const jwtstore = useJwtStore();
 export default {
-	data() {
-        return {
-            verified: false,
-        }
-    },
-	async mounted() {
-		if (await jwtstore.validateToken(jwtstore.$state.token).then((t) => t))
-			this.verified = true;
-	},
     methods: {
         async Enable() {
             const test = await axios.get(
@@ -40,10 +31,7 @@ export default {
 </script>
 
 <template>
-	<div v-if=!verified>
-		You can't be here
-	</div>
-	<div v-else>
+	<div>
         <button @click="Enable">Enable</button>
 		<button @click="Disable">Disable</button>
 	</div>

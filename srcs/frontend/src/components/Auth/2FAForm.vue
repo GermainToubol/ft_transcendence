@@ -8,7 +8,6 @@ export default {
     data() {
         return {
             authcode: "",
-			verified: false,
         }
     },
     methods: {
