@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/user.module';
 import { User } from './users/user.entity';
 import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.module';
+import LocalFile from './localfiles/localFile.entity';
 
 @Module({
     imports: [
@@ -20,7 +21,7 @@ import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.modu
 			username: process.env.DB_USER,
 			password: process.env.DB_PASSWORD,
 			database: process.env.DB_NAME,
-			entities: [User],
+			entities: [User, LocalFile],
 			synchronize: true,
 		}),
 	],

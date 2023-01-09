@@ -10,10 +10,13 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../users/user.entity';
 import { jwtConstants } from './constants';
+import LocalFile from 'src/localfiles/localFile.entity';
+import LocalFilesService from 'src/localfiles/localFiles.service';
 
 @Module({
     imports: [
 		TypeOrmModule.forFeature([User]),
+		TypeOrmModule.forFeature([LocalFile]),
         PassportModule,
 		JwtModule.register({
 			secret: jwtConstants.secret,
@@ -28,6 +31,7 @@ import { jwtConstants } from './constants';
         IntraStrategy,
         UsersService,
         JwtStrategy,
+		LocalFilesService
     ],
 })
 export class AuthModule { }

@@ -1,5 +1,6 @@
 
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, OneToOne } from 'typeorm';
+import LocalFile from '../localfiles/localFile.entity';
 
 @Entity()
 export class User {
@@ -21,8 +22,17 @@ export class User {
 	@Column({ nullable: true })
     twoFactorAuthSecret?: string;
 
-	@Column({ default: null })
-	avatar: string;
+	@JoinColumn({ name: 'avatarId' })
+	@OneToOne(
+	  () => LocalFile,
+	  {
+		nullable: true
+	  }
+	)
+	avatar: LocalFile;
+   
+	@Column({ nullable: true })
+	avatarId: number;
 
 	@Column({ default: true })
 	isActive: boolean;

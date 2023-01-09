@@ -1,18 +1,16 @@
-import {
-    ForbiddenException,
-    Injectable,
-    NotFoundException,
-  } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException, } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserDto } from './user.dto';
 import { User } from './user.entity';
+import LocalFilesService from '../localfiles/localFiles.service';
   
   @Injectable()
   export class UsersService {
     constructor(
       @InjectRepository(User)
       private usersRepository: Repository<User>,
+	  private localFilesService: LocalFilesService
     ) { }
   
     async create(user: UserDto): Promise<User> {
@@ -57,6 +55,13 @@ import { User } from './user.entity';
 		const res = await this.usersRepository.update(user.id, { usual_full_name: usual_full_name });
 		console.log(res);
 	}
+
+	async addAvatar(user: any, fileData: LocalFileDto) {
+		const avatar = await this.localFilesService.saveLocalFileData(fileData);
+		await this.usersRepository.update(user.id, {
+		  avatarId: avatar.id
+		})
+	  }
 
     async remove(id: number | string): Promise<any> {
       try {
