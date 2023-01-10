@@ -9,6 +9,7 @@ import { User } from './users/user.entity';
 import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.module';
 import LocalFile from './localfiles/localFile.entity';
 import { LocalFileModule } from './localfiles/localFiles.module';
+import { GameGateway } from './game/game.gateway';
 
 @Module({
     imports: [
@@ -28,7 +29,7 @@ import { LocalFileModule } from './localfiles/localFiles.module';
 		}),
 	],
     controllers: [AppController],
-    providers: [AppService],
+    providers: [AppService, GameGateway],
 })
 export class AppModule {
 	constructor(private dataSource: DataSource) {}

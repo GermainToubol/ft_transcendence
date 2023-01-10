@@ -13,6 +13,7 @@
 FROM node:alpine AS frontend-base
 
 RUN mkdir -p /root/srcs
+COPY ./config.sh /tmp
 WORKDIR /root/srcs
 
-ENTRYPOINT ["sh", "-c", "npm install && npm run dev"]
+ENTRYPOINT ["sh", "-c", "sh /tmp/config.sh && npm install && npm run dev"]

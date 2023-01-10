@@ -53,6 +53,10 @@ services:
       - "front_data:/root/srcs"
     networks:
       - backend-net
+    environment:
+      - DOMAIN=${DOMAIN}
+      - INTRA_OAUTH=${INTRA_OAUTH}
+
 
   # --------------------------
   backend:
