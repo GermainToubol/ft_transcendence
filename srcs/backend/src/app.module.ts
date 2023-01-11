@@ -9,27 +9,30 @@ import { User } from './users/user.entity';
 import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.module';
 import LocalFile from './localfiles/localFile.entity';
 import { LocalFileModule } from './localfiles/localFiles.module';
+import { ChatterModule } from './chatter/chatter.module';
+import { Chatter } from './chatter/chatter.entity';
 
 @Module({
     imports: [
-		AuthModule,
-		TwoFactorAuthModule,
-		UsersModule,
-		LocalFileModule,
-		TypeOrmModule.forRoot({
-			type: 'postgres',
-			host: 'database.backend-net',
-			port: 5432,
-			username: process.env.DB_USER,
-			password: process.env.DB_PASSWORD,
-			database: process.env.DB_NAME,
-			entities: [User, LocalFile],
-			synchronize: true,
-		}),
-	],
+        AuthModule,
+        TwoFactorAuthModule,
+        UsersModule,
+        LocalFileModule,
+        TypeOrmModule.forRoot({
+            type: 'postgres',
+            host: 'database.backend-net',
+            port: 5432,
+            username: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME,
+            entities: [User, LocalFile, Chatter],
+            synchronize: true,
+        }),
+        ChatterModule,
+    ],
     controllers: [AppController],
     providers: [AppService],
 })
 export class AppModule {
-	constructor(private dataSource: DataSource) {}
+    constructor(private dataSource: DataSource) { }
 }
