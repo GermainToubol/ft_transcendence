@@ -85,7 +85,7 @@ export class Paddle {
 	}
 
 	public up(bounds: boundsInterface) {
-		this._y -= 5; // valeur a tester, 5 au pif
+		this._y -= 5; // valeur a tester
 		if (this._y < bounds.upper) {
 			this._y = bounds.upper;
 		}

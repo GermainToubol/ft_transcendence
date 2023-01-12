@@ -24,9 +24,31 @@ export class GameGateway
 		await this.gameService.handleDisonnectedUser(client, this.wss);
 	}
 
-	@SubscribeMessage('message')
-	handleMessage(client: Socket): string {
-		return 'Hello world!';
+	@SubscribeMessage('KeyUp')
+	handleKeyUp(client: Socket) {
+		if (client.data.playground) {
+			this.gameService.handleKeyUp(client);
+		}
 	}
-	// Add subscribe message with all keypress(up, down, unpress) and one for y contact between ball and paddle
+
+	@SubscribeMessage('KeyUpUnpressed')
+	handleKeyUpUnpressed(client: Socket) {
+		if (client.data.playground) {
+			this.gameService.handleKeyUpUnpressed(client);
+		}
+	}
+
+	@SubscribeMessage('KeyDown')
+	handleKeyDown(client: Socket) {
+		if (client.data.playground) {
+			this.gameService.handleKeyDown(client);
+		}
+	}
+
+	@SubscribeMessage('KeyDownUnpressed')
+	handleKeyDownUnpressed(client: Socket) {
+		if (client.data.playground) {
+			this.gameService.handleKeyDownUnpressed(client);
+		}
+	}
 }

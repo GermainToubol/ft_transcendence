@@ -10,6 +10,11 @@ import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.modu
 import LocalFile from './localfiles/localFile.entity';
 import { LocalFileModule } from './localfiles/localFiles.module';
 import { GameGateway } from './game/game.gateway';
+import { GameModule } from './game/game.module';
+import { GameService } from './game/game.service';
+import { LobbyService } from './game/lobby.service';
+import { UsersService } from './users/user.service';
+import { Room } from './game/room.entity';
 
 @Module({
     imports: [
@@ -17,6 +22,7 @@ import { GameGateway } from './game/game.gateway';
 		TwoFactorAuthModule,
 		UsersModule,
 		LocalFileModule,
+		GameModule,
 		TypeOrmModule.forRoot({
 			type: 'postgres',
 			host: 'database.backend-net',
@@ -24,13 +30,12 @@ import { GameGateway } from './game/game.gateway';
 			username: process.env.DB_USER,
 			password: process.env.DB_PASSWORD,
 			database: process.env.DB_NAME,
-			entities: [User, LocalFile],
+			entities: [User, LocalFile, Room],
 			synchronize: true,
 		}),
 	],
-    controllers: [AppController],
-    providers: [AppService, GameGateway],
+    controllers: [],
+    providers: [],
 })
 export class AppModule {
-	constructor(private dataSource: DataSource) {}
 }

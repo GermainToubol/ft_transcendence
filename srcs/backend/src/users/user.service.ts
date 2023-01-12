@@ -1,17 +1,20 @@
-import { ForbiddenException, Injectable, NotFoundException, } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException, } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserDto } from './user.dto';
 import { User } from './user.entity';
 import LocalFilesService from '../localfiles/localFiles.service';
 import { ok } from 'assert';
+import { JwtService } from '@nestjs/jwt';
+import { UserStatus } from './user_status.enum';
   
   @Injectable()
   export class UsersService {
     constructor(
       @InjectRepository(User)
       private usersRepository: Repository<User>,
-	  private localFilesService: LocalFilesService
+	  private localFilesService: LocalFilesService,
+	  private jwtService: JwtService,
     ) { }
   
     async create(user: UserDto): Promise<User> {
@@ -51,6 +54,17 @@ import { ok } from 'assert';
     //   }
     }
 
+	async checkToken(token:string): Promise<User> {
+		try {
+			const check = await this.jwtService.verify(token.toString());
+			if (typeof check === 'object' && 'id' in check)
+				return check;
+			throw new UnauthorizedException();
+		} catch(error) {
+			throw new UnauthorizedException('Token expired');
+		}
+	}
+
 	async getPseudo(login: string): Promise<string> {
 		const user = await this.usersRepository.findOneBy({login: login});
 		if (!user) {
@@ -77,6 +91,14 @@ import { ok } from 'assert';
 		return "OK";
 	}
 
+	async updateStatus(login: string, status: UserStatus): Promise<User> {
+		const updated = await this.findOne(login);
+		if (updated) {
+			await this.usersRepository.update(updated.id, { status: status });
+		}
+		return updated;
+	}
+
 	async addAvatar(user: any, fileData: LocalFileDto) {
 		const avatar = await this.localFilesService.saveLocalFileData(fileData);
 		await this.usersRepository.update(user.id, {
@@ -93,8 +115,7 @@ import { ok } from 'assert';
         throw new NotFoundException('User not found.');
       }
     }
-  
-  
+
     //* two factor authentication
     async turnOnOffTwoFactorAuth(id: number, bool: boolean): Promise<User> {
       try {
