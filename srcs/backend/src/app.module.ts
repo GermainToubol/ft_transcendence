@@ -11,6 +11,7 @@ import LocalFile from './localfiles/localFile.entity';
 import { LocalFileModule } from './localfiles/localFiles.module';
 import { ChatterModule } from './chatter/chatter.module';
 import { Chatter } from './chatter/chatter.entity';
+import { ChannelModule } from './channel/channel.module';
 
 @Module({
     imports: [
@@ -29,6 +30,7 @@ import { Chatter } from './chatter/chatter.entity';
             synchronize: true,
         }),
         ChatterModule,
+        ChannelModule,
     ],
     controllers: [AppController],
     providers: [AppService],
