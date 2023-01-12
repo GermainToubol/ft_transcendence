@@ -38,13 +38,6 @@ export class User {
     @Column({ default: true })
     isActive: boolean;
 
-    @JoinColumn({ name: 'chatterId' })
-    @OneToOne(() => Chatter, { nullable: true })
-    chatter: Chatter;
-
-    @Column({ nullable: true })
-    chatterId: number;
-
     // @ManyToMany() friends
     // dg sdg(( sdfg)) sdfg
 }
