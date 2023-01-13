@@ -1,8 +1,8 @@
-import { Chatter } from 'src/chatter/chatter.entity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Chatter } from '../chatter/chatter.entity';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity()
-export class Channel {
+export class ChannelEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -12,11 +12,18 @@ export class Channel {
     @Column({ nullable: true })
     password: string;
 
+    @ManyToOne(() => Chatter, (chatter) => chatter.ownedChannels)
     owner: Chatter;
 
+    @ManyToMany(() => Chatter)
+    @JoinTable()
     admins: Chatter[];
 
+    @ManyToMany(() => Chatter)
+    @JoinTable()
     bannedChatters: Chatter[];
 
+    @ManyToMany(() => Chatter)
+    @JoinTable()
     mutedChatters: Chatter[];
 }

@@ -1,4 +1,5 @@
-import { Entity, ManyToMany, PrimaryGeneratedColumn, JoinTable } from "typeorm";
+import { ChannelEntity } from "../channel/channel.entity";
+import { Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, JoinTable } from "typeorm";
 
 @Entity()
 export class Chatter {
@@ -8,4 +9,7 @@ export class Chatter {
     @ManyToMany(() => Chatter)
     @JoinTable()
     blocks: Chatter[];
+
+    @OneToMany(() => ChannelEntity, (channel) => channel.owner)
+    ownedChannels: ChannelEntity[];
 }

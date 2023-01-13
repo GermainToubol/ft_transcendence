@@ -31,10 +31,11 @@ export class ChatterService {
     }
 
     async unblockChatter(chatter: Chatter, toBlock: Chatter) {
+        const index: number = chatter.blocks.findIndex((user) => user.id === toBlock.id);
         if (chatter.id === toBlock.id
-            || chatter.blocks.findIndex((user) => user.id === toBlock.id) === -1)
+            || index === -1)
             return;
-        chatter.blocks = chatter.blocks.filter((chatter) => chatter.id != toBlock.id);
+        chatter.blocks.splice(index, 1);
         await this.chatterRepository.manager.save(chatter)
     }
 }
