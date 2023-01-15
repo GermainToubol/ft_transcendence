@@ -35,6 +35,9 @@ re: fclean all
 connect:
 		docker compose -f $(CONF) exec -it backend sh || exit 0
 
+connectfront:
+		docker compose -f $(CONF) exec -it frontend sh || exit 0
+
 
 status:
 		docker compose -f $(CONF) ps

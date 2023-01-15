@@ -10,7 +10,7 @@ import { LobbyService } from "./lobby.service";
 @Injectable()
 export class GameService {
 	readonly logger = new Logger('Game Service: ');
-	readonly playground = new Playground(0, 0, 1000, 600, '#000000', 9, '', '');
+	readonly playground = new Playground(0, 0, 1000, 600, '#ffffff', 9, '', '');
 
 	constructor(
 		private lobbyService: LobbyService,
@@ -40,13 +40,14 @@ export class GameService {
 			return;
 		}
 		client.data.user = user;
+		console.log(user.status)
 		if (user && user.status === UserStatus.PLAYING) {
 			client.emit('alreadyInGame', {
 			  player: user.usual_full_name,
 			  message: 'You Are Already in a Game',
 			});
 		  }
-		  else if (user && user.status === UserStatus.ONLINE) {
+		  else if (user && user.status === UserStatus.OFFLINE) {
 			try {
 			  await this.usersService.updateStatus(user.login, UserStatus.PLAYING);
 			} catch (err) {
@@ -87,7 +88,7 @@ export class GameService {
 			roomname, player1: first.data.user.usual_full_name as string, player2: second.data.user.usual_full_name as string
 		});
 
-		const playground = new Playground(0, 0, 1000, 600, '#000000', 9, first.data.user.username, second.data.user.username);
+		const playground = new Playground(0, 0, 1000, 600, '#ffffff', 9, first.data.user.username, second.data.user.username);
 		first.data.playground = playground;
 		second.data.playground = playground;
 		this.logger.log('Starting Game in Room: ' + roomname + ' between: ' + first.data.user.username + ' & '+ second.data.user.username);

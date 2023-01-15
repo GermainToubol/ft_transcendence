@@ -31,6 +31,7 @@ export default {
 			<RouterLink to="/2fa/enable">2fa Activate</RouterLink>
 			<RouterLink to="/avatar">Set avatar</RouterLink>
 			<RouterLink to="/pseudo">Change pseudo</RouterLink>
+      <RouterLink to="/game">Game</RouterLink>
 		</nav>
 		<div>
 			<img :src='imgPath'>

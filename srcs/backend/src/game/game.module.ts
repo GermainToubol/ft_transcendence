@@ -8,15 +8,14 @@ import { GameService } from "./game.service";
 import { LobbyService } from "./lobby.service";
 import { UsersService } from "src/users/user.service";
 import { User } from "src/users/user.entity";
-import LocalFilesService from "src/localfiles/localFiles.service";
 import { JwtService } from "@nestjs/jwt";
 import LocalFile from "src/localfiles/localFile.entity";
-
+import LocalFilesService from "src/localfiles/localFiles.service";
 
 @Module({
 	imports: [TypeOrmModule.forFeature([Room, User, LocalFile]), AuthModule],
 	controllers: [GameController],
-	providers: [GameGateway, LobbyService, GameService, UsersService, LocalFilesService, JwtService],
+	providers: [GameGateway, LobbyService, GameService, UsersService, JwtService, LocalFilesService],
 })
 
 export class GameModule {}

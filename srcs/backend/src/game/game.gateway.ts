@@ -2,7 +2,7 @@ import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGa
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
 
-@WebSocketGateway({namespace: '/match', cors: true, path: '/game/match'})
+@WebSocketGateway({cors: true, path: '/game'})
 export class GameGateway 
 	implements OnGatewayConnection, OnGatewayDisconnect {
 
@@ -26,6 +26,7 @@ export class GameGateway
 
 	@SubscribeMessage('KeyUp')
 	handleKeyUp(client: Socket) {
+		console.log("UP")
 		if (client.data.playground) {
 			this.gameService.handleKeyUp(client);
 		}

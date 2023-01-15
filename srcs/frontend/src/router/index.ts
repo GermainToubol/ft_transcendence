@@ -49,6 +49,11 @@ const router = createRouter({
 		name: 'pseudo',
 		component: () => import('../views/PseudoView.vue')
 	},
+	{
+		path: '/game',
+		name: 'game',
+		component: () => import('../views/Game.vue')
+	},
   ]
 })
 

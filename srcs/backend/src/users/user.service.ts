@@ -20,13 +20,11 @@ import { UserStatus } from './user_status.enum';
     async create(user: UserDto): Promise<User> {
       try {
         while (true) {
-          console.log(user.usual_full_name)
           let has_same_name = await this.usersRepository.findOneBy({usual_full_name: user.usual_full_name});
           if (has_same_name) {
               user.usual_full_name += '_';
               continue ;
           }
-          console.log(user.usual_full_name)
           return await this.usersRepository.save(user);
         }
       } catch (err) {
@@ -56,9 +54,9 @@ import { UserStatus } from './user_status.enum';
 
 	async checkToken(token:string): Promise<User> {
 		try {
-			const check = await this.jwtService.verify(token.toString());
+			const check = await this.jwtService.verify(token, {publicKey: process.env.JWT_SECRET});
 			if (typeof check === 'object' && 'id' in check)
-				return check;
+				return await this.usersRepository.findOneBy({id: check.id});
 			throw new UnauthorizedException();
 		} catch(error) {
 			throw new UnauthorizedException('Token expired');
