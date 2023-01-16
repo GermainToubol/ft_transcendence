@@ -9,6 +9,7 @@ import { User } from './users/user.entity';
 import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.module';
 import LocalFile from './localfiles/localFile.entity';
 import { LocalFileModule } from './localfiles/localFiles.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
     imports: [
@@ -26,6 +27,7 @@ import { LocalFileModule } from './localfiles/localFiles.module';
 			entities: [User, LocalFile],
 			synchronize: true,
 		}),
+		ChatModule,
 	],
     controllers: [AppController],
     providers: [AppService],
