@@ -1,7 +1,6 @@
 <script lang="ts">
 import useJwtStore from "../../stores/store";
-import { RouterLink, RouterView } from 'vue-router';
-import { INTRA_PATH } from "../../config.ts";
+import { INTRA_PATH } from "../../config";
 
 const jwtstore = useJwtStore();
 export default {
@@ -12,7 +11,7 @@ export default {
         }
     },
 	async mounted() {
-		if (await jwtstore.validateToken(jwtstore.$state.token).then((t) => t))
+		if (await jwtstore.validateToken(localStorage.token).then((t) => t))
 			this.verified = true;
 	},
 };

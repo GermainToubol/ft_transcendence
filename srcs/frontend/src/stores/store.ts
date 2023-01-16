@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import axios from "axios";
-import { BACK_SERVER } from "../config.ts";
+import { BACK_SERVER } from "../config";
 
 const useJwtStore = defineStore('jwt', {
   state() {
@@ -29,7 +29,19 @@ const useJwtStore = defineStore('jwt', {
 				}
 		}).then((t) => t.data);
 		if (!test)
+		{
+			localStorage.token = ''
 			return false;
+		}
+		if (this.token == '' && this.pseudo == '' && this.avatar == '')
+		{
+			this.token = token;
+			this.pseudo = test.usual_full_name;
+			if (test.avatarId != null)
+				this.avatar = `${BACK_SERVER}/local-files/${test.avatarId}`
+			else
+				this.avatar = "src/avatar/default.jpg"
+		}
 		return true;
 	  },
   },

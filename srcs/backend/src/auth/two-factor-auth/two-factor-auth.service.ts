@@ -13,6 +13,7 @@ import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
 import { Response } from "express";
 import { jwtConstants } from "../constants";
+import { UserStatus } from "src/users/user_status.enum";
 
 dotenv.config();
 @Injectable()
@@ -64,8 +65,8 @@ export class TwoFactorAuthService {
             secret: jwtConstants.secret,
             expiresIn: jwtConstants.expire,
         });
-        return {
-            token: token};// redirect to Home page
+		await this.usersService.updateStatus(user.login, UserStatus.ONLINE);
+        return { token: token };// redirect to Home page
     }
     //* end
 }

@@ -74,7 +74,7 @@ import { UserStatus } from './user_status.enum';
 	async getAvatarId(login: string): Promise<number> {
 		const user = await this.usersRepository.findOneBy({login: login});
 		if (!user) {
-		  return null;
+		  return 0;
 		}
 		if (user.avatarId == null)
 			return 0;

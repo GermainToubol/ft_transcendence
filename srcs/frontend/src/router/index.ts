@@ -54,13 +54,18 @@ const router = createRouter({
 		name: 'game',
 		component: () => import('../views/Game.vue')
 	},
+	{
+		path: '/logout',
+		name: 'logout',
+		component: () => import('../components/Auth/Logout.vue')
+	},
   ]
 })
 
 async function isAuthenticated() {
 	let jwtStore = useJwtStore();
 	try {
-		if (await jwtStore.validateToken(jwtStore.$state.token).then((t) => t)) {
+		if (await jwtStore.validateToken(localStorage.token).then((t) => t)) {
 			return true;
 		}
 		return false;

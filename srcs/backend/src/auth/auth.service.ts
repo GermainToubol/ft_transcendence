@@ -4,6 +4,7 @@ import { UsersService } from "../users/user.service";
 import { User } from "../users/user.entity";
 import { JwtPayload } from "./type/jwt-payload.type";
 import { jwtConstants } from "./constants";
+import { UserStatus } from "src/users/user_status.enum";
 
 @Injectable()
 export class AuthService {
@@ -39,9 +40,11 @@ export class AuthService {
             else if (!user) {
 				enable2fa = false;
                 user = await this.usersService.create(req).then();
+				await this.usersService.updateStatus(user.login, UserStatus.ONLINE)
             }
 			else {
 				enable2fa = false;
+				await this.usersService.updateStatus(user.login, UserStatus.ONLINE)
             }
 			pseudo = await this.usersService.getPseudo(user.login).then();
 			avatar = await this.usersService.getAvatarId(user.login).then();
@@ -53,7 +56,11 @@ export class AuthService {
         }
     }
 
-    getUserFromToken = async (token: string): Promise<User> => {
+	async logout(user: User): Promise<any> {
+		await this.usersService.updateStatus(user.login, UserStatus.OFFLINE);
+	}
+
+    async getUserFromToken(token: string): Promise<User> {
         try {
             const payload: JwtPayload = this.jwtService.verify(token, {
                 secret: jwtConstants.secret,

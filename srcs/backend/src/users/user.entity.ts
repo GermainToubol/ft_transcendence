@@ -31,7 +31,7 @@ export class User {
 	  }
 	)
 	avatar: LocalFile;
-   
+
 	@Column({ nullable: true })
 	avatarId: number;
 
