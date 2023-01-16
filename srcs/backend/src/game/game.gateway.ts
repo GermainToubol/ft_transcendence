@@ -6,7 +6,7 @@ import { GameService } from './game.service';
 export class GameGateway 
 	implements OnGatewayConnection, OnGatewayDisconnect {
 
-	@WebSocketServer() wss: Server;
+	@WebSocketServer() server: Server;
 	private players: Socket[];
 
 	constructor(private gameService: GameService) {
@@ -14,14 +14,14 @@ export class GameGateway
 	}
 
 	async handleConnection(client: Socket) {
-		await this.gameService.handleConnectedUser(client, this.players, this.wss);
+		await this.gameService.handleConnectedUser(client, this.players, this.server);
 	}
 
 	async handleDisconnect(client: Socket) {
 		this.players = this.players.filter((client2) => {
 			return client2.id != client.id;
 		});
-		await this.gameService.handleDisonnectedUser(client, this.wss);
+		await this.gameService.handleDisonnectedUser(client, this.server);
 	}
 
 	@SubscribeMessage('KeyUp')

@@ -19,7 +19,7 @@ export class Ball {
 	) {
 		this._x = x;
 		this._y = y;
-		this._speed = 6;
+		this._speed = 4;
 		this._color = color;
 		this._radius = radius;
 		this._speedX = 5;
@@ -90,7 +90,7 @@ export class Ball {
 		this._y += this._speedY;
 
 		if (this._y + this._radius > playgroundHeight || this._y - this._radius < 0) {
-			this._speedY -= this._speedY;
+			this._speedY *= -1;
 		}
 
 		const player = this._x + this._radius < playgroundWidth / 2 ? leftPaddle : rightPaddle;

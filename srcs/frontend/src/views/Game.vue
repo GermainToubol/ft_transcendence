@@ -4,29 +4,30 @@ import { io, Socket } from 'socket.io-client';
 import Draw from '../Draw';
 import type { playGroundInterface } from '../interfaces/playground.interface';
 import useJwtStore from '@/stores/store';
+import { BACK_SERVER } from '@/config';
 
 const jwtstore = useJwtStore();
 let socket = ref(null as unknown);
 let game = ref({} as HTMLCanvasElement);
 let context = ref({} as CanvasRenderingContext2D);
-let playground = ref(null as playGroundInterface);
+let playground = ref(null as unknown);
 let message = ref('' as String);
 
 onMounted(() => {
-    socket.value = io('http://localhost:3000/', {
+    socket.value = io(BACK_SERVER, {
         path: '/game/',
         query: {
             'accessToken': jwtstore.$state.token,
             'role': 'player',
         },
     });
-    console.log("TEST")
     if (game && game.value) {
         context.value = game.value.getContext("2d");
-        console.log('ICI')
         drawWaiting();
         
         drawGame();
+
+		
         
         window.addEventListener('resize', () => {
             game.value.width = game.value.offsetWidth;
@@ -85,10 +86,16 @@ function drawWaiting() {
     });
 }
 
+function msg() {
+	(socket.value as Socket).on('msg', (data) => {
+	console.log(data)
+    });
+}
+
 function drawGame() {
-    (socket.value as Socket).on("updatePlayground", (data) => {
+    (socket.value as Socket).on('updatePlayground', (data) => {
+	console.log('GAME')
     playground.value = data.playground;
-    console.log('GAME')
     if (playground.value != null) {
             game.value.width = game.value.offsetWidth;
             game.value.height = game.value.width * 0.6;

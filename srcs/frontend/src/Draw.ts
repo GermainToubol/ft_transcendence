@@ -58,7 +58,6 @@ export default {
   ) {
     this.clearContext(context, pgWidth, pgHeight);
     this.drawPlayground(context, pgWidth, pgHeight, playground.color);
-    console.log('SALUT')
     this.drawText(
       context,
       playground.score.playerOneScore.toString(),

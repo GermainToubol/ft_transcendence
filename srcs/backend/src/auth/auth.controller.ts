@@ -24,7 +24,7 @@ export class AuthController {
             grant_type: "authorization_code", client_id: process.env.API_UID,
             client_secret: process.env.API_SECRET,
             code: code,
-            redirect_uri: 'http://localhost:3500/callback',
+            redirect_uri: process.env.FRONT_DOMAIN +'/callback',
             }).then((t) => t.data);
         const data: {data: any} = await axios.get('https://api.intra.42.fr/v2/me', {
                 headers: { Authorization: `Bearer ${token.access_token}` },
