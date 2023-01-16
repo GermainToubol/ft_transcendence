@@ -10,6 +10,7 @@ import { GameModule } from './game/game.module';
 import { Room } from './game/room.entity';
 import { GameHistory } from './history/history.entity';
 import { GameHistoryModule } from './history/history.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
     imports: [
@@ -29,6 +30,7 @@ import { GameHistoryModule } from './history/history.module';
 			entities: [User, LocalFile, Room, GameHistory],
 			synchronize: true,
 		}),
+		ChatModule,
 	],
     controllers: [],
     providers: [],
