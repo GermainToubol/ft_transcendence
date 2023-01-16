@@ -66,6 +66,7 @@ services:
       test: ["CMD", "nc", "-z", "localhost:3000"]
     environment:
       - DOMAIN=${DOMAIN}
+      - FRONT_DOMAIN=${FRONT_DOMAIN}
       - API_UID=${API_UID}
       - API_SECRET=${API_SECRET}
       - JWT_SECRET=${JWT_SECRET}
