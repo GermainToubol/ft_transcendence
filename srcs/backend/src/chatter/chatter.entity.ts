@@ -1,5 +1,6 @@
 import { ChannelEntity } from "../channel/channel.entity";
 import { Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, JoinTable } from "typeorm";
+import { Message } from "src/chat/message.entity";
 
 @Entity()
 export class Chatter {
@@ -12,4 +13,7 @@ export class Chatter {
 
     @OneToMany(() => ChannelEntity, (channel) => channel.owner)
     ownedChannels: ChannelEntity[];
+
+    @OneToMany(() => Message, (msg) => msg.author)
+    messages: Message[];
 }

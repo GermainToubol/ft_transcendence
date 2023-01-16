@@ -13,6 +13,8 @@ import { ChatterModule } from './chatter/chatter.module';
 import { Chatter } from './chatter/chatter.entity';
 import { ChannelModule } from './channel/channel.module';
 import { ChannelEntity } from './channel/channel.entity';
+import { ChatModule } from './chat/chat.module';
+import { Message } from './chat/message.entity';
 
 @Module({
     imports: [
@@ -27,11 +29,12 @@ import { ChannelEntity } from './channel/channel.entity';
             username: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_NAME,
-            entities: [User, LocalFile, Chatter, ChannelEntity],
+            entities: [User, LocalFile, Chatter, ChannelEntity, Message],
             synchronize: true,
         }),
         ChatterModule,
         ChannelModule,
+        ChatModule,
     ],
     controllers: [AppController],
     providers: [AppService],

@@ -1,5 +1,14 @@
 import { Chatter } from '../chatter/chatter.entity';
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import {
+    Column,
+    Entity,
+    JoinTable,
+    ManyToMany,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    OneToMany
+} from 'typeorm'
+import { Message } from '../chat/message.entity';
 
 @Entity()
 export class ChannelEntity {
@@ -26,4 +35,7 @@ export class ChannelEntity {
     @ManyToMany(() => Chatter)
     @JoinTable()
     mutedChatters: Chatter[];
+
+    @OneToMany(() => Message, (message) => message.channel)
+    messages: Message[];
 }
