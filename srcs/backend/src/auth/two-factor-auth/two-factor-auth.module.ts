@@ -13,16 +13,26 @@ import { JwtLoginStrategy } from "../strategies/jwtlogin.strategy";
 import { ConfigService } from "@nestjs/config";
 import LocalFilesService from "src/localfiles/localFiles.service";
 import LocalFile from "src/localfiles/localFile.entity";
+import { ChatterModule } from "src/chatter/chatter.module";
 
 @Module({
     imports: [
         JwtModule.register({}),
         UsersModule,
-		AuthModule,
-        TypeOrmModule.forFeature([User]),
-		TypeOrmModule.forFeature([LocalFile]),
+        AuthModule,
+        ChatterModule,
+        TypeOrmModule.forFeature([
+            User,
+            LocalFile]),
     ],
     controllers: [TwoFactorAuthController],
-    providers: [TwoFactorAuthService, UsersService, JwtStrategy, JwtLoginStrategy, AuthService, ConfigService, LocalFilesService],
+    providers: [
+        TwoFactorAuthService,
+        UsersService,
+        JwtStrategy,
+        JwtLoginStrategy,
+        AuthService,
+        ConfigService,
+        LocalFilesService],
 })
 export class TwoFactorAuthModule { }

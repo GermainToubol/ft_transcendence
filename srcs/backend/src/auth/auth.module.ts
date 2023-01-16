@@ -12,26 +12,29 @@ import { User } from '../users/user.entity';
 import { jwtConstants } from './constants';
 import LocalFile from 'src/localfiles/localFile.entity';
 import LocalFilesService from 'src/localfiles/localFiles.service';
+import { Chatter } from 'src/chatter/chatter.entity';
+import { ChatterService } from 'src/chatter/chatter.service';
 
 @Module({
     imports: [
-		TypeOrmModule.forFeature([User]),
-		TypeOrmModule.forFeature([LocalFile]),
+        TypeOrmModule.forFeature([User, LocalFile, Chatter]),
         PassportModule,
-		JwtModule.register({
-			secret: jwtConstants.secret,
-			signOptions: { expiresIn: jwtConstants.expire }, }),
-		UsersModule,
+        JwtModule.register({
+            secret: jwtConstants.secret,
+            signOptions: { expiresIn: jwtConstants.expire },
+        }),
+        UsersModule,
     ],
     controllers: [
-		AuthController,
-	],
+        AuthController,
+    ],
     providers: [
         AuthService,
         IntraStrategy,
         UsersService,
         JwtStrategy,
-		LocalFilesService
+        LocalFilesService,
+        ChatterService
     ],
 })
 export class AuthModule { }

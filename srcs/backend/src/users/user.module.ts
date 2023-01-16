@@ -6,10 +6,20 @@ import { UserController } from './user.controller';
 import LocalFilesService from 'src/localfiles/localFiles.service';
 import LocalFile from 'src/localfiles/localFile.entity';
 import { Chatter } from '../chatter/chatter.entity';
+import { ChatterService } from '../chatter/chatter.service';
+import { ChatterModule } from 'src/chatter/chatter.module';
 
 @Module({
-    providers: [UsersService, LocalFilesService],
-    imports: [TypeOrmModule.forFeature([User, LocalFile, Chatter])],
+    providers: [
+        UsersService,
+        LocalFilesService,
+        ChatterService],
+    imports: [
+        TypeOrmModule.forFeature([
+            User,
+            LocalFile,
+            Chatter]),
+    ],
     controllers: [
         UserController,
     ],

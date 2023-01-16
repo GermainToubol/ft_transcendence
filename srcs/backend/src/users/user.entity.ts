@@ -38,6 +38,7 @@ export class User {
     @Column({ default: true })
     isActive: boolean;
 
-    // @ManyToMany() friends
-    // dg sdg(( sdfg)) sdfg
+    @JoinColumn()
+    @OneToOne(() => Chatter)
+    chatter: Chatter;
 }

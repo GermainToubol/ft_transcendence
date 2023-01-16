@@ -9,6 +9,7 @@ import { ChannelEntity } from 'src/channel/channel.entity';
     imports: [TypeOrmModule.forFeature([Chatter, ChannelEntity])],
     providers: [ChatterService],
     controllers: [ChatterController],
+    exports: [ChatterService]
 })
 
 export class ChatterModule { }
