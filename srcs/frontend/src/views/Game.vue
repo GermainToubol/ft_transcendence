@@ -2,7 +2,6 @@
 import { onMounted, onUnmounted, ref } from 'vue';
 import { io, Socket } from 'socket.io-client';
 import Draw from '../Draw';
-import type { playGroundInterface } from '../interfaces/playground.interface';
 import useJwtStore from '@/stores/store';
 import { BACK_SERVER } from '@/config';
 

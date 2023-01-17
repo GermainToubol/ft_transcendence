@@ -46,7 +46,7 @@ export class GameService {
 			  message: 'You Are Already in a Game',
 			});
 		  }
-		  else if (user && user.status === UserStatus.OFFLINE) {
+		  else if (user && user.status === UserStatus.ONLINE) {
 			// try {
 			//   await this.usersService.updateStatus(user.login, UserStatus.PLAYING);
 			// } catch (err) {
@@ -101,7 +101,6 @@ export class GameService {
 				console.log('START')
 				const pgi = this.getPlayground(playground);
 				server.to(roomname).emit('updatePlayground', { name: roomname, playground: pgi });
-				//server.to(roomname).emit('updatePlayGround', { name: roomname, playground: pgi });
 			} //else {
 			// 	this.endGame(first, second, playground, server);
 			// }

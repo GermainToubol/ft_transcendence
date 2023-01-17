@@ -13,7 +13,6 @@ export class AuthService {
         private jwtService: JwtService,
     ) { }
 
-    /* an async function  used for validate the user if exist in database */
     async validateUser(payload: JwtPayload): Promise<User> {
         const login = payload.login;
         try {
@@ -21,13 +20,14 @@ export class AuthService {
             if (!user) {
                 return null;
             }
+			if (user.status == UserStatus.OFFLINE)
+				await this.usersService.updateStatus(user.login, UserStatus.ONLINE)
             return user;
         } catch {
             return null;
         }
     }
 
-    /* function used for creating the user if not exist and sign it */
     async login(req: any): Promise<any> {
         try {
             let user = await this.usersService.findOne(req.login);

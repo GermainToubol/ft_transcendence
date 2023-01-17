@@ -1,5 +1,23 @@
-<script setup lang="ts">
+<script lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import router from '@/router';
+import axios from 'axios';
+import { BACK_SERVER } from './config';
+
+export default {
+	created() {
+			window.addEventListener('beforeunload', () => {
+				axios.get(
+                `${BACK_SERVER}/auth/logout`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.token}`,
+                    }
+            })
+			}, false)
+		},
+}
+
 </script>
 
 <template>

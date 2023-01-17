@@ -24,13 +24,10 @@ export class TwoFactorAuthService {
         private configService: ConfigService,
     ) { }
 
-    /* method used for changing 2fa bool */
     async enableDisableTwoFactorAuth(userId: number, bool: boolean) {
         return this.usersService.turnOnOffTwoFactorAuth(userId, bool);
     }
 
-    //*  All the new change will be here
-    //* code:
     async generateTwoFactorAuthSecretAndQRCode (user: User, res: Response): Promise<any>{
         const secret = authenticator.generateSecret();
         const otpauth = authenticator.keyuri(

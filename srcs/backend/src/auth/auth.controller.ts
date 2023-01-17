@@ -15,9 +15,6 @@ import { User } from "../users/user.entity";
 export class AuthController {
     constructor(private authService: AuthService) { }
 
-    /* Route: OAuth42 
-        http://${host}:${port}/auth/
-    */
     @Get('/login')
     async login(@Query('code') code: string, @Req() req: any) {
         const token: {access_token: string} = await axios.post('https://api.intra.42.fr/oauth/token', {
