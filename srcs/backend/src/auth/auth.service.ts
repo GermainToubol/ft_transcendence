@@ -15,45 +15,49 @@ export class AuthService {
 
     async validateUser(payload: JwtPayload): Promise<User> {
         const login = payload.login;
-        try {
-            const user = await this.usersService.findOne(login);
-            if (!user) {
-                return null;
-            }
-			if (user.status == UserStatus.OFFLINE)
-				await this.usersService.updateStatus(user.login, UserStatus.ONLINE)
-            return user;
-        } catch {
-            return null;
-        }
+		const user = await this.usersService.findOne(login);
+		if (!user) {
+			return null;
+		}
+		if (user.status == UserStatus.OFFLINE) {
+			let update = await this.usersService.updateStatus(user.login, UserStatus.ONLINE)
+			if (!update)
+				return null;
+		}
+		return user;
     }
 
     async login(req: any): Promise<any> {
-        try {
-            let user = await this.usersService.findOne(req.login);
-			let enable2fa: Boolean;
-			let pseudo: string;
-			let avatar: number;
-            if (user && user.is2faEnabled) {
-				enable2fa = true;
-            }
-            else if (!user) {
-				enable2fa = false;
-                user = await this.usersService.create(req).then();
-				await this.usersService.updateStatus(user.login, UserStatus.ONLINE)
-            }
-			else {
-				enable2fa = false;
-				await this.usersService.updateStatus(user.login, UserStatus.ONLINE)
-            }
-			pseudo = await this.usersService.getPseudo(user.login).then();
-			avatar = await this.usersService.getAvatarId(user.login).then();
-            const payload: JwtPayload = { id: user.id, login: user.login, email: user.email, twoFa: false };
-            const token = this.jwtService.sign(payload);
-            return {token: token, enable2fa: enable2fa, pseudo: pseudo, avatar: avatar};
-        } catch (err) {
-            throw new ForbiddenException('Forbidden: user cannot log in');
-        }
+		let user = await this.usersService.findOne(req.login);
+		let enable2fa: Boolean;
+		let pseudo: string;
+		let avatar: number;
+		if (user && (user.status === UserStatus.ONLINE || user.status === UserStatus.PLAYING))
+		{
+			console.log("ICI");
+			return null;
+		}
+		if (user && user.is2faEnabled) {
+			enable2fa = true;
+		} else if (!user) {
+			enable2fa = false;
+			user = await this.usersService.create(req).then();
+			if (!user)
+				return null;
+			let update = await this.usersService.updateStatus(user.login, UserStatus.ONLINE)
+			if (!update)
+				return null;
+		} else {
+			enable2fa = false;
+			let update = await this.usersService.updateStatus(user.login, UserStatus.ONLINE)
+			if (!update)
+				return null;
+		}
+		pseudo = await this.usersService.getPseudo(user.login).then();
+		avatar = await this.usersService.getAvatarId(user.login).then();
+		const payload: JwtPayload = { id: user.id, login: user.login, email: user.email, twoFa: false };
+		const token = this.jwtService.sign(payload);
+		return {token: token, enable2fa: enable2fa, pseudo: pseudo, avatar: avatar};
     }
 
 	async logout(user: User): Promise<any> {
@@ -61,16 +65,12 @@ export class AuthService {
 	}
 
     async getUserFromToken(token: string): Promise<User> {
-        try {
-            const payload: JwtPayload = this.jwtService.verify(token, {
-                secret: jwtConstants.secret,
-            });
-            if (payload.login) {
-                return await this.usersService.findOne(payload.login);
-            }
-            return null;
-        } catch (err) {
-            return null;
+        const payload: JwtPayload = this.jwtService.verify(token, {
+             secret: jwtConstants.secret,
+        });
+        if (payload.login) {
+              return await this.usersService.findOne(payload.login);
         }
+        return null;
     }
 }

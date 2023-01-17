@@ -4,6 +4,7 @@ import { io, Socket } from 'socket.io-client';
 import Draw from '../Draw';
 import useJwtStore from '@/stores/store';
 import { BACK_SERVER } from '@/config';
+import router from '@/router';
 
 const jwtstore = useJwtStore();
 let socket = ref(null as unknown);
@@ -22,11 +23,20 @@ onMounted(() => {
     });
     if (game && game.value) {
         context.value = game.value.getContext("2d");
+
+		tokenError();
+
+		alreadyPlaying();
+
         drawWaiting();
         
         drawGame();
 
-		
+		drawInterruptedGame();
+
+		missingOpponent();
+
+		endGame();
         
         window.addEventListener('resize', () => {
             game.value.width = game.value.offsetWidth;
@@ -66,48 +76,85 @@ onUnmounted(() => {
 });
 
 function drawWaiting() {
-    (socket.value as Socket).on('WaitingForPlayer', (data) => {
-    playground.value = data.playground;
-    console.log('WAIT')
-    if (playground.value != null) {
-            game.value.width = game.value.offsetWidth;
-            game.value.height = game.value.width * 0.6;
-            message.value = 'Player: ' + data.player + ' is ' + data.message;
-            Draw.updatePlayground(
-                playground.value,
-                context.value,
-                game.value.width,
-                game.value.height,
-                playground.value.player1,
-                playground.value.player2,
-            );
+    (socket.value as Socket).on('waitingForPlayer', (data) => {
+		playground.value = data.playground;
+		if (playground.value != null) {
+				game.value.width = game.value.offsetWidth;
+				game.value.height = game.value.width * 0.6;
+				message.value = 'Player: ' + data.player + ' is ' + data.message;
+				Draw.updatePlayground(
+					playground.value,
+					context.value,
+					game.value.width,
+					game.value.height,
+					playground.value.player1,
+					playground.value.player2,
+				);
         }
-    });
-}
-
-function msg() {
-	(socket.value as Socket).on('msg', (data) => {
-	console.log(data)
     });
 }
 
 function drawGame() {
     (socket.value as Socket).on('updatePlayground', (data) => {
-	console.log('GAME')
-    playground.value = data.playground;
-    if (playground.value != null) {
-            game.value.width = game.value.offsetWidth;
-            game.value.height = game.value.width * 0.6;
-            Draw.updatePlayground(
-                playground.value,
-                context.value,
-                game.value.width,
-                game.value.height,
-                playground.value.player1,
-                playground.value.player2,
-            );
+		playground.value = data.playground;
+		if (playground.value != null) {
+				game.value.width = game.value.offsetWidth;
+				game.value.height = game.value.width * 0.6;
+				Draw.updatePlayground(
+					playground.value,
+					context.value,
+					game.value.width,
+					game.value.height,
+					playground.value.player1,
+					playground.value.player2,
+				);
         }
         message.value = '';
+    });
+}
+
+function drawInterruptedGame() {
+    (socket.value as Socket).on('interruptedGame', (data) => {
+		playground.value = data.playground;
+		if (playground.value != null) {
+				game.value.width = game.value.offsetWidth;
+				game.value.height = game.value.width * 0.6;
+				Draw.updatePlayground(
+					playground.value,
+					context.value,
+					game.value.width,
+					game.value.height,
+					playground.value.player1,
+					playground.value.player2,
+				);
+        }
+    });
+}
+
+function endGame() {
+	(socket.value as Socket).on('endGame', (data) => {
+		const { winner, loser} = data;
+		if (winner && loser) {
+            message.value = winner + ' wins against ' + loser;
+        }
+    });
+}
+
+function missingOpponent() {
+	(socket.value as Socket).on('missingOpponent', (data) => {
+		message.value = data.message;
+    });
+}
+
+function alreadyPlaying() {
+	(socket.value as Socket).on('alreadyPlaying', (data) => {
+		router.push('/');
+    });
+}
+
+function tokenError() {
+	(socket.value as Socket).on('tokenError', (data) => {
+		router.push('/');
     });
 }
 

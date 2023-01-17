@@ -93,7 +93,7 @@ export class Paddle {
 
 	public down(bounds: boundsInterface) {
 		this._y += 5;
-		if (this._y > bounds.lower) {
+		if (this._y + this._height > bounds.lower) {
 			this._y = bounds.lower - this._height;
 		}
 	}

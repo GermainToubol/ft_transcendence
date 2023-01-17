@@ -1,4 +1,3 @@
-
 <script lang="ts">
 import useJwtStore from "../stores/store";
 import { RouterLink, RouterView } from 'vue-router'

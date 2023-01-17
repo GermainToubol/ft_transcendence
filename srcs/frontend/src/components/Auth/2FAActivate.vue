@@ -15,7 +15,7 @@ export default {
                         Authorization: `Bearer ${jwtstore.$state.token}`,
                     }
             }).then((t) => t.data);
-			router.push('/');
+			router.push('/login/2fa');
         },
 		async Disable() {
             const test = await axios.get(

@@ -16,7 +16,7 @@ export class AuthController {
     constructor(private authService: AuthService) { }
 
     @Get('/login')
-    async login(@Query('code') code: string, @Req() req: any) {
+    async login(@Query('code') code: string, @Req() req: any): Promise<any> {
         const token: {access_token: string} = await axios.post('https://api.intra.42.fr/oauth/token', {
             grant_type: "authorization_code",
 			client_id: process.env.API_UID,

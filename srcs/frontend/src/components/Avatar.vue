@@ -2,7 +2,7 @@
 import router from "@/router";
 import axios from "axios";
 import useJwtStore from "../stores/store";
-import { BACK_SERVER } from "../config.ts";
+import { BACK_SERVER } from "../config";
 
 const jwtstore = useJwtStore();
 export default {

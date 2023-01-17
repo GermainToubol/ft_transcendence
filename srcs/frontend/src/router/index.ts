@@ -64,19 +64,14 @@ const router = createRouter({
 
 async function isAuthenticated() {
 	let jwtStore = useJwtStore();
-	try {
-		if (await jwtStore.validateToken(localStorage.token).then((t) => t)) {
-			return true;
-		}
-		return false;
+	if (await jwtStore.validateToken(localStorage.token).then((t) => t)) {
+		return true;
 	}
-	catch {
-		return false;
-	}
+	return false;
 }
 
 router.beforeEach(async (to, from) => {
-	if (to.name === 'callback' || to.name === 'login' || to.name === '2fa')
+	if (to.name === 'callback' || to.name === 'login' || to.name === '2fa' || to.name === 'logout')
 		return
 	const allowed = await isAuthenticated();
 	if (!allowed)

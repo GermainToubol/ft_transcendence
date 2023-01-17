@@ -10,7 +10,7 @@ import { LobbyService } from "./lobby.service";
 @Injectable()
 export class GameService {
 	readonly logger = new Logger('Game Service: ');
-	readonly playground = new Playground(0, 0, 1000, 600, '#ffffff', 9, '', '');
+	readonly playground = new Playground(0, 0, 1000, 600, '#ffffff', 10, '', '');
 
 	constructor(
 		private lobbyService: LobbyService,
@@ -25,43 +25,33 @@ export class GameService {
 		if (client.handshake.query.role === 'player') {
 			await this.handleConnectedPlayer(client, players, server);
 		} else if (client.handshake.query.role === 'spectator') {
-			this.logger.log('spectator Connected: ' + client.id + ', roomname: ' + client.handshake.query.roomname);
+			this.logger.log('Spectator connected: ' + client.id + ', roomname: ' + client.handshake.query.roomname);
 			await this.handleConnectedSpectator(client);
 		}
 	}
 
 	async handleConnectedPlayer(client: Socket, players: Socket[], server: Server) {
-		let user: User;
-		try {
-			user = await this.usersService.checkToken(client.handshake.query.accessToken as string);
-		} catch (err) {
+		let user = await this.usersService.checkToken(client.handshake.query.accessToken as string);
+		if (!user) {
 			this.logger.error('Token Wasn\'t Verified');
-			client.emit('TokenError', { message: 'Token Wasn\'t Verified' });
+			client.emit('tokenError', { message: 'Token Wasn\'t Verified' });
 			return;
 		}
 		client.data.user = user;
 		if (user && user.status === UserStatus.PLAYING) {
-			client.emit('alreadyInGame', {
-			  player: user.usual_full_name,
-			  message: 'You Are Already in a Game',
-			});
+			client.emit('alreadyPlaying', { player: user.usual_full_name, message: 'You Are Already in a Game' });
 		  }
 		  else if (user && user.status === UserStatus.ONLINE) {
-			// try {
-			//   await this.usersService.updateStatus(user.login, UserStatus.PLAYING);
-			// } catch (err) {
-			//   this.logger.error('Couldn\'t Update Status');
-			//   return;
-			// }
+			let update = await this.usersService.updateStatus(user.login, UserStatus.PLAYING);
+			if (!update) {
+			  this.logger.error('Couldn\'t Update Status');
+			  return;
+			}
 			players.push(client);
 			if (players.length === 1) {
 			  client.data.side = 'left';
 			  client.data.role = 'player';
-			  client.emit('WaitingForPlayer', {
-				player: user.usual_full_name,
-				message: 'Waiting For Second Player',
-				playground: this.playground.getPlayGroundInterface(),
-			  });
+			  client.emit('waitingForPlayer', { player: user.usual_full_name, message: 'Waiting For Second Player', playground: this.playground.getPlayGroundInterface() });
 			} else {
 			  client.data.side = 'right';
 			  client.data.role = 'player';
@@ -82,38 +72,82 @@ export class GameService {
 		
 		first.data.opponentId = second.data.user.id;
 		second.data.opponentId = first.data.user.id;
-
-		console.log(first.rooms)
-		console.log(second.rooms)
 		
-		this.lobbyService.addRooms({
-			roomname, player1: first.data.user.usual_full_name as string, player2: second.data.user.usual_full_name as string
-		});
-		
-		const playground = new Playground(0, 0, 1000, 600, '#ffffff', 9, first.data.user.usual_full_name, second.data.user.usual_full_name);
+		let add = this.lobbyService.addRooms({ roomname, player1: first.data.user.usual_full_name as string, player2: second.data.user.usual_full_name as string });
+		if (!add)
+			return
+		const playground = new Playground(0, 0, 1000, 600, '#ffffff', 10, first.data.user.usual_full_name, second.data.user.usual_full_name);
 		first.data.playground = playground;
 		second.data.playground = playground;
 		this.logger.log('Starting Game in Room: ' + roomname + ' between: ' + first.data.user.usual_full_name + ' & '+ second.data.user.usual_full_name);
 		let count = 0;
 		const timer = setInterval(() => {
 			if (playground.update() == false) {
-				server.to(roomname).emit('msg', 'TESTTEST')
-				console.log('START')
 				const pgi = this.getPlayground(playground);
 				server.to(roomname).emit('updatePlayground', { name: roomname, playground: pgi });
-			} //else {
-			// 	this.endGame(first, second, playground, server);
-			// }
+			} else {
+				this.endGame(first, second, server, playground);
+			}
 		}, (1.0 / 60) * 1000);
-		first.data.gameIntervail = timer;
+		first.data.gameInterval = timer;
 		second.data.gameInterval = timer;
 	}
 
-	async handleConnectedSpectator(client: Socket) {
+	async endGame(first: Socket, second: Socket, server: Server, playground: Playground) {
+		clearInterval(first.data.gameInterval);
+		this.logger.log('Game in Room: ' + first.data.roomname + ' between: ', first.data.user.usual_full_name + ' & ' + second.data.user.usual_full_name + ' Finished');
+		if (playground.scoreBoard.playerOneScore > playground.scoreBoard.playerTwoScore) {
+			console.log(first.data.user.usual_full_name)
+			server.to(first.data.roomname).emit('endGame', { winner: first.data.user.usual_full_name, loser: second.data.user.usual_full_name });
+		} else {
+			console.log(second.data.user.usual_full_name)
+			server.to(first.data.roomname).emit('endGame', { winner: second.data.user.usual_full_name, loser: first.data.user.usual_full_name });
+		}
+		let del = await this.lobbyService.deleteRoom(first.data.roomname);
+		if (!del)
+			this.logger.error('Error trying to delete room');
 	}
 
 	async handleDisonnectedUser(client: Socket, server: Server) {
-		
+		if (client.handshake.query.role === 'player' && client.data.gameInterval) {
+			if (client.data.gameInterval._destroyed === false) {
+				client.data.playground.ball.clean(client.data.playground.width / 2, client.data.playground.height / 2);
+				client.data.playground.leftPaddle.clean();
+				client.data.playground.rightPaddle.clean();
+				let loserScore = 0;
+				if (client.data.side === 'left') {
+					client.data.playground.scoreBoard.playerTwoScore = client.data.playground.win_score;
+					loserScore = client.data.playground.scoreBoard.playerOneScore;
+			 	} else {
+					client.data.playground.scoreBoard.playerOneScore = client.data.playground.win_score;
+					loserScore = client.data.playground.scoreBoard.playerTwoScore;
+			  	}
+				server.to(client.data.roomname).emit('interruptedGame', { playground: this.getPlayground(client.data.playground) });
+				clearInterval(client.data.gameInterval);
+				let second = await this.usersService.findOneById(client.data.opponentId);
+				if (!second) {
+					server.to(client.data.roomname).emit('missingOpponent', { message: 'Opponent run away... what a coward' });
+					return;
+				}
+				server.to(client.data.roomname).emit('endGame', { winner: second.usual_full_name, loser: client.data.user.usual_full_name });
+				let del = await this.lobbyService.deleteRoom(client.data.roomname);
+				if (!del)
+					this.logger.error('Error trying to delete room');
+				else
+					this.logger.log('Game in Room: ' + client.data.roomname + ' Finished');
+			}
+			client.leave(client.data.roomname);
+			let update = await this.usersService.updateStatus(client.data.user.login, UserStatus.ONLINE);
+			if (!update)
+				this.logger.error('Couldn\'t Update Status');
+		} else if (client.handshake.query.role === 'player') {
+			let update = await this.usersService.updateStatus(client.data.user.login, UserStatus.ONLINE);
+			if (!update)
+				this.logger.error('Couldn\'t Update Status');
+		}
+	}
+
+	async handleConnectedSpectator(client: Socket) {
 	}
 
 	handleKeyUp(client: Socket) {

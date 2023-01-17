@@ -26,7 +26,6 @@ export class GameGateway
 
 	@SubscribeMessage('KeyUp')
 	handleKeyUp(client: Socket) {
-		console.log("UP")
 		if (client.data.playground) {
 			this.gameService.handleKeyUp(client);
 		}

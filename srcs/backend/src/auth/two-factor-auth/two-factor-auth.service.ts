@@ -35,23 +35,18 @@ export class TwoFactorAuthService {
             this.configService.get('APP_NAME')!,
             secret
         );
-        await this.usersService.setTwoFactorAuthSecret(user.id, secret);
+    	await this.usersService.setTwoFactorAuthSecret(user.id, secret);
         const dataUrl = await toDataURL(otpauth);
         return res.status(200).json(dataUrl);
     }
 
     async verifyCode (data: any, code: string, bool: boolean): Promise<any> {
         const user = await this.usersService.findOne(data.login);
-        if (!user) {
-            throw new NotFoundException('User not found');
-        }
-        const isValid = authenticator.verify({
-            token: code,
-            secret: user.twoFactorAuthSecret!,
-        });
-        if (!isValid) {
-            throw new UnauthorizedException('Invalid code.')
-        }
+        if (!user)
+            return null;
+        const isValid = authenticator.verify({ token: code, secret: user.twoFactorAuthSecret! });
+        if (!isValid)
+			return null;
         const payload: JwtPayload = {
             id: user.id,
             login: user.login,
@@ -62,8 +57,9 @@ export class TwoFactorAuthService {
             secret: jwtConstants.secret,
             expiresIn: jwtConstants.expire,
         });
-		await this.usersService.updateStatus(user.login, UserStatus.ONLINE);
-        return { token: token };// redirect to Home page
-    }
-    //* end
+		let update = await this.usersService.updateStatus(user.login, UserStatus.ONLINE);
+		if (!update)
+			return null;
+        return { token: token };
+	}
 }
