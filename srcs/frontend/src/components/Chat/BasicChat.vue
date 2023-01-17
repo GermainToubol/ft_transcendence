@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts">
  import { io, Socket } from 'socket.io-client';
  import { onMounted, onUnmounted, ref } from 'vue';
 
@@ -7,28 +7,51 @@
 
  const jwtstore = useJwtStore();
  let socket = ref(null as unknown);
- let message = ref('' as String);
 
- onMounted(() => {
-	 socket = io(BACK_SERVER, {
-		 path: '/chat',
-		 query: {
-			 'accessToken': jwtstore.$state.token,
+ export default {
+	 data() {
+		 return {
+			 messages: [],
+			 message: ""
 		 }
-	 })
- });
-
- onUnmounted(() => {
-	 if (socket != null) {
-		 socket.disconnect();
-   }
- });
+	 },
+	 methods: {
+		 getMessages() {
+			 fetch(`${BACK_SERVER}/chat`)
+				 .then((response) => response.json())
+			     .then((cc) => {
+					 cc.forEach((el) => {this.messages.push(el)})
+				 })
+			 .catch((err) => console.log(err))
+		 },
+		 sendMessage() {
+			 socket.emit("sendMsg", this.message)
+			 this.message = "";
+		 }
+	 },
+	 mounted() {
+		 socket = io(BACK_SERVER, {
+			 path: '/chat',
+			 query: {
+				 'accessToken': jwtstore.$state.token,
+			 }
+		 })
+		 this.getMessages();
+		 socket.on('recMsg', (message) => {
+			 console.log(`message: ${message}`)
+			 this.messages.push(message);
+		 })
+	 },
+	 beforeUnmount() {
+		 if (socket != null) {
+			 socket.disconnect();
+		 }
+	 }
+ }
 </script>
 
 
 <template>
-	<ul id="messages"></ul>
-	<form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
+	<li v-for="item in messages">{{ item.content }}</li>
+	<input v-model="message" type="text"/><button @click="sendMessage">Send</button>
 </template>

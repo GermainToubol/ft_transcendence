@@ -11,29 +11,31 @@ import { Room } from './game/room.entity';
 import { GameHistory } from './history/history.entity';
 import { GameHistoryModule } from './history/history.module';
 import { ChatModule } from './chat/chat.module';
+import { Message } from './chat/channel/message.entity';
 
 @Module({
     imports: [
-		AuthModule,
-		TwoFactorAuthModule,
-		UsersModule,
-		LocalFileModule,
-		GameModule,
+        AuthModule,
+        TwoFactorAuthModule,
+        UsersModule,
+  LocalFileModule,
+  GameModule,
 		GameHistoryModule,
-		TypeOrmModule.forRoot({
-			type: 'postgres',
-			host: 'database.backend-net',
-			port: 5432,
-			username: process.env.DB_USER,
-			password: process.env.DB_PASSWORD,
-			database: process.env.DB_NAME,
-			entities: [User, LocalFile, Room, GameHistory],
-			synchronize: true,
-		}),
-		ChatModule,
-	],
+        TypeOrmModule.forRoot({
+            type: 'postgres',
+            host: 'database.backend-net',
+            port: 5432,
+            username: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME,
+          entities: [User, LocalFile, Message, Room, GameHistory],
+            synchronize: true,
+        }),
+        ChatModule,
+    ],
     controllers: [],
     providers: [],
 })
+
 export class AppModule {
 }
