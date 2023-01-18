@@ -21,7 +21,19 @@ export class ChannelService {
         return await this.channelRepository.save(channel);
     }
 
+    async getChannelList(): Promise<ChatChannel[]> {
+        return await this.channelRepository.find();
+    }
+
+    async getChannelById(id: number): Promise<ChatChannel> {
+        return this.channelRepository.findOneBy({ id: id });
+    }
+
     async getChannelMessages(channel: ChatChannel): Promise<Message[]> {
         return await this.messageService.findMessageChannel(channel);
+    }
+
+    async postMessage(content: string, channel: ChatChannel): Promise<Message> {
+        return await this.messageService.create(content, channel);
     }
 }
