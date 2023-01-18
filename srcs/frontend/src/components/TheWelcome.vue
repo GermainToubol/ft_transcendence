@@ -25,7 +25,8 @@ export default {
 			<RouterLink to="/avatar">Set avatar</RouterLink>
 			<RouterLink to="/pseudo">Change pseudo</RouterLink>
 			<RouterLink to="/logout">Logout</RouterLink>
-      <RouterLink to="/game">Game</RouterLink>
+    		<RouterLink to="/game">Game</RouterLink>
+			<RouterLink to="/rooms">Rooms</RouterLink>
 		</nav>
 		<div>
 			<img :src='imgPath'>

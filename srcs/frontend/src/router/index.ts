@@ -59,10 +59,20 @@ const router = createRouter({
 		name: 'logout',
 		component: () => import('../components/Auth/Logout.vue')
 	},
+	{
+		path: '/rooms',
+		name: 'rooms',
+		component: () => import('../views/Rooms.vue')
+	},
+	{
+		path: '/spec',
+		name: 'spec',
+		component: () => import('../views/Spec.vue')
+	},
   ]
 })
 
-async function isAuthenticated() {
+async function isAuthenticated(): Promise<boolean> {
 	let jwtStore = useJwtStore();
 	if (await jwtStore.validateToken(localStorage.token).then((t) => t)) {
 		return true;
@@ -73,9 +83,9 @@ async function isAuthenticated() {
 router.beforeEach(async (to, from) => {
 	if (to.name === 'callback' || to.name === 'login' || to.name === '2fa' || to.name === 'logout')
 		return
-	const allowed = await isAuthenticated();
+	const allowed = await isAuthenticated().then((t) => t);
 	if (!allowed)
-		return '/login';
+		return { name: 'login' };
 })
 
 export default router

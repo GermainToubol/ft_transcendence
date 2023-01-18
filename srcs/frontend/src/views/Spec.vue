@@ -19,7 +19,8 @@ onMounted(() => {
         path: '/game/',
         query: {
             'accessToken': jwtstore.$state.token,
-            'role': 'player',
+            'role': 'spectator',
+			'roomname': router.currentRoute.value.query.roomname,
         },
     });
     if (game && game.value) {
@@ -51,22 +52,6 @@ onMounted(() => {
                 playground.value.player2,
                 );
             });
-        window.addEventListener('keydown', (event: KeyboardEvent) => {
-            if(event.key === "w") {
-                (socket.value as Socket).emit("KeyUp");
-            }
-            if(event.key === "s") {
-                (socket.value as Socket).emit("KeyDown");
-            }
-        });
-        window.addEventListener('keyup', (event: KeyboardEvent) => {
-            if(event.key === "w") {
-                (socket.value as Socket).emit("KeyUpUnpressed");
-            }
-            if(event.key === "s") {
-                (socket.value as Socket).emit("KeyDownUnpressed");
-            }
-        });
     }
 });
 

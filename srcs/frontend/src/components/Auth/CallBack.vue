@@ -20,7 +20,6 @@ export default {
 		jwtstore.setAvatar(`${BACK_SERVER}/local-files/${ret.avatar}`)
 		else
 		jwtstore.setAvatar("src/avatar/default.jpg")
-		console.log(`TOKEN CALL BACK: ${jwtstore.$state.token}`)
 		if (ret.enable2fa) {
 			router.push('/login/2fa');
 			return ;

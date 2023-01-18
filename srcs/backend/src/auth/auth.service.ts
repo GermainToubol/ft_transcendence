@@ -33,10 +33,7 @@ export class AuthService {
 		let pseudo: string;
 		let avatar: number;
 		if (user && (user.status === UserStatus.ONLINE || user.status === UserStatus.PLAYING))
-		{
-			console.log("ICI");
 			return null;
-		}
 		if (user && user.is2faEnabled) {
 			enable2fa = true;
 		} else if (!user) {

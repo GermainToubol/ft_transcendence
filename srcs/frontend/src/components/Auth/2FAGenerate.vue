@@ -13,7 +13,6 @@ export default {
     },
     methods: {
         async ValidityState() {
-            console.log(`TOKEN Gen: ${jwtstore.$state.token}`)
             const test = await axios.get(
                 `${BACK_SERVER}/2fa/generate`,
                 {

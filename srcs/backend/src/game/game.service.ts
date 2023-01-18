@@ -148,6 +148,14 @@ export class GameService {
 	}
 
 	async handleConnectedSpectator(client: Socket) {
+		const { rooms } = await this.lobbyService.getRooms();
+		const roomname = client.handshake.query.roomname;
+		const specroom = rooms.find(room => room.roomname == roomname);
+		if (specroom) {
+			client.join(roomname);
+		} else {
+			client.emit('roomNotFound', {message: 'No such a Room'});
+		}
 	}
 
 	handleKeyUp(client: Socket) {

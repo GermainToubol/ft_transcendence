@@ -4,11 +4,11 @@ import { Room } from "./room.entity";
 import { LobbyService } from "./lobby.service";
 
 
-@Controller('game')
+@Controller('rooms')
 export class GameController {
 	constructor(private lobbyService: LobbyService) {}
 
-	@Get('/rooms')
+	@Get('/')
 	@UseGuards(JwtAuthGuard)
 	async getRooms(): Promise<{rooms: Room[]}> {
 		return await this.lobbyService.getRooms();

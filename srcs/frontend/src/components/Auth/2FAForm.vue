@@ -13,7 +13,6 @@ export default {
     },
     methods: {
         async ValidityState() {
-            console.log(`TOKEN Before: ${jwtstore.$state.token}`)
             const test: {token: string} = await axios.post(
                 `${BACK_SERVER}/2fa/verify`,
                 {code: this.authcode},
@@ -24,7 +23,6 @@ export default {
             }).then((t) => t.data);
             jwtstore.setToken(test.token)
 			localStorage.token = test.token
-            console.log(`TOKEN After: ${jwtstore.$state.token}`)
             router.push('/');
         }
     }
