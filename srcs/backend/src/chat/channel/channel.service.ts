@@ -1,22 +1,27 @@
 import { Injectable } from '@nestjs/common';
+import { MessageService } from '../message/message.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Message } from './message.entity';
+import { ChannelStatus, ChatChannel } from './channel.entity';
+import { Message } from '../message/message.entity';
 
 @Injectable()
 export class ChannelService {
     constructor(
-        @InjectRepository(Message)
-        private messageRepository: Repository<Message>
-    ) { }
+        @InjectRepository(ChatChannel)
+        private channelRepository: Repository<ChatChannel>,
+        private messageService: MessageService) { }
 
-    async create(content: string): Promise<Message> {
-        const msg = this.messageRepository.create()
-        msg.content = content;
-        return await this.messageRepository.save(msg);
+    async createChannel(
+        channelName: string,
+        channelStatus: ChannelStatus): Promise<ChatChannel> {
+        let channel = this.channelRepository.create()
+        channel.channelName = channelName;
+        channel.channelStatus = channelStatus;
+        return await this.channelRepository.save(channel);
     }
 
-    async findAllMessages(): Promise<Message[]> {
-        return await this.messageRepository.find();
+    async getChannelMessages(channel: ChatChannel): Promise<Message[]> {
+        return await this.messageService.findMessageChannel(channel);
     }
 }

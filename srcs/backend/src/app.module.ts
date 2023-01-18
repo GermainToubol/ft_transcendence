@@ -11,7 +11,8 @@ import { Room } from './game/room.entity';
 import { GameHistory } from './history/history.entity';
 import { GameHistoryModule } from './history/history.module';
 import { ChatModule } from './chat/chat.module';
-import { Message } from './chat/channel/message.entity';
+import { Message } from './chat/message/message.entity';
+import { ChatChannel } from './chat/channel/channel.entity';
 
 @Module({
     imports: [
@@ -28,7 +29,7 @@ import { Message } from './chat/channel/message.entity';
             username: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_NAME,
-          entities: [User, LocalFile, Message, Room, GameHistory],
+          entities: [User, LocalFile, Message, Room, GameHistory, ChatChannel],
             synchronize: true,
         }),
         ChatModule,

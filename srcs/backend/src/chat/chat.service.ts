@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ChannelService } from './channel/channel.service';
-import { Message } from './channel/message.entity';
+import { Message } from './message/message.entity';
 
 @Injectable()
 export class ChatService {
