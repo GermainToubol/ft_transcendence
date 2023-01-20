@@ -16,7 +16,7 @@
 			 message: "",
 			 channelName: "",
 			 chatid: 0,
-			 picked: 0,
+			 picked: 1,
 		 }
 	 },
 	 methods: {
@@ -34,7 +34,6 @@
 			 fetch(`${BACK_SERVER}/chat`)
 				 .then((response) => response.json())
 				 .then((cc) => {
-					 console.log(cc)
 					 cc.forEach((elem) => {
 						 this.channels.push(elem);
 						 this.getChannelMsg(elem.id);
@@ -47,16 +46,20 @@
 		 },
 		 sendMessage() {
 			 const payload = {content: this.message, channel: this.chatid};
-			 console.log(payload)
-			 socket.emit("sendMsg", payload)
+			 if (this.message.length == 3 || this.message.length > 255) {
+				 console.log("invalid message")
+				 return;
+			 }
+			 socket.emit("sendMessage", payload)
 			 this.message = "";
 		 },
 		 createChannel() {
-			 const newChannel = {
+			 const newChannel: {channelName: string, channelLevel: number} = {
 				 channelName: this.channelName,
 				 channelLevel: this.picked,
 			 };
-			 socket.emit('addChan', newChannel);
+			 console.log(newChannel)
+			 socket.emit('addChannel', newChannel);
 			 this.channelName = "";
 		 },
 		 updateSelectedChannel(chan: number) {
@@ -76,12 +79,15 @@
 			 }
 		 })
 		 this.getChannels();
-		 socket.on('recMsg', (message) => {
+		 socket.on('recvMessage', (message) => {
 			 message.channel = message.channel.id
 			 this.messages.push(message);
 		 })
-		 socket.on('updateChan', (channel) => {
+		 socket.on('updateChannel', (channel) => {
 			 this.channels.push(channel);
+		 })
+		 socket.on('badMessage', (message) => {
+			 console.log(message);
 		 })
 	 },
 	 beforeUnmount() {
@@ -103,13 +109,13 @@
 		<input v-model="channelName" type="text"/><button @click="createChannel">Create channel</button>
 	</div>
 	<div>
-		<input type="radio" id="zero" value=0 v-model="picked">
+		<input type="radio" id="zero" value=0 v-model=picked>
 		<label for="one">Public</label>
 		<br>
-		<input type="radio" id="one" value=1 v-model="picked">
+		<input type="radio" id="one" value=1 v-model=picked>
 		<label for="one">Protected</label>
 		<br>
-		<input type="radio" id="two" value=2 v-model="picked">
+		<input type="radio" id="two" value=2 v-model=picked>
 		<label for="two">Private</label>
 		<br>
 		<span>Picked: {{ picked }}</span>
