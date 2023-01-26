@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ExecutionContext, Injectable } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 
 @Injectable()
@@ -9,6 +9,16 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 		}
 		return user;
 	}
+}
+
+@Injectable()
+export class JwtAuthGuardWs extends AuthGuard('jwt') {
+    getRequest(context: ExecutionContext) {
+        const wsctx = context.switchToWs().getClient();
+        return {
+            headers: wsctx.handshake.headers,
+        }
+    }
 }
 
 @Injectable()

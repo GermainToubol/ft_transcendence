@@ -16,7 +16,7 @@
 			 message: "",
 			 channelName: "",
 			 chatid: 0,
-			 picked: 1,
+			 picked: 0,
 		 }
 	 },
 	 methods: {
@@ -54,7 +54,7 @@
 			 this.message = "";
 		 },
 		 createChannel() {
-			 const newChannel: {channelName: string, channelLevel: number} = {
+			 const newChannel = {
 				 channelName: this.channelName,
 				 channelLevel: Number(this.picked),
 			 };
@@ -74,9 +74,12 @@
 	 mounted() {
 		 socket = io(BACK_SERVER, {
 			 path: '/chatsocket',
-			 query: {
+			 auth: {
 				 'accessToken': jwtstore.$state.token,
-			 }
+			 },
+			 extraHeaders: {
+				  Authorization: `Bearer ${jwtstore.$state.token}`
+			 },
 		 })
 		 this.getChannels();
 		 socket.on('recvMessage', (message) => {
