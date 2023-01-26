@@ -56,7 +56,7 @@
 		 createChannel() {
 			 const newChannel: {channelName: string, channelLevel: number} = {
 				 channelName: this.channelName,
-				 channelLevel: this.picked,
+				 channelLevel: Number(this.picked),
 			 };
 			 console.log(newChannel)
 			 socket.emit('addChannel', newChannel);
@@ -103,10 +103,10 @@
 	<button v-for="chan in channels" @click="updateSelectedChannel(chan.id)">{{chan.channelName}}({{chan.id}})</button>
 	<ul><li v-for="item in chanmsg">{{item.channel}} - {{ item.content }}</li></ul>
 	<div>
-		<input v-model="message" type="text"/><button @click="sendMessage">Send</button>
+		<input v-model.trim="message" type="text"/><button @click="sendMessage">Send</button>
 	</div>
 	<div>
-		<input v-model="channelName" type="text"/><button @click="createChannel">Create channel</button>
+		<input v-model.trim="channelName" type="text"/><button @click="createChannel">Create channel</button>
 	</div>
 	<div>
 		<input type="radio" id="zero" value=0 v-model=picked>
