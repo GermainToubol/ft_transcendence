@@ -5,10 +5,11 @@ import LocalFile from './localFile.entity';
 import LocalFilesController from './localFiles.controller';
 
 @Module({
-  providers: [LocalFilesService],
-  imports: [TypeOrmModule.forFeature([LocalFile])],
-  controllers: [
-	LocalFilesController,
-],
+    providers: [LocalFilesService],
+    imports: [TypeOrmModule.forFeature([LocalFile])],
+    controllers: [
+        LocalFilesController,
+    ],
+    exports: [LocalFilesService]
 })
-export class LocalFileModule {}
+export class LocalFileModule { }

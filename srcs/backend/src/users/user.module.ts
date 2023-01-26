@@ -5,11 +5,13 @@ import { User } from './user.entity'
 import { UserController } from './user.controller'
 import LocalFilesService from 'src/localfiles/localFiles.service'
 import LocalFile from 'src/localfiles/localFile.entity'
-import { JwtService } from '@nestjs/jwt'
 
 @Module({
-  providers: [UsersService, LocalFilesService, JwtService],
+  providers: [UsersService, LocalFilesService],
   imports: [TypeOrmModule.forFeature([User, LocalFile])],
-  controllers: [UserController],
+  controllers: [
+    UserController,
+  ],
+  exports: [UsersService],
 })
-export class UsersModule {}
+export class UsersModule { }

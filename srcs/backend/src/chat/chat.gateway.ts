@@ -1,34 +1,41 @@
-import { ExecutionContext, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { JwtAuthGuardWs } from 'src/auth/guards/jwt-auth.guard';
+import { User } from 'src/users/user.entity';
+import { UsersService } from 'src/users/user.service';
 import { ChannelStatus } from './channel/channel.entity';
 import { ChatService } from './chat.service';
 import { MessageExceptionFilter } from './message/message.filter';
 import { ChatChannelDto } from './types/channel.dto';
 import { ChatMessageDto } from './types/message.dto';
+import { UserSocket } from './usersocket.adapter';
 
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 @UseGuards(JwtAuthGuardWs)
 @WebSocketGateway({ cors: { origin: "*" }, path: '/chatsocket' })
 export class ChatGateway {
-    constructor(private chatService: ChatService) { }
+    constructor(private chatService: ChatService, private usersService: UsersService) { }
 
     @WebSocketServer() server: Server;
 
-    handleConnection(client: Socket) {
+    handleConnection(client: UserSocket) {
         console.log(`connection: ${client.id}`);
         console.log(client.handshake.auth)
     }
 
-    handleDisconnect(client: Socket) {
+    handleDisconnect(client: UserSocket) {
         console.log(`disconnection: ${client.id}`);
     }
 
     @UseFilters(new MessageExceptionFilter("Invalid message"))
     @SubscribeMessage("sendMessage")
-    async handleMessage(client: Socket, payload: ChatMessageDto) {
+    async handleMessage(client: UserSocket, payload: ChatMessageDto,) {
+        const user: User = await this.usersService.findOne(client.userLogin);
         const channel = await this.chatService.getChannelById(payload.channel);
+
+        console.log(client.userLogin)
+        console.log(user)
         if (!channel)
             return;
         let message = await this.chatService.newMessage(payload.content, channel);
@@ -44,7 +51,7 @@ export class ChatGateway {
 
     @UseFilters(new MessageExceptionFilter("Invalid channel creation"))
     @SubscribeMessage("addChannel")
-    async handleChannelCreation(client: Socket, payload: ChatChannelDto) {
+    async handleChannelCreation(client: UserSocket, payload: ChatChannelDto) {
         const channel = await this.chatService.createChannel(
             payload.channelName,
             payload.channelLevel);
