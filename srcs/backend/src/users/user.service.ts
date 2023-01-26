@@ -1,55 +1,57 @@
-import { ForbiddenException, Injectable, NotFoundException, } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException, } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserDto } from './user.dto';
 import { User } from './user.entity';
 import LocalFilesService from '../localfiles/localFiles.service';
 import { ok } from 'assert';
+import { JwtService } from '@nestjs/jwt';
+import { UserStatus } from './user_status.enum';
   
   @Injectable()
   export class UsersService {
     constructor(
       @InjectRepository(User)
       private usersRepository: Repository<User>,
-	  private localFilesService: LocalFilesService
+	  private localFilesService: LocalFilesService,
+	  private jwtService: JwtService,
     ) { }
   
     async create(user: UserDto): Promise<User> {
-      try {
-        while (true) {
-          console.log(user.usual_full_name)
-          let has_same_name = await this.usersRepository.findOneBy({usual_full_name: user.usual_full_name});
-          if (has_same_name) {
-              user.usual_full_name += '_';
-              continue ;
-          }
-          console.log(user.usual_full_name)
-          return await this.usersRepository.save(user);
-        }
-      } catch (err) {
-        throw new ForbiddenException(`Forbidden: cannot create user.`);
-      }
-    }
-  
-    findAll(): Promise<User[]> {
-      try {
-        return this.usersRepository.find();
-      } catch (err) {
-        throw new NotFoundException(`Users not found`);
-      }
+		while (true) {
+			let has_same_name = await this.usersRepository.findOneBy({usual_full_name: user.usual_full_name});
+			if (has_same_name) {
+				user.usual_full_name += '_';
+				continue ;
+			}
+			let save = await this.usersRepository.save(user);
+			if (!save)
+				return null
+			return save
+		}
     }
   
     async findOne(login: string): Promise<User> {
-    //   try {
         const user = await this.usersRepository.findOneBy({login: login});
         if (!user) {
           return null;
         }
         return user;
-    //   } catch (err) {
-    //     return null;
-    //   }
     }
+
+	async findOneById(id: number): Promise<User> {
+        const user = await this.usersRepository.findOneBy({id: id});
+        if (!user) {
+          return null;
+        }
+        return user;
+    }
+
+	async checkToken(token:string): Promise<User> {
+		const check = await this.jwtService.verify(token, {publicKey: process.env.JWT_SECRET});
+		if (typeof check === 'object' && 'id' in check)
+			return await this.usersRepository.findOneBy({id: check.id});
+	}
 
 	async getPseudo(login: string): Promise<string> {
 		const user = await this.usersRepository.findOneBy({login: login});
@@ -62,9 +64,9 @@ import { ok } from 'assert';
 	async getAvatarId(login: string): Promise<number> {
 		const user = await this.usersRepository.findOneBy({login: login});
 		if (!user) {
-		  return null;
+		  return 0;
 		}
-		if (user.avatarId == null)
+		if (user.avatarId === null)
 			return 0;
 		return user.avatarId;
 	}
@@ -77,46 +79,38 @@ import { ok } from 'assert';
 		return "OK";
 	}
 
+	async updateStatus(login: string, status: UserStatus): Promise<User> {
+		const updated = await this.findOne(login);
+		if (updated) {
+			let test = await this.usersRepository.update(updated.id, { status: status });
+			if (!test)
+				return null;
+		}
+		return updated;
+	}
+
 	async addAvatar(user: any, fileData: LocalFileDto) {
 		const avatar = await this.localFilesService.saveLocalFileData(fileData);
-		await this.usersRepository.update(user.id, {
-		  avatarId: avatar.id
-		})
+		await this.usersRepository.update(user.id, { avatarId: avatar.id })
 		return (await this.findOne(user.login)).avatarId
 	  }
 
     async remove(id: number | string): Promise<any> {
-      try {
-        return await this.usersRepository.delete(id);
-      }
-      catch (err) {
-        throw new NotFoundException('User not found.');
-      }
+        let remove = await this.usersRepository.delete(id);
     }
-  
-  
+
     //* two factor authentication
     async turnOnOffTwoFactorAuth(id: number, bool: boolean): Promise<User> {
-      try {
-        await this.usersRepository.update(id, {
-          is2faEnabled: bool,
-        });
+        await this.usersRepository.update(id, { is2faEnabled: bool });
         const user = await this.usersRepository.findOneBy({id: id});
-        if (user) {
-          return user;
-        }
-        throw new NotFoundException('User not found');
-      } catch (err) {
-        throw err;
-      }
+        if (user)
+        	return user;
+		else 
+			return null
     }
   
     async setTwoFactorAuthSecret(id: number, secret: string): Promise<any> {
-      await this.usersRepository.update(id, {
-        twoFactorAuthSecret: secret
-      });
+      await this.usersRepository.update(id, { twoFactorAuthSecret: secret });
     }
-  
-
-  };
+};
   

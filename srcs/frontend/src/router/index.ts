@@ -1,76 +1,83 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import useJwtStore from "../stores/store";
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import Home from '../views/Home.vue'
+import Login from '../views/Login.vue'
+import AuthCallback from '../views/AuthCallback.vue'
+import Account from '../views/Account.vue'
+import store from '../store'
+
+const routes: Array<RouteRecordRaw> = [
+  {
+    path: '/',
+    name: 'Home',
+    component: Home,
+    meta: {
+      requiresLogin: true,
+      hideNav: false
+    }
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login,
+    meta: {
+      requiresLogin: false,
+      hideNav: true
+    }
+  },
+  {
+    path: '/about',
+    name: 'About',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
+    meta: {
+      requiresLogin: false,
+      hideNav: false
+    }
+  },
+  {
+    path: '/auth_callback',
+    name: 'AuthCallback',
+    component: AuthCallback,
+    meta: {
+      requiresLogin: false,
+      hideNav: true
+    }
+  },
+  {
+    path: '/account',
+    name: 'Account',
+    component: Account,
+    meta: {
+      requiresLogin: true,
+      hideNav: false
+    }
+  }
+]
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: () => import('../views/HomeView.vue')
-    },
-    {
-      path: '/about',
-      name: 'about',
-      component: () => import('../views/AboutView.vue')
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('../views/LoginView.vue')
-    },
-    {
-      path: '/callback',
-      name: 'callback',
-      component: () => import('../views/CallBackView.vue')
-    },
-    {
-      path: '/login/2fa',
-      name: '2fa',
-      component: () => import('../views/2FAFormView.vue')
-    },
-	{
-		path: '/2fa/generate',
-		name: 'generate2fa',
-		component: () => import('../views/2FAGenerateView.vue')
-	},
-	{
-		path: '/2fa/enable',
-		name: 'enable2fa',
-		component: () => import('../views/2FAActivateView.vue')
-	},
-	{
-		path: '/avatar',
-		name: 'avatar',
-		component: () => import('../views/AvatarView.vue')
-	},
-	{
-		path: '/pseudo',
-		name: 'pseudo',
-		component: () => import('../views/PseudoView.vue')
-	},
-  ]
+  history: createWebHistory(),
+  routes
 })
 
-async function isAuthenticated() {
-	let jwtStore = useJwtStore();
-	try {
-		if (await jwtStore.validateToken(jwtStore.$state.token).then((t) => t)) {
-			return true;
-		}
-		return false;
-	}
-	catch {
-		return false;
-	}
-}
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.requiresLogin === false) {
+    return next()
+  }
 
-router.beforeEach(async (to, from) => {
-	if (to.name === 'callback' || to.name === 'login' || to.name === '2fa')
-		return
-	const allowed = await isAuthenticated();
-	if (!allowed)
-		return '/login';
+  if (from.name !== 'AuthCallback') {
+    await store.dispatch('validateToken')
+  }
+  if (store.getters.isAuthenticated === false) {
+    return next('/login')
+  }
+
+  if (to.meta.requiresLogin === false) {
+    return next('/')
+  }
+
+  return next()
 })
 
 export default router

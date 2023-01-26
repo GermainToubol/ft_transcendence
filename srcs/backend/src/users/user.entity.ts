@@ -1,6 +1,7 @@
 
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, OneToOne } from 'typeorm';
 import LocalFile from '../localfiles/localFile.entity';
+import { UserStatus } from './user_status.enum';
 
 @Entity()
 export class User {
@@ -30,13 +31,15 @@ export class User {
 	  }
 	)
 	avatar: LocalFile;
-   
+
 	@Column({ nullable: true })
 	avatarId: number;
 
 	@Column({ default: true })
 	isActive: boolean;
 
+	@Column({ default: UserStatus.OFFLINE })
+	status: UserStatus;
 	// @ManyToMany() friends
 	// dg sdg(( sdfg)) sdfg
 }

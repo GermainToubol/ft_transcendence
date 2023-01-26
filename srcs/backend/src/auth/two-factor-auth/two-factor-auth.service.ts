@@ -13,6 +13,7 @@ import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
 import { Response } from "express";
 import { jwtConstants } from "../constants";
+import { UserStatus } from "src/users/user_status.enum";
 
 dotenv.config();
 @Injectable()
@@ -23,13 +24,10 @@ export class TwoFactorAuthService {
         private configService: ConfigService,
     ) { }
 
-    /* method used for changing 2fa bool */
     async enableDisableTwoFactorAuth(userId: number, bool: boolean) {
         return this.usersService.turnOnOffTwoFactorAuth(userId, bool);
     }
 
-    //*  All the new change will be here
-    //* code:
     async generateTwoFactorAuthSecretAndQRCode (user: User, res: Response): Promise<any>{
         const secret = authenticator.generateSecret();
         const otpauth = authenticator.keyuri(
@@ -37,23 +35,20 @@ export class TwoFactorAuthService {
             this.configService.get('APP_NAME')!,
             secret
         );
-        await this.usersService.setTwoFactorAuthSecret(user.id, secret);
+    	await this.usersService.setTwoFactorAuthSecret(user.id, secret);
         const dataUrl = await toDataURL(otpauth);
         return res.status(200).json(dataUrl);
     }
 
-    async verifyCode (data: any, code: string, bool: boolean): Promise<any> {
-        const user = await this.usersService.findOne(data.login);
-        if (!user) {
-            throw new NotFoundException('User not found');
-        }
-        const isValid = authenticator.verify({
-            token: code,
-            secret: user.twoFactorAuthSecret!,
-        });
-        if (!isValid) {
-            throw new UnauthorizedException('Invalid code.')
-        }
+    async verifyCode (login: any, code: string, bool: boolean): Promise<any> {
+        console.log(login)
+        const user = await this.usersService.findOne(login);
+        console.log(user)
+        if (!user)
+            return null;
+        const isValid = authenticator.verify({ token: code, secret: user.twoFactorAuthSecret! });
+        if (!isValid)
+			return null;
         const payload: JwtPayload = {
             id: user.id,
             login: user.login,
@@ -64,8 +59,9 @@ export class TwoFactorAuthService {
             secret: jwtConstants.secret,
             expiresIn: jwtConstants.expire,
         });
-        return {
-            token: token};// redirect to Home page
-    }
-    //* end
+		let update = await this.usersService.updateStatus(user.login, UserStatus.ONLINE);
+		if (!update)
+			return null;
+        return { token: token };
+	}
 }

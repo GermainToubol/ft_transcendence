@@ -1,19 +1,11 @@
-#******************************************************************************#
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Dockerfile                                         :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: gtoubol <marvin@42.fr>                     +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2022/12/15 18:02:18 by gtoubol           #+#    #+#              #
-#    Updated: 2022/12/15 18:02:18 by gtoubol          ###   ########.fr        #
-#                                                                              #
-#******************************************************************************#
+FROM node:16-alpine3.16
 
-FROM node:alpine AS frontend-base
+RUN apk update && apk add bash
 
-RUN mkdir -p /root/srcs
-COPY ./config.sh /tmp
-WORKDIR /root/srcs
+WORKDIR /frontend
+COPY package.json .
+COPY yarn.lock .
+RUN yarn
 
-ENTRYPOINT ["sh", "-c", "sh /tmp/config.sh && npm install && npm run dev"]
+COPY . .
+VOLUME [ "/frontend" ]
