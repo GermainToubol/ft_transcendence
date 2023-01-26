@@ -7,10 +7,11 @@ import LocalFilesService from 'src/localfiles/localFiles.service';
 import LocalFile from 'src/localfiles/localFile.entity';
 
 @Module({
-  providers: [UsersService, LocalFilesService],
-  imports: [TypeOrmModule.forFeature([User]), TypeOrmModule.forFeature([LocalFile])],
-  controllers: [
-	UserController,
-],
+    providers: [UsersService, LocalFilesService],
+    imports: [TypeOrmModule.forFeature([User]), TypeOrmModule.forFeature([LocalFile])],
+    controllers: [
+        UserController,
+    ],
+    exports: [UsersService],
 })
-export class UsersModule {}
+export class UsersModule { }
