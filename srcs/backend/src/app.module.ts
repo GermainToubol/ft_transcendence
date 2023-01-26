@@ -12,6 +12,7 @@ import { LocalFileModule } from './localfiles/localFiles.module';
 import { ChatModule } from './chat/chat.module';
 import { Message } from './chat/message/message.entity';
 import { ChatChannel } from './chat/channel/channel.entity';
+import { Chatter } from './chat/chatter/chatter.entity';
 
 @Module({
     imports: [
@@ -26,7 +27,7 @@ import { ChatChannel } from './chat/channel/channel.entity';
             username: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_NAME,
-            entities: [User, LocalFile, Message, ChatChannel],
+            entities: [User, LocalFile, Message, ChatChannel, Chatter],
             synchronize: true,
         }),
         ChatModule,
