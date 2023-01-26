@@ -1,6 +1,7 @@
-import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
+import { UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { JwtAuthGuardWs } from 'src/auth/guards/jwt-auth.guard';
 import { ChannelStatus } from './channel/channel.entity';
 import { ChatService } from './chat.service';
 import { MessageExceptionFilter } from './message/message.filter';
@@ -8,6 +9,7 @@ import { ChatChannelDto } from './types/channel.dto';
 import { ChatMessageDto } from './types/message.dto';
 
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+@UseGuards(JwtAuthGuardWs)
 @WebSocketGateway({ cors: { origin: "*" }, path: '/chatsocket' })
 export class ChatGateway {
     constructor(private chatService: ChatService) { }
@@ -37,6 +39,7 @@ export class ChatGateway {
         else
             this.server.to(`channel${channel.id}`).emit('recvMessage', message)
     }
+
 
     @UseFilters(new MessageExceptionFilter("Invalid channel creation"))
     @SubscribeMessage("addChannel")
