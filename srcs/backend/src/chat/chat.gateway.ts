@@ -1,4 +1,4 @@
-import { UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ExecutionContext, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { JwtAuthGuardWs } from 'src/auth/guards/jwt-auth.guard';
@@ -18,6 +18,7 @@ export class ChatGateway {
 
     handleConnection(client: Socket) {
         console.log(`connection: ${client.id}`);
+        console.log(client.handshake.auth)
     }
 
     handleDisconnect(client: Socket) {

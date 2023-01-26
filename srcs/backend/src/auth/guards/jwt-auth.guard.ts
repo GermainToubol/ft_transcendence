@@ -15,10 +15,18 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 export class JwtAuthGuardWs extends AuthGuard('jwt') {
     getRequest(context: ExecutionContext) {
         const wsctx = context.switchToWs().getClient();
+        console.log("a")
         return {
             headers: wsctx.handshake.headers,
         }
     }
+
+    // handleRequest(err: any, user: any, info: any) {
+    //     if (err || !user) {
+    //         return null;
+    //     }
+    //     return user;
+    // }
 }
 
 @Injectable()
