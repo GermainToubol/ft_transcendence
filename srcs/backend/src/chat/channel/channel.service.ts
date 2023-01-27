@@ -22,7 +22,9 @@ export class ChannelService {
         return await this.channelRepository.save(channel);
     }
 
-    async getChannelList(): Promise<ChatChannel[]> {
+    async getChannelList(opts?: any): Promise<ChatChannel[]> {
+        if (opts !== 'undefined')
+            return await this.channelRepository.find(opts)
         return await this.channelRepository.find();
     }
 
@@ -36,5 +38,45 @@ export class ChannelService {
 
     async postMessage(content: string, channel: ChatChannel, chatter: Chatter): Promise<Message> {
         return await this.messageService.create(content, channel, chatter);
+    }
+
+    async setAdminFromChannel(chatter: Chatter, channel: ChatChannel) {
+        if (channel.channelAdmins.findIndex((user) => user.id === chatter.id) !== -1)
+            return;
+        channel.channelAdmins.push(chatter);
+        await this.channelRepository.save(channel);
+    }
+
+    async unsetAdminFromChannel(chatter: Chatter, channel: ChatChannel) {
+        const index: number = channel.channelAdmins.findIndex((user) => user.id === chatter.id);
+        if (index === -1)
+            return;
+        channel.channelAdmins.splice(index, 1);
+        await this.channelRepository.save(channel);
+    }
+
+    isChatterAdminFromChannel(chatter: Chatter, channel: ChatChannel): boolean {
+        const index: number = channel.channelAdmins.findIndex((user) => user.id === chatter.id);
+        return index !== -1;
+    }
+
+    async banChatterFromChannel(chatter: Chatter, channel: ChatChannel) {
+        if (channel.bannedUsers.findIndex((user) => user.id === chatter.id) !== -1)
+            return;
+        channel.bannedUsers.push(chatter);
+        await this.channelRepository.save(channel);
+    }
+
+    async unbanChatterFromChannel(chatter: Chatter, channel: ChatChannel) {
+        const index: number = channel.bannedUsers.findIndex((user) => user.id === chatter.id);
+        if (index === -1)
+            return;
+        channel.bannedUsers.splice(index, 1);
+        await this.channelRepository.save(channel);
+    }
+
+    isChatterBannedFromChannel(chatter: Chatter, channel: ChatChannel): boolean {
+        const index: number = channel.bannedUsers.findIndex((user) => user.id === chatter.id);
+        return index !== -1;
     }
 }
