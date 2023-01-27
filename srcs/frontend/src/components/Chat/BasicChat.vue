@@ -17,6 +17,8 @@
 			 channelName: "",
 			 chatid: 0,
 			 picked: 0,
+			 banlogin: "",
+			 adminlogin: "",
 		 }
 	 },
 	 methods: {
@@ -66,6 +68,38 @@
 		 updateSelectedChannel(chan: number) {
 			 this.chatid = chan;
 		 },
+		 banChatter() {
+			 const message = {
+				 banLogin: this.banlogin,
+				 channelId: this.chatid,
+			 }
+			 socket.emit("banChatter", message);
+			 this.banlogin = "";
+		 },
+		 unbanChatter() {
+			 const message = {
+				 banLogin: this.banlogin,
+				 channelId: this.chatid,
+			 }
+			 socket.emit("unbanChatter", message);
+			 this.banlogin = "";
+		 },
+		 adminChatter() {
+			 const message = {
+				 banLogin: this.adminlogin,
+				 channelId: this.chatid,
+			 }
+			 socket.emit("adminChatter", message);
+			 this.adminlogin = "";
+		 },
+		 unadminChatter() {
+			 const message = {
+				 banLogin: this.adminlogin,
+				 channelId: this.chatid,
+			 }
+			 socket.emit("unadminChatter", message);
+			 this.adminlogin = "";
+		 }
 	 },
 	 computed: {
 		 chanmsg: function() {
@@ -123,5 +157,15 @@
 		<label for="two">Private</label>
 		<br>
 		<span>Picked: {{ picked }}</span>
+	</div>
+	<div>
+		<input v-model.trim="banlogin" type="text"/>
+		<button @click="banChatter">Ban</button>
+		<button @click="unbanChatter">UnBan</button>
+	</div>
+	<div>
+		<input v-model.trim="adminlogin" type="text"/>
+		<button @click="adminChatter">Adm</button>
+		<button @click="unadminChatter">UnAdm</button>
 	</div>
 </template>

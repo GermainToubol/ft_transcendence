@@ -28,8 +28,15 @@ export class ChannelService {
         return await this.channelRepository.find();
     }
 
-    async getChannelById(id: number): Promise<ChatChannel> {
-        return this.channelRepository.findOneBy({ id: id });
+    async getChannelById(id: number, opts?: any): Promise<ChatChannel> {
+        if (opts !== 'undefined')
+            return await this.channelRepository.findOne({
+                where: {
+                    id: id,
+                },
+                relations: opts,
+            });
+        return await this.channelRepository.findOneBy({ id: id });
     }
 
     async getChannelMessages(channel: ChatChannel): Promise<Message[]> {

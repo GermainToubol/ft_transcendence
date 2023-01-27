@@ -1,6 +1,6 @@
-import { createParamDecorator, ExecutionContext, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { JwtAuthGuardWs } from 'src/auth/guards/jwt-auth.guard';
 import { Chatter } from 'src/chatter/chatter.entity';
 import { User } from 'src/users/user.entity';
@@ -9,6 +9,7 @@ import { ChannelStatus, ChatChannel } from './channel/channel.entity';
 import { ChatService } from './chat.service';
 import { SendMessage } from './message/message.entity';
 import { MessageExceptionFilter } from './message/message.filter';
+import { BanChatterDto } from './types/banchatter.dto';
 import { ChatChannelDto } from './types/channel.dto';
 import { ChatMessageDto } from './types/message.dto';
 import { UserSocket } from './usersocket.adapter';
@@ -17,15 +18,17 @@ import { UserSocket } from './usersocket.adapter';
 @UseGuards(JwtAuthGuardWs)
 @WebSocketGateway({ cors: { origin: "*" }, path: '/chatsocket' })
 export class ChatGateway {
+    @WebSocketServer()
+    server: Server;
+    socketMap: Map<string, string>;
+
+
     constructor(
         private chatService: ChatService,
         private usersService: UsersService,
-    ) { }
-
-    @WebSocketServer()
-    server: Server;
-
-    socketMap: Map<string, string>;
+    ) {
+        this.socketMap = new Map<string, string>()
+    }
 
 
     handleConnection(client: UserSocket) {
@@ -83,5 +86,75 @@ export class ChatGateway {
             this.server.to(`channel${channel.id}`).emit('updateChannel', channel);
         else
             this.server.emit('updateChannel', channel);
+    }
+
+    @SubscribeMessage("adminChatter")
+    async handleChatterAdmin(client: UserSocket, payload: BanChatterDto) {
+
+        console.log(payload)
+        const admin: Chatter = await this.usersService
+            .findOne(client.userLogin, { chatter: true })
+            .then((user) => user.chatter)
+        console.log(admin)
+        console.log("admin")
+
+        const banned: Chatter = await this.usersService
+            .findOne(payload.banLogin, { chatter: true })
+            .then((user) => user.chatter)
+        console.log(banned)
+        console.log("banned")
+        await this.chatService.adminChatterFromChannel(admin, banned, payload.channelId);
+    }
+
+    @SubscribeMessage("unadminChatter")
+    async handleChatterUnadmin(client: UserSocket, payload: BanChatterDto) {
+
+        console.log(payload)
+        const admin: Chatter = await this.usersService
+            .findOne(client.userLogin, { chatter: true })
+            .then((user) => user.chatter)
+        console.log(admin)
+        console.log("admin")
+        const banned: Chatter = await this.usersService
+            .findOne(payload.banLogin, { chatter: true })
+            .then((user) => user.chatter)
+        console.log(banned)
+        console.log("unbanned")
+        await this.chatService.unadminChatterFromChannel(admin, banned, payload.channelId);
+    }
+
+    @SubscribeMessage("banChatter")
+    async handleChatterBan(client: UserSocket, payload: BanChatterDto) {
+
+        console.log(payload)
+        const admin: Chatter = await this.usersService
+            .findOne(client.userLogin, { chatter: true })
+            .then((user) => user.chatter)
+        console.log(admin)
+        console.log("admin")
+
+        const banned: Chatter = await this.usersService
+            .findOne(payload.banLogin, { chatter: true })
+            .then((user) => user.chatter)
+        console.log(banned)
+        console.log("banned")
+        await this.chatService.banChatterFromChannel(admin, banned, payload.channelId);
+    }
+
+    @SubscribeMessage("unbanChatter")
+    async handleChatterUnban(client: UserSocket, payload: BanChatterDto) {
+
+        console.log(payload)
+        const admin: Chatter = await this.usersService
+            .findOne(client.userLogin, { chatter: true })
+            .then((user) => user.chatter)
+        console.log(admin)
+        console.log("admin")
+        const banned: Chatter = await this.usersService
+            .findOne(payload.banLogin, { chatter: true })
+            .then((user) => user.chatter)
+        console.log(banned)
+        console.log("unbanned")
+        await this.chatService.unbanChatterFromChannel(admin, banned, payload.channelId);
     }
 }
