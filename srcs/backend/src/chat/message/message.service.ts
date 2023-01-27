@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Chatter } from 'src/chatter/chatter.entity';
 import { Repository } from 'typeorm';
 import { ChatChannel } from '../channel/channel.entity';
 import { Message } from './message.entity';
@@ -11,18 +12,33 @@ export class MessageService {
         private messageRepository: Repository<Message>
     ) { }
 
-    async create(content: string, channel: ChatChannel): Promise<Message> {
+    async create(
+        content: string,
+        channel: ChatChannel,
+        author: Chatter,
+    ): Promise<Message> {
         const msg = this.messageRepository.create()
         msg.content = content;
         msg.channel = channel;
+        msg.author = author;
         return await this.messageRepository.save(msg);
     }
 
     async findAllMessages(): Promise<Message[]> {
-        return await this.messageRepository.find({ relations: { channel: true } });
+        return await this.messageRepository.find({
+            relations: {
+                channel: true,
+                author: true,
+            },
+        });
     }
 
     async findMessageChannel(channel: ChatChannel): Promise<Message[]> {
-        return await this.messageRepository.find({ where: { channel: channel } })
+        return await this.messageRepository.find({
+            where: {
+                channel: channel,
+            },
+            relations: ["author", "author.user"]
+        })
     }
 }

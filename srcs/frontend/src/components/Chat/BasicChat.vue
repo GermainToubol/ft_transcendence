@@ -26,6 +26,7 @@
 			     .then((cc) => {
 					 cc.forEach((el) => {
 						 el.channel = channel;
+						 console.log(el)
 						 this.messages.push(el)})
 				 })
 			 .catch((err) => console.log(err))
@@ -104,7 +105,7 @@
 
 <template>
 	<button v-for="chan in channels" @click="updateSelectedChannel(chan.id)">{{chan.channelName}}({{chan.id}})</button>
-	<ul><li v-for="item in chanmsg">{{item.channel}} - {{ item.content }}</li></ul>
+	<ul><li v-for="item in chanmsg">{{item.authorUsername}}({{item.authorLogin}}) {{ item.content }}</li></ul>
 	<div>
 		<input v-model.trim="message" type="text"/><button @click="sendMessage">Send</button>
 	</div>

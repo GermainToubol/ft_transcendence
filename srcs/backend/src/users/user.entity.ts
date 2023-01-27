@@ -38,7 +38,7 @@ export class User {
     @Column({ default: true })
     isActive: boolean;
 
-    @OneToOne(() => Chatter)
+    @OneToOne(() => Chatter, (chatter) => chatter.user)
     @JoinColumn()
     chatter: Chatter;
 

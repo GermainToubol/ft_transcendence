@@ -14,5 +14,10 @@ export class Message {
     channel: ChatChannel;
 
     @ManyToOne(() => Chatter, (chatter) => chatter.messages)
-    author: Chatter;
+    author?: Chatter;
+}
+
+export class SendMessage extends Message {
+    authorLogin?: string;
+    authorUsername?: string;
 }
