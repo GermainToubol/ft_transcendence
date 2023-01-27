@@ -25,15 +25,18 @@ export class ChatGateway {
     @WebSocketServer()
     server: Server;
 
+    socketMap: Map<string, string>;
+
 
     handleConnection(client: UserSocket) {
         console.log(`connection: ${client.id}`);
-        console.log(client.handshake.auth)
+        this.socketMap.set(client.userLogin, client.id);
     }
 
 
     handleDisconnect(client: UserSocket) {
         console.log(`disconnection: ${client.id}`);
+        this.socketMap.delete(client.userLogin);
     }
 
 
