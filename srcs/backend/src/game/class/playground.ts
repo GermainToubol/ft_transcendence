@@ -21,7 +21,7 @@ export class Playground {
 	private _player1: string;
 	private _player2: string;
   
-	constructor(x: number, y: number, width: number, height: number, color: string, win_score: number, player1: string, player2: string) {
+	constructor(x: number, y: number, width: number, height: number, color: string, win_score: number, player1: string, player2: string, mode: boolean) {
 		this._x = x;
 		this._y = y;
 		this._width = width;
@@ -31,18 +31,20 @@ export class Playground {
 			this._x + this.getPaddleWidth(),
 			(this._x + this._height) / 2 - (this._y + this.getPaddleHeight()) / 2,
 			this.getPaddleWidth(),
-			this.getPaddleHeight(), '#A9BCCBff');
+			this.getPaddleHeight(),
+			mode ? '#000000' : '#A9BCCBff');
 		this._rightPaddle = new Paddle(
 			this._x + this._width - this.getPaddleWidth() * 2,
 			(this._y + this._height) / 2 - this.getPaddleHeight() / 2,
 			this.getPaddleWidth(),
 			this.getPaddleHeight(),
-			'#A9BCCBff');
+			mode ? '#000000' : '#A9BCCBff');
 		this._ball = new Ball(
 			this._width / 2,
 			this._height / 2,
-			'#A9BCCBff',
-			this.getRadius());
+			mode ? '#000000' : '#A9BCCBff',
+			this.getRadius(),
+			mode);
 	  this._leftPaddleController = new Control(this._leftPaddle);
 	  this._rightPaddleController = new Control(this._rightPaddle);
 	  this._scoreBoard = new ScoreBoard();

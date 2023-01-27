@@ -8,13 +8,16 @@ export class GameGateway
 
 	@WebSocketServer() server: Server;
 	private players: Socket[];
+	private playershard: Socket[];
+	private playerschat: Socket[];
+	private playerschathard: Socket[];
 
 	constructor(private gameService: GameService) {
 		this.players = [];
 	}
 
 	async handleConnection(client: Socket) {
-		await this.gameService.handleConnectedUser(client, this.players, this.server);
+		await this.gameService.handleConnectedUser(client, this.players, this.playershard, this.playerschat, this.playerschathard, this.server);
 	}
 
 	async handleDisconnect(client: Socket) {

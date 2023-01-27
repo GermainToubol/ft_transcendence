@@ -10,7 +10,8 @@ import { LobbyService } from "./lobby.service";
 @Injectable()
 export class GameService {
 	readonly logger = new Logger('Game Service: ');
-	readonly playground = new Playground(0, 0, 1000, 600, '#ffffff', 10, '', '');
+	readonly playground = new Playground(0, 0, 1000, 600, '#ffffff', 10, '', '', false);
+	readonly hardplayground = new Playground(0, 0, 1000, 600, '#680407', 10, '', '', true);
 
 	constructor(
 		private lobbyService: LobbyService,
@@ -21,16 +22,22 @@ export class GameService {
 		return playground.getPlayGroundInterface();
 	}
 
-	async handleConnectedUser(client: Socket, players: Socket[], server: Server) {
-		if (client.handshake.query.role === 'player') {
-			await this.handleConnectedPlayer(client, players, server);
+	async handleConnectedUser(client: Socket, players: Socket[], playershard: Socket[], playerschat: Socket[], playerschathard: Socket[], server: Server) {
+		if (client.handshake.query.role === 'player' && client.handshake.query.mode === 'normal' && client.handshake.query.chat === 'chat') {
+			await this.handleConnectedPlayer(client, playerschat, server, false);
+		} else if (client.handshake.query.role === 'player' && client.handshake.query.mode === 'hard' && client.handshake.query.chat === 'chat') {
+			await this.handleConnectedPlayer(client, playerschathard, server, true);
+		} else if (client.handshake.query.role === 'player' && client.handshake.query.mode === 'normal') {
+			await this.handleConnectedPlayer(client, players, server, false);
+		} else if (client.handshake.query.role === 'player' && client.handshake.query.mode === 'hard') {
+			await this.handleConnectedPlayer(client, playershard, server, true);
 		} else if (client.handshake.query.role === 'spectator') {
 			this.logger.log('Spectator connected: ' + client.id + ', roomname: ' + client.handshake.query.roomname);
 			await this.handleConnectedSpectator(client);
 		}
 	}
 
-	async handleConnectedPlayer(client: Socket, players: Socket[], server: Server) {
+	async handleConnectedPlayer(client: Socket, players: Socket[], server: Server, mode: boolean) {
 		let user = await this.usersService.checkToken(client.handshake.query.accessToken as string);
 		if (!user) {
 			this.logger.error('Token Wasn\'t Verified');
@@ -40,8 +47,7 @@ export class GameService {
 		client.data.user = user;
 		if (user && user.status === UserStatus.PLAYING) {
 			client.emit('alreadyPlaying', { player: user.usual_full_name, message: 'You Are Already in a Game' });
-		  }
-		  else if (user && user.status === UserStatus.ONLINE) {
+		} else if (user && user.status === UserStatus.ONLINE) {
 			let update = await this.usersService.updateStatus(user.login, UserStatus.PLAYING);
 			if (!update) {
 			  this.logger.error('Couldn\'t Update Status');
@@ -57,12 +63,12 @@ export class GameService {
 			  client.data.role = 'player';
 			  const second = players.pop();
 			  const first = players.pop();
-			  this.startGame(first, second, server);
+			  this.startGame(first, second, server, mode);
 			}
-		  }
+		}
 	}
 
-	startGame(first: Socket, second: Socket, server: Server) {
+	startGame(first: Socket, second: Socket, server: Server, mode: boolean) {
 		const roomname = first.id + second.id;
 
 		first.join(roomname);
@@ -76,7 +82,7 @@ export class GameService {
 		let add = this.lobbyService.addRooms({ roomname, player1: first.data.user.usual_full_name as string, player2: second.data.user.usual_full_name as string });
 		if (!add)
 			return
-		const playground = new Playground(0, 0, 1000, 600, '#ffffff', 10, first.data.user.usual_full_name, second.data.user.usual_full_name);
+		const playground = new Playground(0, 0, 1000, 600, mode ? '#680407' : '#ffffff', 10, first.data.user.usual_full_name, second.data.user.usual_full_name, mode);
 		first.data.playground = playground;
 		second.data.playground = playground;
 		this.logger.log('Starting Game in Room: ' + roomname + ' between: ' + first.data.user.usual_full_name + ' & '+ second.data.user.usual_full_name);

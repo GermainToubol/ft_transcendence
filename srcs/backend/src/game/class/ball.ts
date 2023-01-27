@@ -10,20 +10,23 @@ export class Ball {
 	private _radius: number;
 	private _speedX: number;
 	private _speedY: number;
+	private _mode: boolean;
 	
 	constructor(
 		x: number,
 		y: number,
 		color: string,
 		radius: number,
+		mode: boolean
 	) {
 		this._x = x;
 		this._y = y;
-		this._speed = 4;
+		this._speed = mode ? 7 : 5;
 		this._color = color;
 		this._radius = radius;
 		this._speedX = 5;
 		this._speedY = 5;
+		this._mode = mode;
 	}
 
 	public get x(): number {
@@ -123,7 +126,7 @@ export class Ball {
 	public clean(x: number, y: number) {
 		this._x = x;
 		this._y = y;
-		this._speed = 6;
-		this._speedX = Math.random() > 0.5 ? -6 : 6;
+		this._speed = this._mode ? 7 : 5;
+		this._speedX = Math.random() > 0.5 ? -5 : 5;
 	}
 }

@@ -20,6 +20,7 @@ onMounted(() => {
         query: {
             'accessToken': jwtstore.$state.token,
             'role': 'player',
+            'mode': 'normal'
         },
     });
     if (game && game.value) {
