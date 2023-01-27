@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Chatter } from 'src/chatter/chatter.entity';
 import { ChannelStatus, ChatChannel } from './channel/channel.entity';
 import { ChannelService } from './channel/channel.service';
 import { Message } from './message/message.entity';
@@ -17,8 +18,8 @@ export class ChatService {
         return await this.channelService.getChannelById(id);
     }
 
-    async newMessage(content: string, channel: ChatChannel): Promise<Message> {
-        return await this.channelService.postMessage(content, channel);
+    async newMessage(content: string, channel: ChatChannel, chatter: Chatter): Promise<Message> {
+        return await this.channelService.postMessage(content, channel, chatter);
     }
 
     async getMessages(channel: ChatChannel): Promise<Message[]> {

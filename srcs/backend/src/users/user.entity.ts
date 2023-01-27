@@ -37,13 +37,13 @@ export class User {
 	@Column({ default: true })
 	isActive: boolean
 
+  @OneToOne(() => Chatter, (chatter) => chatter.user)
+  @JoinColumn()
+  chatter: Chatter;
+
 	@Column({ default: UserStatus.OFFLINE })
 	status: UserStatus
 
 	@Column({ default: 0 })
 	wins: number
-
-  @OneToOne(() => Chatter)
-  @JoinColumn()
-  chatter: Chatter;
 }

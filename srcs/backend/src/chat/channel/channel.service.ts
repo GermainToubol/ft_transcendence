@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ChannelStatus, ChatChannel } from './channel.entity';
 import { Message } from '../message/message.entity';
+import { Chatter } from 'src/chatter/chatter.entity';
 
 @Injectable()
 export class ChannelService {
@@ -33,7 +34,7 @@ export class ChannelService {
         return await this.messageService.findMessageChannel(channel);
     }
 
-    async postMessage(content: string, channel: ChatChannel): Promise<Message> {
-        return await this.messageService.create(content, channel);
+    async postMessage(content: string, channel: ChatChannel, chatter: Chatter): Promise<Message> {
+        return await this.messageService.create(content, channel, chatter);
     }
 }

@@ -1,7 +1,7 @@
 import { Controller, Get, Res, Param } from '@nestjs/common';
 import { Response } from "express";
 import { ChatService } from './chat.service';
-import { Message } from './message/message.entity';
+import { Message, SendMessage } from './message/message.entity';
 
 @Controller('chat')
 export class ChatController {
@@ -19,7 +19,17 @@ export class ChatController {
         @Res() res: Response,
         @Param('id') chanId: number) {
         const channel = await this.chatService.getChannelById(chanId);
-        const messages = await this.chatService.getMessages(channel);
-        res.json(messages)
+        const messages: Message[] = await this.chatService.getMessages(channel);
+        const sendMessages: SendMessage[] = messages.map(
+            function(msg: Message): SendMessage {
+                return {
+                    id: msg.id,
+                    content: msg.content,
+                    channel: msg.channel,
+                    authorLogin: msg.author.user.login,
+                    authorUsername: msg.author.user.usual_full_name,
+                };
+            })
+        res.json(sendMessages)
     }
 }

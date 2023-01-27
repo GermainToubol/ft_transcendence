@@ -37,8 +37,12 @@ export class UsersService {
 		}
     }
 
-    async findOne(login: string): Promise<User> {
-        const user = await this.usersRepository.findOneBy({login: login})
+    async findOne(login: string, relations?: any): Promise<User> {
+        let user;
+        if (relations !== "undefined")
+            user = await this.usersRepository.findOne({ where: { login: login }, relations: relations });
+        else
+            user = await this.usersRepository.findOneBy({ login: login });
         if (!user) {
           return null
         }
