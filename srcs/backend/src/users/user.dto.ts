@@ -1,4 +1,12 @@
-import { IsAlphanumeric, IsEmail, IsNotEmpty, IsNumber, IsString, IsUrl } from "class-validator"
+import {
+    IsAlphanumeric,
+    IsEmail,
+    IsNotEmpty,
+    IsNumber,
+    IsString,
+    IsUrl
+} from "class-validator";
+import { Chatter } from "src/chatter/chatter.entity";
 
 export class UserDto {
     @IsNumber()
@@ -19,5 +27,7 @@ export class UserDto {
 
     @IsUrl()
     @IsNotEmpty()
-    avatar_url?: string
+    avatar_url?: string;
+
+    chatter: Chatter;
 }

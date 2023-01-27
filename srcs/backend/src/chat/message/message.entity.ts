@@ -1,6 +1,6 @@
+import { Chatter } from 'src/chatter/chatter.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { ChatChannel } from '../channel/channel.entity';
-import { Chatter } from '../chatter/chatter.entity';
 
 @Entity()
 export class Message {

@@ -6,31 +6,37 @@ import { User } from './user.entity'
 import LocalFilesService from '../localfiles/localFiles.service'
 import { JwtService } from '@nestjs/jwt'
 import { UserStatus } from './user_status.enum'
-  
-  @Injectable()
-  export class UsersService {
-    constructor(
-      @InjectRepository(User)
-      private usersRepository: Repository<User>,
+import { ChatterService } from 'src/chatter/chatter.service'
+
+@Injectable()
+export class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
 	  private localFilesService: LocalFilesService,
 	  private jwtService: JwtService,
-    ) { }
-  
-    async create(user: UserDto): Promise<User> {
-		user.usual_full_name = user.usual_full_name.replace(' ', '_')
+    private chatterService: ChatterService
+  ) { }
+
+  async create(user: UserDto): Promise<User> {
+		const chatter = await this.chatterService.create();
+    if (!chatter)
+      return null
+    user.usual_full_name = user.usual_full_name.replace(' ', '_')
 		while (true) {
 			let has_same_name = await this.usersRepository.findOneBy({usual_full_name: user.usual_full_name})
 			if (has_same_name) {
 				user.usual_full_name += '_'
-				continue 
+				continue
 			}
+      user.chatter = chatter;
 			let save = await this.usersRepository.save(user)
 			if (!save)
 				return null
 			return save
 		}
     }
-  
+
     async findOne(login: string): Promise<User> {
         const user = await this.usersRepository.findOneBy({login: login})
         if (!user) {
@@ -96,7 +102,7 @@ import { UserStatus } from './user_status.enum'
 				wins: users[i].wins
 			}
 			leaderboard[i] = test
-		} 
+		}
 		return leaderboard.sort((a, b) => (a.wins < b.wins ? 1 : -1))
 	}
 
@@ -151,10 +157,10 @@ import { UserStatus } from './user_status.enum'
         const user = await this.usersRepository.findOneBy({id: id})
         if (user)
         	return user
-		else 
+		else
 			return null
     }
-  
+
     async setTwoFactorAuthSecret(id: number, secret: string): Promise<any> {
       await this.usersRepository.update(id, { twoFactorAuthSecret: secret })
     }

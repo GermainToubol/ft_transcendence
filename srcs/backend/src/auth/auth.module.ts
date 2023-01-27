@@ -11,27 +11,28 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../users/user.entity';
 import { jwtConstants } from './constants';
 import LocalFile from 'src/localfiles/localFile.entity';
-import LocalFilesService from 'src/localfiles/localFiles.service';
+import { TwoFactorAuthModule } from './two-factor-auth/two-factor-auth.module';
 
 @Module({
     imports: [
-		TypeOrmModule.forFeature([User]),
-		TypeOrmModule.forFeature([LocalFile]),
+        TypeOrmModule.forFeature([
+            User,
+            LocalFile]),
         PassportModule,
-		JwtModule.register({
-			secret: jwtConstants.secret,
-			signOptions: { expiresIn: jwtConstants.expire }, }),
-		UsersModule,
+        JwtModule.register({
+            secret: jwtConstants.secret,
+            signOptions: { expiresIn: jwtConstants.expire },
+        }),
+        UsersModule,
+        TwoFactorAuthModule,
     ],
     controllers: [
-		AuthController,
-	],
+        AuthController,
+    ],
     providers: [
         AuthService,
         IntraStrategy,
-        UsersService,
         JwtStrategy,
-		LocalFilesService
     ],
 })
 export class AuthModule { }

@@ -13,7 +13,8 @@ import { GameHistoryModule } from './history/history.module';
 import { ChatModule } from './chat/chat.module';
 import { Message } from './chat/message/message.entity';
 import { ChatChannel } from './chat/channel/channel.entity';
-import { Chatter } from './chat/chatter/chatter.entity';
+import { ChatterModule } from './chatter/chatter.module';
+import { Chatter } from './chatter/chatter.entity';
 
 @Module({
     imports: [
@@ -34,6 +35,7 @@ import { Chatter } from './chat/chatter/chatter.entity';
             synchronize: true,
         }),
         ChatModule,
+        ChatterModule,
     ],
     controllers: [],
     providers: [],

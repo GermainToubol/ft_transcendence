@@ -2,6 +2,7 @@ import { GameHistory } from 'src/history/history.entity'
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, OneToOne, OneToMany } from 'typeorm'
 import LocalFile from '../localfiles/localFile.entity'
 import { UserStatus } from './user_status.enum'
+import { Chatter } from 'src/chatter/chatter.entity'
 
 @Entity()
 export class User {
@@ -41,4 +42,8 @@ export class User {
 
 	@Column({ default: 0 })
 	wins: number
+
+  @OneToOne(() => Chatter)
+  @JoinColumn()
+  chatter: Chatter;
 }
