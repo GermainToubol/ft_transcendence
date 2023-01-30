@@ -57,24 +57,29 @@ export class ChatService {
         return this.channelService.isChatterBannedFromChannel(user, channel);
     }
 
-    async adminChatterFromChannel(admin: Chatter, newadmin: Chatter, channelId: number) {
-        console.log("ask for admin")
+    async adminChatterFromChannel(admin: Chatter, newadmin: Chatter, channelId: number): Promise<boolean> {
         const channel = await this.getChannelById(
             channelId,
             { channelAdmins: true });
-        if (this.channelService.isChatterAdminFromChannel(admin, channel))
+        if (this.channelService.isChatterAdminFromChannel(admin, channel)) {
             this.channelService.setAdminFromChannel(newadmin, channel);
+            return true;
+        }
+        return false;
     }
 
-    async unadminChatterFromChannel(admin: Chatter, oldadmin: Chatter, channelId: number) {
+    async unadminChatterFromChannel(admin: Chatter, oldadmin: Chatter, channelId: number): Promise<boolean> {
         console.log("ask for unadmin")
         const channel = await this.getChannelById(
             channelId,
             { channelAdmins: true, owner: true });
         console.log(channel)
         if (this.channelService.isChatterAdminFromChannel(admin, channel)
-            && oldadmin.id !== channel.owner.id)
+            && oldadmin.id !== channel.owner.id) {
             this.channelService.unsetAdminFromChannel(oldadmin, channel);
+            return true;
+        }
+        return false;
     }
 
     isMutedFromChannel(user: Chatter, channel: ChatChannel): boolean {

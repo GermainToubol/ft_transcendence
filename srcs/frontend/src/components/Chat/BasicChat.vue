@@ -24,7 +24,7 @@
 	 },
 	 methods: {
 		 getChannelMsg(channel: number) {
-			 fetch(`${BACK_SERVER}/chat/${channel}`)
+			 fetch(`${BACK_SERVER}/chat/${channel}`, {headers: {Authorization: `Bearer ${jwtstore.$state.token}`}})
 				 .then((response) => response.json())
 			     .then((cc) => {
 					 cc.forEach((el) => {
@@ -35,7 +35,7 @@
 				 .catch((err) => console.log(err))
 		 },
 		 getChannels() {
-			 fetch(`${BACK_SERVER}/chat`)
+			 fetch(`${BACK_SERVER}/chat`, {headers: {Authorization: `Bearer ${jwtstore.$state.token}`}})
 				 .then((response) => response.json())
 				 .then((cc) => {
 					 cc.forEach((elem) => {
@@ -122,6 +122,10 @@
 		 chanmsg: function() {
 			 return this.messages.filter((msg) => {return msg.channel === this.chatid});
 		 },
+		 chanAdm: function() {
+			 const arr = this.channels.filter((chan) => {return chan.id === this.chatid})
+			 return (arr.length >= 1 && arr[0].chanAdm);
+		 },
 	 },
 	 mounted() {
 		 socket = io(BACK_SERVER, {
@@ -143,6 +147,14 @@
 		 })
 		 socket.on('badMessage', (message) => {
 			 console.log(message);
+		 })
+		 socket.on('updateAdmin', (message) => {
+			 const index = this.channels.findIndex((chan) => chan.id === message.channelId)
+			 console.log(message)
+			 console.log(index)
+			 if (index != -1)
+				 this.channels[index].chanAdm = Boolean(message.adminStatus)
+			 console.log(this.channels[index])
 		 })
 	 },
 	 beforeUnmount() {
@@ -175,6 +187,7 @@
 		<br>
 		<span>Picked: {{ picked }}</span>
 	</div>
+	<div v-if="chanAdm">
 	<div>
 		<input v-model.trim="banlogin" type="text"/>
 		<button @click="banChatter">Ban</button>
@@ -189,5 +202,6 @@
 		<input v-model.trim="adminlogin" type="text"/>
 		<button @click="adminChatter">Adm</button>
 		<button @click="unadminChatter">UnAdm</button>
+	</div>
 	</div>
 </template>
