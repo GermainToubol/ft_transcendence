@@ -14,9 +14,15 @@ export class Chatter {
     @OneToOne(() => User, (user) => user.chatter)
     user: User;
 
+    @OneToMany(() => ChatChannel, (channel) => channel.owner)
+    ownedChannels: ChatChannel[];
+
     @ManyToMany(() => ChatChannel, (channel) => channel.channelAdmins)
     adminFromChannels: ChatChannel[];
 
     @ManyToMany(() => ChatChannel, (channel) => channel.bannedUsers)
     bannendFromChannels: ChatChannel[];
+
+    @ManyToMany(() => ChatChannel, (channel) => channel.mutedUsers)
+    mutedInChannels: ChatChannel[];
 }
