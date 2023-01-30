@@ -22,6 +22,14 @@ export class ChannelService {
         return await this.channelRepository.save(channel);
     }
 
+    async setChannelOwner(
+        owner: Chatter,
+        channel: ChatChannel): Promise<ChatChannel> {
+        channel.owner = owner;
+        channel.channelAdmins = [owner];
+        return await this.channelRepository.save(channel);
+    }
+
     async getChannelList(opts?: any): Promise<ChatChannel[]> {
         if (opts !== 'undefined')
             return await this.channelRepository.find(opts)
@@ -86,4 +94,25 @@ export class ChannelService {
         const index: number = channel.bannedUsers.findIndex((user) => user.id === chatter.id);
         return index !== -1;
     }
+
+    async muteChatterFromChannel(chatter: Chatter, channel: ChatChannel) {
+        if (channel.mutedUsers.findIndex((user) => user.id === chatter.id) !== -1)
+            return;
+        channel.mutedUsers.push(chatter);
+        await this.channelRepository.save(channel);
+    }
+
+    async unmuteChatterFromChannel(chatter: Chatter, channel: ChatChannel) {
+        const index: number = channel.mutedUsers.findIndex((user) => user.id === chatter.id);
+        if (index === -1)
+            return;
+        channel.mutedUsers.splice(index, 1);
+        await this.channelRepository.save(channel);
+    }
+
+    isChatterMutedFromChannel(chatter: Chatter, channel: ChatChannel): boolean {
+        const index: number = channel.mutedUsers.findIndex((user) => user.id === chatter.id);
+        return index !== -1;
+    }
+
 }

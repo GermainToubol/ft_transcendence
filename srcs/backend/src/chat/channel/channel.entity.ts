@@ -1,5 +1,5 @@
 import { Chatter } from 'src/chatter/chatter.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
 import { Message } from '../message/message.entity';
 
 export enum ChannelStatus {
@@ -22,6 +22,9 @@ export class ChatChannel {
     @OneToMany(() => Message, (message) => message.channel)
     messages: Message[];
 
+    @ManyToOne(() => Chatter, (chatter) => chatter.ownedChannels)
+    owner: Chatter;
+
     @ManyToMany(() => Chatter, (chatter) => chatter.bannendFromChannels)
     @JoinTable()
     bannedUsers: Chatter[];
@@ -29,4 +32,10 @@ export class ChatChannel {
     @ManyToMany(() => Chatter, (chatter) => chatter.adminFromChannels)
     @JoinTable()
     channelAdmins: Chatter[];
+
+    @ManyToMany(() => Chatter, (chatter) => chatter.mutedInChannels)
+    @JoinTable()
+    mutedUsers: Chatter[];
+
+
 }
