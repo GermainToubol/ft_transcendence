@@ -18,6 +18,7 @@
 			 chatid: 0,
 			 picked: 0,
 			 banlogin: "",
+			 mutelogin: "",
 			 adminlogin: "",
 		 }
 	 },
@@ -31,7 +32,7 @@
 						 console.log(el)
 						 this.messages.push(el)})
 				 })
-			 .catch((err) => console.log(err))
+				 .catch((err) => console.log(err))
 		 },
 		 getChannels() {
 			 fetch(`${BACK_SERVER}/chat`)
@@ -83,6 +84,22 @@
 			 }
 			 socket.emit("unbanChatter", message);
 			 this.banlogin = "";
+		 },
+		 muteChatter() {
+			 const message = {
+				 banLogin: this.mutelogin,
+				 channelId: this.chatid,
+			 }
+			 socket.emit("muteChatter", message);
+			 this.mutelogin = "";
+		 },
+		 unmuteChatter() {
+			 const message = {
+				 banLogin: this.mutelogin,
+				 channelId: this.chatid,
+			 }
+			 socket.emit("unmuteChatter", message);
+			 this.mutelogin = "";
 		 },
 		 adminChatter() {
 			 const message = {
@@ -162,6 +179,11 @@
 		<input v-model.trim="banlogin" type="text"/>
 		<button @click="banChatter">Ban</button>
 		<button @click="unbanChatter">UnBan</button>
+	</div>
+	<div>
+		<input v-model.trim="mutelogin" type="text"/>
+		<button @click="muteChatter">Mute</button>
+		<button @click="unmuteChatter">UnMute</button>
 	</div>
 	<div>
 		<input v-model.trim="adminlogin" type="text"/>

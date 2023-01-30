@@ -104,7 +104,7 @@ export class ChatGateway {
             payload.channelLevel,
             owner
         );
-        if (!channel)
+        if (!channel || !owner)
             return;
         client.join(`channel${channel.id}`);
         if (payload.channelLevel == ChannelStatus.Private)
@@ -117,71 +117,73 @@ export class ChatGateway {
 
     @SubscribeMessage("adminChatter")
     async handleChatterAdmin(client: UserSocket, payload: BanChatterDto) {
-
-        console.log(payload)
         const admin: Chatter = await this.usersService
             .findOne(client.userLogin, { chatter: true })
             .then((user) => user.chatter)
-        console.log(admin)
-        console.log("admin")
-
-        const banned: Chatter = await this.usersService
+        const newadmin: Chatter = await this.usersService
             .findOne(payload.banLogin, { chatter: true })
             .then((user) => user.chatter)
-        console.log(banned)
-        console.log("banned")
-        await this.chatService.adminChatterFromChannel(admin, banned, payload.channelId);
+        await this.chatService.adminChatterFromChannel(admin, newadmin, payload.channelId);
     }
 
     @SubscribeMessage("unadminChatter")
     async handleChatterUnadmin(client: UserSocket, payload: BanChatterDto) {
-
-        console.log(payload)
         const admin: Chatter = await this.usersService
             .findOne(client.userLogin, { chatter: true })
             .then((user) => user.chatter)
-        console.log(admin)
-        console.log("admin")
-        const banned: Chatter = await this.usersService
+        const oldadmin: Chatter = await this.usersService
             .findOne(payload.banLogin, { chatter: true })
             .then((user) => user.chatter)
-        console.log(banned)
-        console.log("unbanned")
-        await this.chatService.unadminChatterFromChannel(admin, banned, payload.channelId);
+        await this.chatService.unadminChatterFromChannel(admin, oldadmin, payload.channelId);
     }
 
     @SubscribeMessage("banChatter")
     async handleChatterBan(client: UserSocket, payload: BanChatterDto) {
-
         const admin: Chatter = await this.usersService
             .findOne(client.userLogin, { chatter: true })
             .then((user) => user.chatter)
-        console.log(admin)
-        console.log("admin")
-
         const banned: Chatter = await this.usersService
             .findOne(payload.banLogin, { chatter: true })
             .then((user) => user.chatter)
-        console.log(banned)
-        console.log("banned")
         if (await this.chatService.banChatterFromChannel(admin, banned, payload.channelId))
             this.socketMap.get(payload.banLogin).leave(`channel${payload.channelId}`);
     }
 
     @SubscribeMessage("unbanChatter")
     async handleChatterUnban(client: UserSocket, payload: BanChatterDto) {
-        console.log(payload)
         const admin: Chatter = await this.usersService
             .findOne(client.userLogin, { chatter: true })
             .then((user) => user.chatter)
-        console.log(admin)
-        console.log("admin")
         const banned: Chatter = await this.usersService
             .findOne(payload.banLogin, { chatter: true })
             .then((user) => user.chatter)
-        console.log(banned)
-        console.log("unbanned")
         if (await this.chatService.unbanChatterFromChannel(admin, banned, payload.channelId))
             this.socketMap.get(payload.banLogin).join(`channel${payload.channelId}`)
+    }
+
+    async sleep(ms: number) {
+        return new Promise((r) => setTimeout(r, ms));
+    }
+
+    @SubscribeMessage("muteChatter")
+    async handleChatterMute(client: UserSocket, payload: BanChatterDto) {
+        const admin: Chatter = await this.usersService
+            .findOne(client.userLogin, { chatter: true })
+            .then((user) => user.chatter)
+        const muted: Chatter = await this.usersService
+            .findOne(payload.banLogin, { chatter: true })
+            .then((user) => user.chatter)
+        await this.chatService.muteChatterFromChannel(admin, muted, payload.channelId)
+    }
+
+    @SubscribeMessage("unmuteChatter")
+    async handleChatterUnmute(client: UserSocket, payload: BanChatterDto) {
+        const admin: Chatter = await this.usersService
+            .findOne(client.userLogin, { chatter: true })
+            .then((user) => user.chatter)
+        const mute: Chatter = await this.usersService
+            .findOne(payload.banLogin, { chatter: true })
+            .then((user) => user.chatter)
+        await this.chatService.unmuteChatterFromChannel(admin, mute, payload.channelId)
     }
 }
