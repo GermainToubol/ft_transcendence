@@ -25,4 +25,7 @@ export class Chatter {
 
     @ManyToMany(() => ChatChannel, (channel) => channel.mutedUsers)
     mutedInChannels: ChatChannel[];
+
+    @ManyToMany(() => ChatChannel, (channel) => channel.channelUsers)
+    channels: ChatChannel[];
 }

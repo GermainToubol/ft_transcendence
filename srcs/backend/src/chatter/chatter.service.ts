@@ -11,7 +11,7 @@ export class ChatterService {
     ) { }
 
     async create(): Promise<Chatter> {
-        const chatter = this.chatterRepository.create();
+        const chatter: Chatter = this.chatterRepository.create();
         return await this.chatterRepository.save(chatter);
     }
 }

@@ -20,6 +20,7 @@
 			 banlogin: "",
 			 mutelogin: "",
 			 adminlogin: "",
+			 password: "",
 		 }
 	 },
 	 methods: {
@@ -50,7 +51,7 @@
 		 },
 		 sendMessage() {
 			 const payload = {content: this.message, channel: this.chatid};
-			 if (this.message.length == 3 || this.message.length > 255) {
+			 if (this.message.length > 255) {
 				 console.log("invalid message")
 				 return;
 			 }
@@ -62,7 +63,6 @@
 				 channelName: this.channelName,
 				 channelLevel: Number(this.picked),
 			 };
-			 console.log(newChannel)
 			 socket.emit('addChannel', newChannel);
 			 this.channelName = "";
 		 },
@@ -116,15 +116,31 @@
 			 }
 			 socket.emit("unadminChatter", message);
 			 this.adminlogin = "";
+		 },
+		 setPassword() {
+			 const message = {
+				 channelId: this.chatid,
+				 password: this.password,
+			 }
+			 socket.emit("setPassword", message);
+			 this.password = "";
+		 },
+		 joinChannel() {
+			 const message = {
+				 channelId: this.chatid,
+				 password: this.password,
+			 }
+			 socket.emit("joinChannel", message);
+			 this.password = "";
 		 }
 	 },
 	 computed: {
 		 chanmsg: function() {
 			 return this.messages.filter((msg) => {return msg.channel === this.chatid});
 		 },
-		 chanAdm: function() {
-			 const arr = this.channels.filter((chan) => {return chan.id === this.chatid})
-			 return (arr.length >= 1 && arr[0].chanAdm);
+		 chanAdm: function(): boolean {
+			 const arr = this.channels.filter((chan) => chan.id === this.chatid)
+			 return arr.length >= 1 && arr[0].channelAdm;
 		 },
 	 },
 	 mounted() {
@@ -153,7 +169,7 @@
 			 console.log(message)
 			 console.log(index)
 			 if (index != -1)
-				 this.channels[index].chanAdm = Boolean(message.adminStatus)
+				 this.channels[index].channelAdm = Boolean(message.adminStatus)
 			 console.log(this.channels[index])
 		 })
 	 },
@@ -187,21 +203,29 @@
 		<br>
 		<span>Picked: {{ picked }}</span>
 	</div>
+	<div>
+		<input v-model="password" type="text"/>
+		<button @click="joinChannel">Join Channel</button>
+	</div>
 	<div v-if="chanAdm">
-	<div>
-		<input v-model.trim="banlogin" type="text"/>
-		<button @click="banChatter">Ban</button>
-		<button @click="unbanChatter">UnBan</button>
-	</div>
-	<div>
-		<input v-model.trim="mutelogin" type="text"/>
-		<button @click="muteChatter">Mute</button>
-		<button @click="unmuteChatter">UnMute</button>
-	</div>
-	<div>
-		<input v-model.trim="adminlogin" type="text"/>
-		<button @click="adminChatter">Adm</button>
-		<button @click="unadminChatter">UnAdm</button>
-	</div>
+		<div>
+			<input v-model.trim="banlogin" type="text"/>
+			<button @click="banChatter">Ban</button>
+			<button @click="unbanChatter">UnBan</button>
+		</div>
+		<div>
+			<input v-model.trim="mutelogin" type="text"/>
+			<button @click="muteChatter">Mute</button>
+			<button @click="unmuteChatter">UnMute</button>
+		</div>
+		<div>
+			<input v-model.trim="adminlogin" type="text"/>
+			<button @click="adminChatter">Adm</button>
+			<button @click="unadminChatter">UnAdm</button>
+		</div>
+		<div>
+			<input v-model="password" type="text"/>
+			<button @click="setPassword">Set Password</button>
+		</div>
 	</div>
 </template>

@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { ChannelStatus, ChatChannel } from './channel.entity';
 import { Message } from '../message/message.entity';
 import { Chatter } from 'src/chatter/chatter.entity';
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class ChannelService {
@@ -115,4 +116,33 @@ export class ChannelService {
         return index !== -1;
     }
 
+    isChannelUser(user: Chatter, channel: ChatChannel): boolean {
+        if (channel.channelStatus == ChannelStatus.Public
+            || channel.channelUsers.findIndex((chatter) => chatter.id == user.id) != -1)
+            return true;
+        return false;
+    }
+
+    async addChannelUser(user: Chatter, password: string, channel: ChatChannel): Promise<boolean> {
+        let isMatch: boolean;
+        if (channel.password)
+            isMatch = await bcrypt.compare(password, channel.password);
+        else
+            isMatch = (password === "")
+        if (!isMatch)
+            return false;
+        channel.channelUsers.push(user);
+        await this.channelRepository.save(channel);
+        return true;
+    }
+
+    async setChannelPassword(password: string, channel: ChatChannel) {
+        let hash: string;
+        const salt = await bcrypt.genSalt();;
+        if (password === "")
+            hash = null;
+        hash = await bcrypt.hash(password, salt);
+        channel.password = hash;
+        await this.channelRepository.save(channel);
+    }
 }

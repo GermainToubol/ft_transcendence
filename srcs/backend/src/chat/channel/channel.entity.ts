@@ -25,6 +25,13 @@ export class ChatChannel {
     @ManyToOne(() => Chatter, (chatter) => chatter.ownedChannels)
     owner: Chatter;
 
+    @Column({ nullable: true })
+    password: string;
+
+    @ManyToMany(() => Chatter, (chatter) => chatter.channels)
+    @JoinTable()
+    channelUsers: Chatter[];
+
     @ManyToMany(() => Chatter, (chatter) => chatter.bannendFromChannels)
     @JoinTable()
     bannedUsers: Chatter[];
@@ -36,6 +43,4 @@ export class ChatChannel {
     @ManyToMany(() => Chatter, (chatter) => chatter.mutedInChannels)
     @JoinTable()
     mutedUsers: Chatter[];
-
-
 }
