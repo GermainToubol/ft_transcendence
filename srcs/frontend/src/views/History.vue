@@ -39,11 +39,11 @@ export default {
 
 <template>
 	<div>
-		HISTORIQUE DES PARTIES
+		HISTORIQUE DES PARTIES à mettre en forme
         {{ room }}
 	</div>
 	<div>
-		LEADERBOARD
+		LEADERBOARD à mettre en forme
 		{{ test }}
 	</div>
 </template>
