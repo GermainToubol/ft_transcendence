@@ -8,11 +8,13 @@ import { UsersService } from 'src/users/user.service';
 import { ChannelStatus, ChatChannel } from './channel/channel.entity';
 import { ChatService } from './chat.service';
 import { AdminExport } from './exports/admin.export';
+import { ChannelExport } from './exports/channel.export';
 import { SendMessage } from './message/message.entity';
 import { MessageExceptionFilter } from './message/message.filter';
 import { BanChatterDto } from './types/banchatter.dto';
 import { ChatChannelDto } from './types/channel.dto';
 import { ChatMessageDto } from './types/message.dto';
+import { PasswordDto } from './types/password.dto';
 import { UserSocket } from './usersocket.adapter';
 
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
@@ -35,15 +37,20 @@ export class ChatGateway {
     async handleConnection(client: UserSocket) {
         console.log(`connection: ${client.id}`);
         this.socketMap.set(client.userLogin, client);
-        const channels = await this.chatService.getChannels({ relations: { bannedUsers: true } });
-        console.log(channels)
-        const chatter = await this.usersService
-            .findOne(client.userLogin, { chatter: true })
+        const channels: ChatChannel[] = await this.chatService
+            .getChannels({ relations: { bannedUsers: true } })
+            .catch(() => { console.log("Invalid channel search"); return null; })
+        const chatter: Chatter = await this.usersService
+            .findOne(client.userLogin, ["chatter", "chatter.channels"])
             .then((user) => { return user.chatter })
-        channels.forEach((chan) => {
-            if (!this.chatService.isBannedFromChannel(chatter, chan))
-                client.join(`channel${chan.id}`);
-        })
+            .catch(() => { console.log("Invalid user search"); return null; })
+
+        if (!channels || !chatter)
+            return;
+        channels.filter((chan) => !this.chatService.isBannedFromChannel(chatter, chan))
+            .filter((chan) => chan.channelStatus === ChannelStatus.Public
+                || (chatter.channels.findIndex((elm) => elm.id === chan.id) !== -1))
+            .forEach((chan) => client.join(`channel${chan.id}`))
     }
 
 
@@ -57,14 +64,15 @@ export class ChatGateway {
     @SubscribeMessage("sendMessage")
     async handleMessage(client: UserSocket, payload: ChatMessageDto) {
         const channel: ChatChannel = await this.chatService
-            .getChannelById(payload.channel, { mutedUsers: true });
+            .getChannelById(payload.channel, { mutedUsers: true, bannedUsers: true, channelUsers: true });
         const user: User = await this.usersService
             .findOne(client.userLogin, { chatter: true })
 
         if (!channel || !user)
             return;
-
-        if (this.chatService.isMutedFromChannel(user.chatter, channel))
+        if (this.chatService.isMutedFromChannel(user.chatter, channel)
+            || this.chatService.isBannedFromChannel(user.chatter, channel)
+            || !this.chatService.isChannelUser(user.chatter, channel))
             return;
 
         let message: SendMessage = await this.chatService
@@ -94,6 +102,23 @@ export class ChatGateway {
         })
     }
 
+    @SubscribeMessage("joinChannel")
+    async handleJoinChannel(client: UserSocket, payload: PasswordDto) {
+        const chatter: Chatter = await this.usersService
+            .findOne(client.userLogin, { chatter: true })
+            .then((user) => user.chatter)
+        if (await this.chatService.addChannelUser(chatter, payload.password, payload.channelId))
+            client.join(`channel${payload.channelId}`)
+    }
+
+    @SubscribeMessage("joinChannel")
+    async handleSetPassword(client: UserSocket, payload: PasswordDto) {
+        const chatter: Chatter = await this.usersService
+            .findOne(client.userLogin, { chatter: true })
+            .then((user) => user.chatter)
+        await this.chatService.addChannelPassword(chatter, payload.password, payload.channelId)
+    }
+
     @UseFilters(new MessageExceptionFilter("Invalid channel creation"))
     @SubscribeMessage("addChannel")
     async handleChannelCreation(client: UserSocket, payload: ChatChannelDto) {
@@ -109,14 +134,21 @@ export class ChatGateway {
         if (!channel || !owner)
             return;
         client.join(`channel${channel.id}`);
+        const chanMsg: ChannelExport = {
+            id: channel.id,
+            channelName: channel.channelName,
+            channelAdm: false,
+            channelStatus: channel.channelStatus,
+            hasPasswd: false
+        }
         if (payload.channelLevel == ChannelStatus.Private)
             this.server
                 .to(`channel${channel.id}`)
-                .emit('updateChannel', channel);
+                .emit('updateChannel', chanMsg);
         else
             this.server
-                .emit('updateChannel', channel);
-        if (payload.channelLevel == ChannelStatus.Public)
+                .emit('updateChannel', chanMsg);
+        if (payload.channelLevel != ChannelStatus.Public)
             this.addUsersToChannel(`channel${channel.id}`, [])
         const adm: AdminExport = {
             channelId: channel.id,
@@ -125,14 +157,17 @@ export class ChatGateway {
         client.emit("updateAdmin", adm)
     }
 
+
     @SubscribeMessage("adminChatter")
     async handleChatterAdmin(client: UserSocket, payload: BanChatterDto) {
         const admin: Chatter = await this.usersService
             .findOne(client.userLogin, { chatter: true })
             .then((user) => user.chatter)
+            .catch((err) => { console.log(err); return null; })
         const newadmin: Chatter = await this.usersService
             .findOne(payload.banLogin, { chatter: true })
             .then((user) => user.chatter)
+            .catch((err) => { console.log(err); return null; })
         const adm: AdminExport = {
             channelId: payload.channelId,
             adminStatus: true,
@@ -148,7 +183,9 @@ export class ChatGateway {
                         .get(payload.banLogin)
                         .emit('updateAdmin', adm);
             })
+            .catch((err) => console.log(err))
     }
+
 
     @SubscribeMessage("unadminChatter")
     async handleChatterUnadmin(client: UserSocket, payload: BanChatterDto) {
@@ -173,6 +210,7 @@ export class ChatGateway {
                         .get(payload.banLogin)
                         .emit('updateAdmin', adm);
             })
+            .catch(() => null)
     }
 
     @SubscribeMessage("banChatter")
@@ -180,9 +218,13 @@ export class ChatGateway {
         const admin: Chatter = await this.usersService
             .findOne(client.userLogin, { chatter: true })
             .then((user) => user.chatter)
+            .catch(() => null)
         const banned: Chatter = await this.usersService
             .findOne(payload.banLogin, { chatter: true })
             .then((user) => user.chatter)
+            .catch(() => null)
+        if (!admin || !banned)
+            return;
         await this.chatService
             .banChatterFromChannel(admin, banned, payload.channelId)
             .then((ret) => {
@@ -191,6 +233,7 @@ export class ChatGateway {
                         .get(payload.banLogin)
                         .leave(`channel${payload.channelId}`);
             })
+            .catch(() => null)
     }
 
     @SubscribeMessage("unbanChatter")
@@ -198,10 +241,14 @@ export class ChatGateway {
         const admin: Chatter = await this.usersService
             .findOne(client.userLogin, { chatter: true })
             .then((user) => user.chatter)
+            .catch(() => null)
         const banned: Chatter = await this.usersService
             .findOne(payload.banLogin, { chatter: true })
             .then((user) => user.chatter)
-        if (await this.chatService.unbanChatterFromChannel(admin, banned, payload.channelId))
+            .catch(() => null)
+        if (!admin || !banned)
+            return;
+        if (await this.chatService.unbanChatterFromChannel(admin, banned, payload.channelId).catch(() => false))
             this.socketMap.get(payload.banLogin).join(`channel${payload.channelId}`)
     }
 
@@ -210,10 +257,16 @@ export class ChatGateway {
         const admin: Chatter = await this.usersService
             .findOne(client.userLogin, { chatter: true })
             .then((user) => user.chatter)
+            .catch(() => null)
         const muted: Chatter = await this.usersService
             .findOne(payload.banLogin, { chatter: true })
             .then((user) => user.chatter)
-        await this.chatService.muteChatterFromChannel(admin, muted, payload.channelId)
+            .catch(() => null)
+        if (!admin || !muted)
+            return;
+        await this.chatService
+            .muteChatterFromChannel(admin, muted, payload.channelId)
+            .catch(() => null)
     }
 
     @SubscribeMessage("unmuteChatter")
@@ -221,9 +274,15 @@ export class ChatGateway {
         const admin: Chatter = await this.usersService
             .findOne(client.userLogin, { chatter: true })
             .then((user) => user.chatter)
+            .catch(() => null)
         const mute: Chatter = await this.usersService
             .findOne(payload.banLogin, { chatter: true })
             .then((user) => user.chatter)
-        await this.chatService.unmuteChatterFromChannel(admin, mute, payload.channelId)
+            .catch(() => null)
+        if (!admin || !mute)
+            return;
+        await this.chatService
+            .unmuteChatterFromChannel(admin, mute, payload.channelId)
+            .catch(() => null)
     }
 }

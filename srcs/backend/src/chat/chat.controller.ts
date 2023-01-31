@@ -20,10 +20,13 @@ export class ChatController {
         const chatter = await this.userService.findOne(user.login, { chatter: true }).then((u) => u.chatter);
         const channels = await this.chatService.getChannels({ relations: { channelAdmins: true } });
         const filtered = channels.map(function(chan: ChatChannel): ChannelExport {
+            console.log(chan.channelAdmins.findIndex((c) => c.id === chatter.id) !== -1)
             return {
                 id: chan.id,
                 channelName: chan.channelName,
                 channelAdm: chan.channelAdmins.findIndex((c) => c.id === chatter.id) !== -1,
+                channelStatus: chan.channelStatus,
+                hasPasswd: false,
             };
         })
         res.json(filtered);

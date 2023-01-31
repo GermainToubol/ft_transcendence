@@ -31,6 +31,26 @@ export class ChatService {
         return await this.channelService.setChannelOwner(owner, channel);
     }
 
+    isChannelUser(user: Chatter, channel: ChatChannel): boolean {
+        return this.channelService.isChannelUser(user, channel);
+    }
+
+    async addChannelUser(user: Chatter, password: string, channelId: number): Promise<boolean> {
+        const channel = await this.getChannelById(
+            channelId,
+            { channelUsers: true });
+        return await this.channelService.addChannelUser(user, password, channel);
+    }
+
+    async addChannelPassword(user: Chatter, password: string, channelId: number): Promise<boolean> {
+        const channel = await this.getChannelById(channelId, { owner: true });
+        if (user.id == channel.owner.id) {
+            this.channelService.setChannelPassword(password, channel);
+            return true;
+        }
+        return false;
+    }
+
     async banChatterFromChannel(admin: Chatter, banned: Chatter, channelId: number): Promise<boolean> {
         const channel = await this.getChannelById(
             channelId,
