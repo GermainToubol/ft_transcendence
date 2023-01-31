@@ -1,5 +1,6 @@
 
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, OneToOne } from 'typeorm';
+import { GameHistory } from 'src/history/history.entity';
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, OneToOne, OneToMany } from 'typeorm';
 import LocalFile from '../localfiles/localFile.entity';
 import { UserStatus } from './user_status.enum';
 
@@ -35,11 +36,15 @@ export class User {
 	@Column({ nullable: true })
 	avatarId: number;
 
+	@OneToMany(() => GameHistory, (gameHistory) => gameHistory.user)
+	gamesHistory: GameHistory[];
+
 	@Column({ default: true })
 	isActive: boolean;
 
 	@Column({ default: UserStatus.OFFLINE })
 	status: UserStatus;
-	// @ManyToMany() friends
-	// dg sdg(( sdfg)) sdfg
+
+	@Column({ default: 0 })
+	wins: number;
 }

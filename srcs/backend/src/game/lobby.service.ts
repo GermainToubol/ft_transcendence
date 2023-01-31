@@ -1,6 +1,5 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { retry } from "rxjs";
 import { Repository } from "typeorm";
 import { CreateGameRoomDto } from "./room.dto";
 import { Room } from "./room.entity";

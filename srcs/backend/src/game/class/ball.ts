@@ -105,9 +105,9 @@ export class Ball {
 			const angle = (Math.PI / 4) * collisionPoint;
 			const direction = this._x + this._radius < playgroundWidth / 2 ? 1 : -1;
 
+			this._speed += 1;
 			this._speedX = direction * this._speed * Math.cos(angle);
 			this._speedY = this._speed * Math.sin(angle);
-			this._speed += 0.1;
 		}
 	}
 

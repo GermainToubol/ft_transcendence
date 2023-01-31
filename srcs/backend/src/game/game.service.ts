@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Server, Socket } from "socket.io";
-import { User } from "src/users/user.entity";
+import { GameHistoryService } from "src/history/history.service";
 import { UsersService } from "src/users/user.service";
 import { UserStatus } from "src/users/user_status.enum";
 import { Playground } from "./class/playground";
@@ -15,6 +15,7 @@ export class GameService {
 
 	constructor(
 		private lobbyService: LobbyService,
+		private gameHistoryService: GameHistoryService,
 		private usersService: UsersService
 	) {}
 
@@ -103,11 +104,28 @@ export class GameService {
 		clearInterval(first.data.gameInterval);
 		this.logger.log('Game in Room: ' + first.data.roomname + ' between: ', first.data.user.usual_full_name + ' & ' + second.data.user.usual_full_name + ' Finished');
 		if (playground.scoreBoard.playerOneScore > playground.scoreBoard.playerTwoScore) {
-			console.log(first.data.user.usual_full_name)
 			server.to(first.data.roomname).emit('endGame', { winner: first.data.user.usual_full_name, loser: second.data.user.usual_full_name });
+			let add = await this.gameHistoryService.addGameHistory({ userId: first.data.user.id as number, opponentId: first.data.opponentId as number, playerOneScore: playground.scoreBoard.playerOneScore as number, playerTwoScore: playground.scoreBoard.playerTwoScore as number });
+			if (!add)
+				return
+				let add2 = await this.gameHistoryService.addGameHistory({ userId: first.data.opponentId as number, opponentId: first.data.user.id as number, playerOneScore: playground.scoreBoard.playerTwoScore as number, playerTwoScore: playground.scoreBoard.playerOneScore as number });
+			if (!add2)
+				return
+			let wins = await this.usersService.updateWins(first.data.user.id, first.data.user.wins + 1)
+			if (!wins)
+				return
 		} else {
 			console.log(second.data.user.usual_full_name)
 			server.to(first.data.roomname).emit('endGame', { winner: second.data.user.usual_full_name, loser: first.data.user.usual_full_name });
+			let add = await this.gameHistoryService.addGameHistory({ userId: first.data.user.id as number, opponentId: first.data.opponentId as number, playerOneScore: playground.scoreBoard.playerOneScore as number, playerTwoScore: playground.scoreBoard.playerTwoScore as number });
+			if (!add)
+				return
+			let add2 = await this.gameHistoryService.addGameHistory({ userId: first.data.opponentId as number, opponentId: first.data.user.id as number, playerOneScore: playground.scoreBoard.playerTwoScore as number, playerTwoScore: playground.scoreBoard.playerOneScore as number });
+			if (!add2)
+				return
+			let wins = await this.usersService.updateWins(second.data.user.id, second.data.user.wins + 1)
+			if (!wins)
+				return
 		}
 		let del = await this.lobbyService.deleteRoom(first.data.roomname);
 		if (!del)

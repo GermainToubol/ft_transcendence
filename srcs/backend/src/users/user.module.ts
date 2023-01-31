@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 
 @Module({
   providers: [UsersService, LocalFilesService, JwtService],
-  imports: [TypeOrmModule.forFeature([User]), TypeOrmModule.forFeature([LocalFile])],
+  imports: [TypeOrmModule.forFeature([User, LocalFile])],
   controllers: [
 	UserController,
 ],

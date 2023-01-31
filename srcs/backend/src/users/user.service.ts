@@ -4,7 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserDto } from './user.dto';
 import { User } from './user.entity';
 import LocalFilesService from '../localfiles/localFiles.service';
-import { ok } from 'assert';
 import { JwtService } from '@nestjs/jwt';
 import { UserStatus } from './user_status.enum';
   
@@ -61,6 +60,44 @@ import { UserStatus } from './user_status.enum';
 		return user.usual_full_name;
 	}
 
+	async getHistory(login: string): Promise<any> {
+		const users = await this.usersRepository.find({
+			relations: ['gamesHistory'],
+			where: { login: login },
+		  })
+		if (!users) {
+		  return null
+		}
+		let history = []
+		let size = users[0].gamesHistory.length
+		for (let i = size -  1, k = 0; i >= 0; i--, k++) {
+			let opponent = await this.findOneById(users[0].gamesHistory[i].opponentId).then()
+			let test = {
+				opponentPseudo: opponent.usual_full_name,
+				opponentAvatar: opponent.avatarId,
+				playerOneScore: users[0].gamesHistory[i].playerOneScore,
+				playerTwoScore: users[0].gamesHistory[i].playerTwoScore,
+				victory: users[0].gamesHistory[i].playerOneScore > users[0].gamesHistory[i].playerTwoScore ? true : false
+			}
+			history[k] = test
+		}
+		return history
+	}
+
+	async getLeaderboard(): Promise<any> {
+		const users = await this.usersRepository.find()
+		let leaderboard = []
+		for (let i = 0; users[i] != null; i++) {
+			let test = {
+				pseudo: users[i].usual_full_name,
+				avatar: users[i].avatarId,
+				wins: users[i].wins
+			}
+			leaderboard[i] = test
+		} 
+		return leaderboard.sort((a, b) => (a.wins < b.wins ? 1 : -1))
+	}
+
 	async getAvatarId(login: string): Promise<number> {
 		const user = await this.usersRepository.findOneBy({login: login});
 		if (!user) {
@@ -77,6 +114,13 @@ import { UserStatus } from './user_status.enum';
 			return null;
 		const res = await this.usersRepository.update(user.id, { usual_full_name: usual_full_name });
 		return "OK";
+	}
+
+	async updateWins(id: string, wins: number): Promise<any> {
+		let test = await this.usersRepository.update(id, { wins: wins });
+		if (!test)
+			return null
+		return test
 	}
 
 	async updateStatus(login: string, status: UserStatus): Promise<User> {

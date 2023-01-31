@@ -13,7 +13,13 @@ export class UserController {
 	@Get('pseudo')
     @UseGuards(JwtAuthGuard)
     async validate(@ReqUser() user: string): Promise<string> {
-        return this.usersService.getPseudo(user).then();
+        return await this.usersService.getPseudo(user).then();
+    }
+
+	@Get('leaderboard')
+    @UseGuards(JwtAuthGuard)
+    async getLeaderboard(): Promise<any> {
+        return await this.usersService.getLeaderboard().then();
     }
 
 	@Post('setpseudo')
