@@ -1,17 +1,17 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity()
 export class Room {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: number
 
   @Column()
-  roomname: string;
+  roomname: string
 
   @Column()
-  player1: string;
+  player1: string
 
   @Column()
-  player2: string;
+  player2: string
 
 }

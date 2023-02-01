@@ -1,14 +1,14 @@
-import { IsIn, IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator'
 
 export class CreateGameRoomDto {
   @IsNotEmpty()
-  roomname: string;
+  roomname: string
 
   @IsNotEmpty()
   @IsString()
-  player1: string;
+  player1: string
 
   @IsNotEmpty()
   @IsString()
-  player2: string;
+  player2: string
 }

@@ -1,5 +1,5 @@
 export interface scoreBoardInterface {
-	playerOneScore: number;
-	playerTwoScore: number;
-	round: number;
+	playerOneScore: number
+	playerTwoScore: number
+	round: number
 }

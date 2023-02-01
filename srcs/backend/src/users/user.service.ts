@@ -1,12 +1,11 @@
-import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException, } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserDto } from './user.dto';
-import { User } from './user.entity';
-import LocalFilesService from '../localfiles/localFiles.service';
-import { ok } from 'assert';
-import { JwtService } from '@nestjs/jwt';
-import { UserStatus } from './user_status.enum';
+import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException, } from '@nestjs/common'
+import { Repository } from 'typeorm'
+import { InjectRepository } from '@nestjs/typeorm'
+import { UserDto } from './user.dto'
+import { User } from './user.entity'
+import LocalFilesService from '../localfiles/localFiles.service'
+import { JwtService } from '@nestjs/jwt'
+import { UserStatus } from './user_status.enum'
   
   @Injectable()
   export class UsersService {
@@ -18,13 +17,14 @@ import { UserStatus } from './user_status.enum';
     ) { }
   
     async create(user: UserDto): Promise<User> {
+		user.usual_full_name = user.usual_full_name.replace(' ', '_')
 		while (true) {
-			let has_same_name = await this.usersRepository.findOneBy({usual_full_name: user.usual_full_name});
+			let has_same_name = await this.usersRepository.findOneBy({usual_full_name: user.usual_full_name})
 			if (has_same_name) {
-				user.usual_full_name += '_';
-				continue ;
+				user.usual_full_name += '_'
+				continue 
 			}
-			let save = await this.usersRepository.save(user);
+			let save = await this.usersRepository.save(user)
 			if (!save)
 				return null
 			return save
@@ -32,85 +32,130 @@ import { UserStatus } from './user_status.enum';
     }
   
     async findOne(login: string): Promise<User> {
-        const user = await this.usersRepository.findOneBy({login: login});
+        const user = await this.usersRepository.findOneBy({login: login})
         if (!user) {
-          return null;
+          return null
         }
-        return user;
+        return user
     }
 
 	async findOneById(id: number): Promise<User> {
-        const user = await this.usersRepository.findOneBy({id: id});
+        const user = await this.usersRepository.findOneBy({id: id})
         if (!user) {
-          return null;
+          return null
         }
-        return user;
+        return user
     }
 
 	async checkToken(token:string): Promise<User> {
-		const check = await this.jwtService.verify(token, {publicKey: process.env.JWT_SECRET});
+		const check = await this.jwtService.verify(token, {publicKey: process.env.JWT_SECRET})
 		if (typeof check === 'object' && 'id' in check)
-			return await this.usersRepository.findOneBy({id: check.id});
+			return await this.usersRepository.findOneBy({id: check.id})
 	}
 
 	async getPseudo(login: string): Promise<string> {
-		const user = await this.usersRepository.findOneBy({login: login});
+		const user = await this.usersRepository.findOneBy({login: login})
 		if (!user) {
-		  return null;
+		  return null
 		}
-		return user.usual_full_name;
+		return user.usual_full_name
+	}
+
+	async getHistory(pseudo: string): Promise<any> {
+		const users = await this.usersRepository.find({
+			relations: ['gamesHistory'],
+			where: { usual_full_name: pseudo },
+		  })
+		if (!users) {
+		  return null
+		}
+		let history = []
+		let size = users[0].gamesHistory.length
+		for (let i = size -  1, k = 0; i >= 0; i--, k++) {
+			let opponent = await this.findOneById(users[0].gamesHistory[i].opponentId).then()
+			let test = {
+				opponentPseudo: opponent.usual_full_name,
+				opponentAvatar: opponent.avatarId,
+				playerOneScore: users[0].gamesHistory[i].playerOneScore,
+				playerTwoScore: users[0].gamesHistory[i].playerTwoScore,
+				hard: users[0].gamesHistory[i].hard,
+				victory: users[0].gamesHistory[i].playerOneScore > users[0].gamesHistory[i].playerTwoScore ? true : false
+			}
+			history[k] = test
+		}
+		return history
+	}
+
+	async getLeaderboard(): Promise<any> {
+		const users = await this.usersRepository.find()
+		let leaderboard = []
+		for (let i = 0; users[i] != null; i++) {
+			let test = {
+				pseudo: users[i].usual_full_name,
+				avatar: users[i].avatarId,
+				wins: users[i].wins
+			}
+			leaderboard[i] = test
+		} 
+		return leaderboard.sort((a, b) => (a.wins < b.wins ? 1 : -1))
 	}
 
 	async getAvatarId(login: string): Promise<number> {
-		const user = await this.usersRepository.findOneBy({login: login});
+		const user = await this.usersRepository.findOneBy({login: login})
 		if (!user) {
-		  return 0;
+		  return 0
 		}
 		if (user.avatarId === null)
-			return 0;
-		return user.avatarId;
+			return 0
+		return user.avatarId
 	}
 
 	async setPseudo(user: any, usual_full_name: string) {
-		const check = await this.usersRepository.findOneBy({usual_full_name: usual_full_name});
+		const check = await this.usersRepository.findOneBy({usual_full_name: usual_full_name})
 		if (check)
-			return null;
-		const res = await this.usersRepository.update(user.id, { usual_full_name: usual_full_name });
-		return "OK";
+			return null
+		const res = await this.usersRepository.update(user.id, { usual_full_name: usual_full_name })
+		return "OK"
+	}
+
+	async updateWins(id: string, wins: number): Promise<any> {
+		let test = await this.usersRepository.update(id, { wins: wins })
+		if (!test)
+			return null
+		return test
 	}
 
 	async updateStatus(login: string, status: UserStatus): Promise<User> {
-		const updated = await this.findOne(login);
+		const updated = await this.findOne(login)
 		if (updated) {
-			let test = await this.usersRepository.update(updated.id, { status: status });
+			let test = await this.usersRepository.update(updated.id, { status: status })
 			if (!test)
-				return null;
+				return null
 		}
-		return updated;
+		return updated
 	}
 
 	async addAvatar(user: any, fileData: LocalFileDto) {
-		const avatar = await this.localFilesService.saveLocalFileData(fileData);
+		const avatar = await this.localFilesService.saveLocalFileData(fileData)
 		await this.usersRepository.update(user.id, { avatarId: avatar.id })
 		return (await this.findOne(user.login)).avatarId
 	  }
 
     async remove(id: number | string): Promise<any> {
-        let remove = await this.usersRepository.delete(id);
+        let remove = await this.usersRepository.delete(id)
     }
 
     //* two factor authentication
     async turnOnOffTwoFactorAuth(id: number, bool: boolean): Promise<User> {
-        await this.usersRepository.update(id, { is2faEnabled: bool });
-        const user = await this.usersRepository.findOneBy({id: id});
+        await this.usersRepository.update(id, { is2faEnabled: bool })
+        const user = await this.usersRepository.findOneBy({id: id})
         if (user)
-        	return user;
+        	return user
 		else 
 			return null
     }
   
     async setTwoFactorAuthSecret(id: number, secret: string): Promise<any> {
-      await this.usersRepository.update(id, { twoFactorAuthSecret: secret });
+      await this.usersRepository.update(id, { twoFactorAuthSecret: secret })
     }
-};
-  
+}

@@ -1,10 +1,8 @@
-import { BadRequestException, Body, Controller, Get, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { ReqUser } from './req-user.decorator';
-import { UsersService } from './user.service';
-import LocalFilesInterceptor from "../localfiles/localFiles.interceptor";
+import { BadRequestException, Body, Controller, Get, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
+import { ReqUser } from './req-user.decorator'
+import { UsersService } from './user.service'
+import LocalFilesInterceptor from "../localfiles/localFiles.interceptor"
 
 @Controller('user')
 export class UserController {
@@ -13,7 +11,13 @@ export class UserController {
 	@Get('pseudo')
     @UseGuards(JwtAuthGuard)
     async validate(@ReqUser() user: string): Promise<string> {
-        return this.usersService.getPseudo(user).then();
+        return await this.usersService.getPseudo(user).then()
+    }
+
+	@Get('leaderboard')
+    @UseGuards(JwtAuthGuard)
+    async getLeaderboard(): Promise<any> {
+        return await this.usersService.getLeaderboard().then()
     }
 
 	@Post('setpseudo')
@@ -29,9 +33,9 @@ export class UserController {
 		path: '/avatar',
 		fileFilter: (request, file, callback) => {
 			if (!file.mimetype.includes('image')) {
-			  return callback(new BadRequestException('Provide a valid image'), false);
+			  return callback(new BadRequestException('Provide a valid image'), false)
 			}
-			callback(null, true);
+			callback(null, true)
 		  },
 		  limits: {
 			fileSize: Math.pow(1024, 2) // 1MB
@@ -42,6 +46,6 @@ export class UserController {
 			path: file.path,
 			filename: file.originalname,
 			mimetype: file.mimetype
-		  });
+		  })
 	}
 }
