@@ -62,6 +62,7 @@
 			 const newChannel = {
 				 channelName: this.channelName,
 				 channelLevel: Number(this.picked),
+				 password: this.password,
 			 };
 			 socket.emit('addChannel', newChannel);
 			 this.channelName = "";
@@ -189,9 +190,6 @@
 		<input v-model.trim="message" type="text"/><button @click="sendMessage">Send</button>
 	</div>
 	<div>
-		<input v-model.trim="channelName" type="text"/><button @click="createChannel">Create channel</button>
-	</div>
-	<div>
 		<input type="radio" id="zero" value=0 v-model=picked>
 		<label for="one">Public</label>
 		<br>
@@ -200,8 +198,10 @@
 		<br>
 		<input type="radio" id="two" value=2 v-model=picked>
 		<label for="two">Private</label>
-		<br>
-		<span>Picked: {{ picked }}</span>
+		<div>
+		<input v-model.trim="channelName" type="text"/><button @click="createChannel">Create channel</button>
+		<br><input v-if="picked == 1" v-model="password" type="text"/>
+	</div>
 	</div>
 	<div>
 		<input v-model="password" type="text"/>
