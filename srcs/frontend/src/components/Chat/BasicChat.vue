@@ -50,6 +50,16 @@
 				 })
 				 .catch((err) => console.log(err))
 		 },
+		 getInvitations() {
+			 fetch(`${BACK_SERVER}/chat/invitations/me`, {headers: {Authorization: `Bearer ${jwtstore.$state.token}`}})
+				 .then((response) => { console.log("qww", response); return response.json()})
+				 .then((cc) => {
+					 cc.forEach((elem) => {
+						 console.log(elem)
+						 this.invitations.push(elem);
+					 })
+				 })
+		 },
 		 sendMessage() {
 			 const payload = {content: this.message, channel: this.chatid};
 			 if (this.message.length > 255) {
@@ -188,6 +198,7 @@
 			 },
 		 })
 		 this.getChannels();
+		 this.getInvitations();
 		 socket.on('recvMessage', (message) => {
 			 message.channel = message.channel.id
 			 this.messages.push(message);
