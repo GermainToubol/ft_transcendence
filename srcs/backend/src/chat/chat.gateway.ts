@@ -108,8 +108,10 @@ export class ChatGateway {
         const chatter: Chatter = await this.usersService
             .findOne(client.userLogin, { chatter: true })
             .then((user) => user.chatter)
-        if (await this.chatService.addChannelUser(chatter, payload.password, payload.channelId))
+        if (await this.chatService.addChannelUser(chatter, payload.password, payload.channelId)) {
             client.join(`channel${payload.channelId}`)
+            client.emit("retriveMessages", payload.channelId)
+        }
     }
 
     @SubscribeMessage("setPassword")
@@ -332,6 +334,7 @@ export class ChatGateway {
         client.join(`channel${payload.channelId}`);
         client.emit("updateChannel", message);
         client.emit("popInvitation", message);
+        client.emit("retriveMessage", payload.channelId);
     }
 
     @SubscribeMessage("refuseInvitation")
