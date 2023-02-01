@@ -43,4 +43,7 @@ export class ChatChannel {
     @ManyToMany(() => Chatter, (chatter) => chatter.mutedInChannels)
     @JoinTable()
     mutedUsers: Chatter[];
+
+    @ManyToMany(() => Chatter, (chatter) => chatter.invitations)
+    invitedUsers: Chatter[];
 }

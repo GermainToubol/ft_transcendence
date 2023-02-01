@@ -21,6 +21,8 @@
 			 mutelogin: "",
 			 adminlogin: "",
 			 password: "",
+			 invitations: [],
+			 invitedUser: "",
 		 }
 	 },
 	 methods: {
@@ -30,7 +32,6 @@
 			     .then((cc) => {
 					 cc.forEach((el) => {
 						 el.channel = channel;
-						 console.log(el)
 						 this.messages.push(el)})
 				 })
 				 .catch((err) => console.log(err))
@@ -66,6 +67,7 @@
 			 };
 			 socket.emit('addChannel', newChannel);
 			 this.channelName = "";
+			 this.password = "";
 		 },
 		 updateSelectedChannel(chan: number) {
 			 this.chatid = chan;
@@ -133,6 +135,34 @@
 			 }
 			 socket.emit("joinChannel", message);
 			 this.password = "";
+		 },
+		 inviteUser() {
+			 const message = {
+				 channelId: this.chatid,
+				 userLogin: this.invitedUser,
+			 }
+			 socket.emit("inviteUser", message)
+			 this.invitedUser = "";
+		 },
+		 acceptInvitation(id: number) {
+			 if (id < 0 || id >= this.invitations.length)
+			 return ;
+			 const message = {
+				 channelId: Number(this.invitations[id].id),
+				 userLogin: "me"
+			 }
+			 console.log(message)
+			 socket.emit("acceptInvitation", message);
+		 },
+		 refuseInvitation(id: number) {
+			 if (id < 0 || id >= this.invitations.length)
+			 return ;
+			 const message = {
+				 channelId: Number(this.invitations[id].id),
+				 userLogin: "me"
+			 }
+			 console.log(message)
+			 socket.emit("refuseInvitation", message);
 		 }
 	 },
 	 computed: {
@@ -142,6 +172,9 @@
 		 chanAdm: function(): boolean {
 			 const arr = this.channels.filter((chan) => chan.id === this.chatid)
 			 return arr.length >= 1 && arr[0].channelAdm;
+		 },
+		 currentChannel: function() {
+			 return this.channels.find((chan) => chan.id == this.chatid)
 		 },
 	 },
 	 mounted() {
@@ -172,6 +205,15 @@
 			 if (index != -1)
 				 this.channels[index].channelAdm = Boolean(message.adminStatus)
 			 console.log(this.channels[index])
+		 })
+		 socket.on("addInvitation", (message) => {
+			 this.invitations.push(message);
+		 })
+		 socket.on("popInvitation", (message) => {
+			 const index = this.invitations.findIndex((chan) => chan.id == message.id);
+			 if (index != -1) {
+				 this.invitations.splice(index, 1);
+			 }
 		 })
 	 },
 	 beforeUnmount() {
@@ -207,6 +249,8 @@
 		<input v-model="password" type="text"/>
 		<button @click="joinChannel">Join Channel</button>
 	</div>
+
+	<!-- admin pannel -->
 	<div v-if="chanAdm">
 		<div>
 			<input v-model.trim="banlogin" type="text"/>
@@ -227,5 +271,18 @@
 			<input v-model="password" type="text"/>
 			<button @click="setPassword">Set Password</button>
 		</div>
+	</div>
+
+	<!-- Invitation pannel -->
+	<div>
+		<div v-if="currentChannel && currentChannel.channelStatus == 2 && chanAdm">
+			<input v-model.trim="invitedUser" type="text">
+			<button @click="inviteUser">invite</button>
+		</div>
+		<li v-for="(chan, id) in invitations">
+			{{chan.channelName}}({{chan.id}})
+			<button @click="acceptInvitation(id)">accept</button>
+			<button @click="refuseInvitation(id)">refuse</button>
+		</li>
 	</div>
 </template>

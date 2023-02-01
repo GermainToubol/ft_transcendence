@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Chatter } from 'src/chatter/chatter.entity';
+import { ChatterService } from 'src/chatter/chatter.service';
 import { ChannelStatus, ChatChannel } from './channel/channel.entity';
 import { ChannelService } from './channel/channel.service';
 import { Message } from './message/message.entity';
@@ -8,6 +9,7 @@ import { Message } from './message/message.entity';
 export class ChatService {
     constructor(
         private channelService: ChannelService,
+        private chatterService: ChatterService,
     ) { }
 
     async getChannels(opts?: any): Promise<ChatChannel[]> {
@@ -123,5 +125,40 @@ export class ChatService {
             { channelAdmins: true, mutedUsers: true })
         if (this.channelService.isChatterAdminFromChannel(admin, channel))
             this.channelService.unmuteChatterFromChannel(user, channel);
+    }
+
+    isInvited(chatter: Chatter, channel: ChatChannel): boolean {
+        return chatter.invitations.findIndex((chan) => chan.id == channel.id) != -1;
+    }
+
+    async inviteUserToChannel(inviter: Chatter, invited: Chatter, channelId: number): Promise<ChatChannel> {
+        const channel: ChatChannel = await this.getChannelById(channelId, { channelAdmins: true, channelUsers: true })
+        if (channel.channelStatus == ChannelStatus.Private
+            && this.channelService.isChatterAdminFromChannel(inviter, channel)
+            && !this.isChannelUser(invited, channel)
+            && !this.isInvited(invited, channel)) {
+            await this.chatterService.addInvitation(invited, channel);
+            return channel;
+        }
+        return null;
+    }
+
+    async acceptInvitation(invited: Chatter, channelId: number): Promise<ChatChannel> {
+        const channel: ChatChannel = await this.getChannelById(channelId, { channelUsers: true })
+        if (channel && this.isInvited(invited, channel)) {
+            this.chatterService.popInvitation(invited, channel);
+            await this.addChannelUser(invited, "", channelId);
+            return channel;
+        }
+        return null;
+    }
+
+    async refuseInvitation(invited: Chatter, channelId: number): Promise<ChatChannel> {
+        const channel: ChatChannel = await this.getChannelById(channelId, { channelUsers: true })
+        if (channel && this.isInvited(invited, channel)) {
+            await this.chatterService.popInvitation(invited, channel);
+            return channel;
+        }
+        return null;
     }
 }

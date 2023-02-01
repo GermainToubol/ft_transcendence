@@ -1,7 +1,7 @@
 import { ChatChannel } from 'src/chat/channel/channel.entity';
 import { Message } from 'src/chat/message/message.entity';
 import { User } from 'src/users/user.entity';
-import { Entity, PrimaryGeneratedColumn, OneToMany, OneToOne, ManyToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, OneToMany, OneToOne, ManyToMany, JoinTable } from 'typeorm';
 
 @Entity()
 export class Chatter {
@@ -28,4 +28,8 @@ export class Chatter {
 
     @ManyToMany(() => ChatChannel, (channel) => channel.channelUsers)
     channels: ChatChannel[];
+
+    @ManyToMany(() => ChatChannel, (channel) => channel.invitedUsers)
+    @JoinTable()
+    invitations: ChatChannel[];
 }
