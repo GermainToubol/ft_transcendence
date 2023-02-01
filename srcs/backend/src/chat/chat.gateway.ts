@@ -111,7 +111,7 @@ export class ChatGateway {
             client.join(`channel${payload.channelId}`)
     }
 
-    @SubscribeMessage("joinChannel")
+    @SubscribeMessage("setPassword")
     async handleSetPassword(client: UserSocket, payload: PasswordDto) {
         const chatter: Chatter = await this.usersService
             .findOne(client.userLogin, { chatter: true })
@@ -122,17 +122,19 @@ export class ChatGateway {
     @UseFilters(new MessageExceptionFilter("Invalid channel creation"))
     @SubscribeMessage("addChannel")
     async handleChannelCreation(client: UserSocket, payload: ChatChannelDto) {
-        const owner = await this.usersService
+        const owner: Chatter = await this.usersService
             .findOne(client.userLogin, { chatter: true })
             .then((user) => user.chatter)
         const channel = await this.chatService
             .createChannel(
                 payload.channelName,
                 payload.channelLevel,
+                payload.password,
                 owner
             );
         if (!channel || !owner)
             return;
+        console.log("tatata", channel)
         client.join(`channel${channel.id}`);
         const chanMsg: ChannelExport = {
             id: channel.id,
@@ -148,8 +150,10 @@ export class ChatGateway {
         else
             this.server
                 .emit('updateChannel', chanMsg);
-        if (payload.channelLevel != ChannelStatus.Public)
+        if (payload.channelLevel == ChannelStatus.Public)
             this.addUsersToChannel(`channel${channel.id}`, [])
+        this.addUsersToChannel(`channel${channel.id}`, [client.userLogin])
+        await this.chatService.addChannelUser(owner, payload.password, channel.id);
         const adm: AdminExport = {
             channelId: channel.id,
             adminStatus: true,

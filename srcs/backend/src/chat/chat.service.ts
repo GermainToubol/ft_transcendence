@@ -26,8 +26,11 @@ export class ChatService {
         return await this.channelService.getChannelMessages(channel);
     }
 
-    async createChannel(channelName: string, channelLevel: ChannelStatus, owner: Chatter): Promise<ChatChannel> {
-        const channel = await this.channelService.createChannel(channelName, channelLevel);
+    async createChannel(channelName: string, channelLevel: ChannelStatus, password: string, owner: Chatter): Promise<ChatChannel> {
+        let channel = await this.channelService.createChannel(channelName, channelLevel);
+        console.log("aa", password)
+        await this.channelService.setChannelPassword(password, channel);
+        console.log("bb", channel)
         return await this.channelService.setChannelOwner(owner, channel);
     }
 
