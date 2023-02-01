@@ -13,6 +13,7 @@ import { SendMessage } from './message/message.entity';
 import { MessageExceptionFilter } from './message/message.filter';
 import { BanChatterDto } from './types/banchatter.dto';
 import { ChatChannelDto } from './types/channel.dto';
+import { InvitationDto } from './types/invitation.dto';
 import { ChatMessageDto } from './types/message.dto';
 import { PasswordDto } from './types/password.dto';
 import { UserSocket } from './usersocket.adapter';
@@ -288,5 +289,63 @@ export class ChatGateway {
         await this.chatService
             .unmuteChatterFromChannel(admin, mute, payload.channelId)
             .catch(() => null)
+    }
+
+    @SubscribeMessage("inviteUser")
+    async handleInviteChatter(client: UserSocket, payload: InvitationDto) {
+        const inviter: Chatter = await this.usersService
+            .findOne(client.userLogin, { chatter: true })
+            .then((user) => user.chatter)
+            .catch(() => null)
+        const invited: Chatter = await this.usersService
+            .findOne(payload.userLogin, ["chatter", "chatter.invitations"])
+            .then((user) => user.chatter)
+            .catch(() => null)
+        if (!inviter || !invited)
+            return;
+        const channel: ChatChannel = await this.chatService
+            .inviteUserToChannel(inviter, invited, payload.channelId)
+        if (channel && this.socketMap.get(payload.userLogin)) {
+            const invitation: ChannelExport = {
+                id: channel.id,
+                channelName: channel.channelName,
+                channelStatus: channel.channelStatus,
+                channelAdm: false,
+                hasPasswd: false,
+            }
+            this.socketMap.get(payload.userLogin).emit("addInvitation", invitation)
+        }
+    }
+
+    @SubscribeMessage("acceptInvitation")
+    async handleAcceptInvite(client: UserSocket, payload: InvitationDto) {
+        const invited: Chatter = await this.usersService
+            .findOne(client.userLogin, ["chatter", "chatter.invitations"])
+            .then((user) => user.chatter)
+            .catch(() => null)
+        if (!invited)
+            return;
+        const channel: ChatChannel = await this.chatService.acceptInvitation(invited, payload.channelId);
+        if (!channel)
+            return;
+        const message: ChannelExport = { id: channel.id, channelName: channel.channelName, channelAdm: false, channelStatus: ChannelStatus.Private, hasPasswd: false }
+        client.join(`channel${payload.channelId}`);
+        client.emit("updateChannel", message);
+        client.emit("popInvitation", message);
+    }
+
+    @SubscribeMessage("refuseInvitation")
+    async handleRefuseMessage(client: UserSocket, payload: InvitationDto) {
+        const invited: Chatter = await this.usersService
+            .findOne(client.userLogin, ["chatter", "chatter.invitations"])
+            .then((user) => user.chatter)
+            .catch(() => null)
+        if (!invited)
+            return;
+        const channel: ChatChannel = await this.chatService.refuseInvitation(invited, payload.channelId);
+        if (!channel)
+            return;
+        const message: ChannelExport = { id: channel.id, channelName: channel.channelName, channelAdm: false, channelStatus: ChannelStatus.Private, hasPasswd: false }
+        client.emit("popInvitation", message);
     }
 }

@@ -8,6 +8,7 @@ import { ChannelStatus, ChatChannel } from './channel/channel.entity';
 import { ChatService } from './chat.service';
 import { Message, SendMessage } from './message/message.entity';
 import { ChannelExport } from './exports/channel.export';
+import { Chatter } from 'src/chatter/chatter.entity';
 
 @Controller('chat')
 export class ChatController {
@@ -20,7 +21,7 @@ export class ChatController {
         const chatter = await this.userService.findOne(user.login, { chatter: true }).then((u) => u.chatter);
         const channels: ChatChannel[] = await this.chatService.getChannels({ relations: { channelAdmins: true, channelUsers: true } });
         const filtered = channels.filter((chan) => chan.channelStatus != ChannelStatus.Private
-            || false)
+            || chan.channelUsers.findIndex((usr) => usr.id == chatter.id) != -1)
             .map(function(chan: ChatChannel): ChannelExport {
                 return {
                     id: chan.id,
@@ -38,9 +39,13 @@ export class ChatController {
     async findChannelMessages(
         @Res() res: Response,
         @Param('id') chanId: number, @ReqUser() user: User) {
-        const chatter = await this.userService.findOne(user.login, { chatter: true })
-            .then((u) => u.chatter);
-        const channel = await this.chatService.getChannelById(chanId, { channelUsers: true, bannedUsers: true });
+        const chatter: Chatter = await this.userService.findOne(user.login, { chatter: true })
+            .then((u) => u.chatter)
+            .catch(() => null);
+        const channel: ChatChannel = await this.chatService.getChannelById(chanId, { channelUsers: true, bannedUsers: true })
+            .catch(() => null);
+        if (!chatter || !channel)
+            return;
         if (channel.bannedUsers.findIndex((usr) => usr.id == chatter.id) != -1
             || (channel.channelStatus != ChannelStatus.Public
                 && channel.channelUsers.findIndex((usr) => usr.id == chatter.id) == -1))
