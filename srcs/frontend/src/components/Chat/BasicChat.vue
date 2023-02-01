@@ -237,12 +237,14 @@
 
 
 <template>
+	<div style="border: 1px solid red">
 	<button v-for="chan in channels" @click="updateSelectedChannel(chan.id)">{{chan.channelName}}({{chan.id}})</button>
-	<ul><li v-for="item in chanmsg">{{item.authorUsername}}({{item.authorLogin}}) {{ item.content }}</li></ul>
+	<ul style="border: 1px solid red"><li v-for="item in chanmsg">{{item.authorUsername}}({{item.authorLogin}}) {{ item.content }}</li></ul>
 	<div>
 		<input v-model.trim="message" type="text"/><button @click="sendMessage">Send</button>
 	</div>
-	<div>
+	</div>
+	<div style="border: 1px solid red">
 		<input type="radio" id="zero" value=0 v-model=picked>
 		<label for="one">Public</label>
 		<br>
@@ -252,9 +254,9 @@
 		<input type="radio" id="two" value=2 v-model=picked>
 		<label for="two">Private</label>
 		<div>
-		<input v-model.trim="channelName" type="text"/><button @click="createChannel">Create channel</button>
-		<br><input v-if="picked == 1" v-model="password" type="text"/>
-	</div>
+			<input v-model.trim="channelName" type="text"/><button @click="createChannel">Create channel</button>
+			<br><input v-if="picked == 1" v-model="password" type="text"/>
+		</div>
 	</div>
 	<div>
 		<input v-model="password" type="text"/>
@@ -262,7 +264,7 @@
 	</div>
 
 	<!-- admin pannel -->
-	<div v-if="chanAdm">
+	<div v-if="chanAdm" style="border: 1px solid red">
 		<div>
 			<input v-model.trim="banlogin" type="text"/>
 			<button @click="banChatter">Ban</button>
@@ -285,7 +287,7 @@
 	</div>
 
 	<!-- Invitation pannel -->
-	<div>
+	<div style="border: 1px solid red">
 		<div v-if="currentChannel && currentChannel.channelStatus == 2 && chanAdm">
 			<input v-model.trim="invitedUser" type="text">
 			<button @click="inviteUser">invite</button>
