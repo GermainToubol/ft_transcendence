@@ -206,6 +206,9 @@
 		 socket.on('updateChannel', (channel) => {
 			 this.channels.push(channel);
 		 })
+		 socket.on("retriveMessages", (message) => {
+			 this.getChannelMsg(message);
+		 })
 		 socket.on('badMessage', (message) => {
 			 console.log(message);
 		 })
