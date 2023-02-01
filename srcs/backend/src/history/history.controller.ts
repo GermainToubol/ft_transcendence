@@ -1,6 +1,5 @@
-import { Controller, Get, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, ParseArrayPipe, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
-import { ReqUser } from "src/users/req-user.decorator";
 import { User } from "src/users/user.entity";
 import { UsersService } from "src/users/user.service";
 import { GameHistory } from "./history.entity";
@@ -9,10 +8,10 @@ import { GameHistory } from "./history.entity";
 export class GameHistoryController {
     constructor(private usersService: UsersService) { }
 
-	@Get()
+	@Get(':pseudo')
     @UseGuards(JwtAuthGuard)
-    async validate(@ReqUser() user: User): Promise<any> {
-        return this.usersService.getHistory(user.login).then();
+    async validate(@Param('pseudo') pseudo: string): Promise<any> {
+        return this.usersService.getHistory(pseudo).then();
     }
 
 }

@@ -46,9 +46,9 @@ export class GameService {
 			return;
 		}
 		client.data.user = user;
-		if (user && user.status === UserStatus.PLAYING) {
+		/*if (user && user.status === UserStatus.PLAYING) {
 			client.emit('alreadyPlaying', { player: user.usual_full_name, message: 'You Are Already in a Game' });
-		} else if (user && user.status === UserStatus.ONLINE) {
+		} else */if (user /* && user.status === UserStatus.ONLINE */) {
 			let update = await this.usersService.updateStatus(user.login, UserStatus.PLAYING);
 			if (!update) {
 			  this.logger.error('Couldn\'t Update Status');
@@ -93,22 +93,22 @@ export class GameService {
 				const pgi = this.getPlayground(playground);
 				server.to(roomname).emit('updatePlayground', { name: roomname, playground: pgi });
 			} else {
-				this.endGame(first, second, server, playground);
+				this.endGame(first, second, server, playground, mode);
 			}
 		}, (1.0 / 60) * 1000);
 		first.data.gameInterval = timer;
 		second.data.gameInterval = timer;
 	}
 
-	async endGame(first: Socket, second: Socket, server: Server, playground: Playground) {
+	async endGame(first: Socket, second: Socket, server: Server, playground: Playground, mode: boolean) {
 		clearInterval(first.data.gameInterval);
 		this.logger.log('Game in Room: ' + first.data.roomname + ' between: ', first.data.user.usual_full_name + ' & ' + second.data.user.usual_full_name + ' Finished');
 		if (playground.scoreBoard.playerOneScore > playground.scoreBoard.playerTwoScore) {
 			server.to(first.data.roomname).emit('endGame', { winner: first.data.user.usual_full_name, loser: second.data.user.usual_full_name });
-			let add = await this.gameHistoryService.addGameHistory({ userId: first.data.user.id as number, opponentId: first.data.opponentId as number, playerOneScore: playground.scoreBoard.playerOneScore as number, playerTwoScore: playground.scoreBoard.playerTwoScore as number });
+			let add = await this.gameHistoryService.addGameHistory({ userId: first.data.user.id as number, opponentId: first.data.opponentId as number, playerOneScore: playground.scoreBoard.playerOneScore as number, playerTwoScore: playground.scoreBoard.playerTwoScore as number, hard: mode });
 			if (!add)
 				return
-				let add2 = await this.gameHistoryService.addGameHistory({ userId: first.data.opponentId as number, opponentId: first.data.user.id as number, playerOneScore: playground.scoreBoard.playerTwoScore as number, playerTwoScore: playground.scoreBoard.playerOneScore as number });
+				let add2 = await this.gameHistoryService.addGameHistory({ userId: first.data.opponentId as number, opponentId: first.data.user.id as number, playerOneScore: playground.scoreBoard.playerTwoScore as number, playerTwoScore: playground.scoreBoard.playerOneScore as number, hard: mode });
 			if (!add2)
 				return
 			let wins = await this.usersService.updateWins(first.data.user.id, first.data.user.wins + 1)
@@ -117,10 +117,10 @@ export class GameService {
 		} else {
 			console.log(second.data.user.usual_full_name)
 			server.to(first.data.roomname).emit('endGame', { winner: second.data.user.usual_full_name, loser: first.data.user.usual_full_name });
-			let add = await this.gameHistoryService.addGameHistory({ userId: first.data.user.id as number, opponentId: first.data.opponentId as number, playerOneScore: playground.scoreBoard.playerOneScore as number, playerTwoScore: playground.scoreBoard.playerTwoScore as number });
+			let add = await this.gameHistoryService.addGameHistory({ userId: first.data.user.id as number, opponentId: first.data.opponentId as number, playerOneScore: playground.scoreBoard.playerOneScore as number, playerTwoScore: playground.scoreBoard.playerTwoScore as number, hard: mode });
 			if (!add)
 				return
-			let add2 = await this.gameHistoryService.addGameHistory({ userId: first.data.opponentId as number, opponentId: first.data.user.id as number, playerOneScore: playground.scoreBoard.playerTwoScore as number, playerTwoScore: playground.scoreBoard.playerOneScore as number });
+			let add2 = await this.gameHistoryService.addGameHistory({ userId: first.data.opponentId as number, opponentId: first.data.user.id as number, playerOneScore: playground.scoreBoard.playerTwoScore as number, playerTwoScore: playground.scoreBoard.playerOneScore as number, hard: mode });
 			if (!add2)
 				return
 			let wins = await this.usersService.updateWins(second.data.user.id, second.data.user.wins + 1)
@@ -138,22 +138,15 @@ export class GameService {
 				client.data.playground.ball.clean(client.data.playground.width / 2, client.data.playground.height / 2);
 				client.data.playground.leftPaddle.clean();
 				client.data.playground.rightPaddle.clean();
-				let loserScore = 0;
 				if (client.data.side === 'left') {
-					client.data.playground.scoreBoard.playerTwoScore = client.data.playground.win_score;
-					loserScore = client.data.playground.scoreBoard.playerOneScore;
+					client.data.playground.scoreBoard.playerTwoScore = client.data.playground.win_score
 			 	} else {
-					client.data.playground.scoreBoard.playerOneScore = client.data.playground.win_score;
-					loserScore = client.data.playground.scoreBoard.playerTwoScore;
+					client.data.playground.scoreBoard.playerOneScore = client.data.playground.win_score
 			  	}
 				server.to(client.data.roomname).emit('interruptedGame', { playground: this.getPlayground(client.data.playground) });
 				clearInterval(client.data.gameInterval);
 				let second = await this.usersService.findOneById(client.data.opponentId);
-				if (!second) {
-					server.to(client.data.roomname).emit('missingOpponent', { message: 'Opponent run away... what a coward' });
-					return;
-				}
-				server.to(client.data.roomname).emit('endGame', { winner: second.usual_full_name, loser: client.data.user.usual_full_name });
+				server.to(client.data.roomname).emit('abortedGame', { winner: second.usual_full_name, loser: client.data.user.usual_full_name });
 				let del = await this.lobbyService.deleteRoom(client.data.roomname);
 				if (!del)
 					this.logger.error('Error trying to delete room');
@@ -161,11 +154,11 @@ export class GameService {
 					this.logger.log('Game in Room: ' + client.data.roomname + ' Finished');
 			}
 			client.leave(client.data.roomname);
-			let update = await this.usersService.updateStatus(client.data.user.login, UserStatus.ONLINE);
+			let update = await this.usersService.updateStatus(client.data.user.login, UserStatus.OFFLINE);
 			if (!update)
 				this.logger.error('Couldn\'t Update Status');
 		} else if (client.handshake.query.role === 'player') {
-			let update = await this.usersService.updateStatus(client.data.user.login, UserStatus.ONLINE);
+			let update = await this.usersService.updateStatus(client.data.user.login, UserStatus.OFFLINE);
 			if (!update)
 				this.logger.error('Couldn\'t Update Status');
 		}

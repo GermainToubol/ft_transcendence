@@ -21,4 +21,7 @@ export class GameHistory {
 
     @Column()
 	playerTwoScore: number
+
+	@Column()
+	hard: boolean
 }

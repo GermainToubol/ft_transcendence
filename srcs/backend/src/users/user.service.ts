@@ -17,6 +17,7 @@ import { UserStatus } from './user_status.enum';
     ) { }
   
     async create(user: UserDto): Promise<User> {
+		user.usual_full_name = user.usual_full_name.replace(' ', '_')
 		while (true) {
 			let has_same_name = await this.usersRepository.findOneBy({usual_full_name: user.usual_full_name});
 			if (has_same_name) {
@@ -60,10 +61,10 @@ import { UserStatus } from './user_status.enum';
 		return user.usual_full_name;
 	}
 
-	async getHistory(login: string): Promise<any> {
+	async getHistory(pseudo: string): Promise<any> {
 		const users = await this.usersRepository.find({
 			relations: ['gamesHistory'],
-			where: { login: login },
+			where: { usual_full_name: pseudo },
 		  })
 		if (!users) {
 		  return null
@@ -77,6 +78,7 @@ import { UserStatus } from './user_status.enum';
 				opponentAvatar: opponent.avatarId,
 				playerOneScore: users[0].gamesHistory[i].playerOneScore,
 				playerTwoScore: users[0].gamesHistory[i].playerTwoScore,
+				hard: users[0].gamesHistory[i].hard,
 				victory: users[0].gamesHistory[i].playerOneScore > users[0].gamesHistory[i].playerTwoScore ? true : false
 			}
 			history[k] = test

@@ -11,12 +11,13 @@ export class GameHistoryService {
 	) {}
 
 	async addGameHistory(createGameHistory: CreateGameHistoryDto): Promise<GameHistory> {
-		const { userId, opponentId, playerOneScore, playerTwoScore } = createGameHistory
+		const { userId, opponentId, playerOneScore, playerTwoScore, hard } = createGameHistory
 		const history = new GameHistory()
 		history.userId = userId
 		history.opponentId = opponentId
 		history.playerOneScore = playerOneScore
 		history.playerTwoScore = playerTwoScore
+		history.hard = hard
 		let add = await this.gameHistoryRepository.save(history);
 		if (!add)
 			return null

@@ -34,11 +34,11 @@ onMounted(() => {
         
         drawGame();
 
-		drawInterruptedGame();
+		drawInterruptedGame()
 
-		missingOpponent();
+		endGame()
 
-		endGame();
+        abortedGame()
         
         window.addEventListener('resize', () => {
             game.value.width = game.value.offsetWidth;
@@ -143,9 +143,13 @@ function endGame() {
     });
 }
 
-function missingOpponent() {
-	(socket.value as Socket).on('missingOpponent', (data) => {
-		message.value = data.message;
+function abortedGame() {
+	(socket.value as Socket).on('abortedGame', (data) => {
+		const { winner, loser} = data;
+		if (winner && loser) {
+            message.value = 'The game was aborted : ' + loser + ' run away against ' + winner;
+			end.value = true;
+        }
     });
 }
 

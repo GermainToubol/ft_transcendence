@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateGameHistoryDto {
 
@@ -17,4 +17,8 @@ export class CreateGameHistoryDto {
   @IsNotEmpty()
   @IsNumber()
   playerTwoScore: number;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  hard: boolean;
 }
