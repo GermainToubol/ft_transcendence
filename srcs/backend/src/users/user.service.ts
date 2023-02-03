@@ -158,5 +158,100 @@ import { UserStatus } from './user_status.enum';
     async setTwoFactorAuthSecret(id: number, secret: string): Promise<any> {
       await this.usersRepository.update(id, { twoFactorAuthSecret: secret });
     }
+
+	async addFriend(user: User, pseudo: string): Promise<string> {
+		const friend = await this.usersRepository.findOneBy({usual_full_name: pseudo}).then()
+		if (friend != null) {
+			if (friend.id === user.id)
+				return "You can't be friend with yourself"
+			for (let i = 0; user.invitations[i]; i++) {
+				if (friend.id === user.invitations[i]) {
+					this.acceptFriend(user, pseudo)
+					return `You added ${friend.usual_full_name}`
+				}
+			}
+			for(let i = 0; friend.invitations[i]; i++) {
+				if (user.id === friend.invitations[i])
+					return "Invitation already sent"
+			}
+			for(let i = 0; user.friends[i]; i++) {
+				if (friend.id === user.friends[i])
+					return `${friend.usual_full_name} is already your friend`
+			}
+			friend.invitations.push(user.id)
+			await this.usersRepository.update(friend.id, {invitations: friend.invitations})
+			return `You sent an invitation to ${friend.usual_full_name}`
+		} else {
+			return "No such a player"
+		}
+	}
+
+	async acceptFriend(user: User, pseudo: string): Promise<any> {
+		const friend = await this.usersRepository.findOneBy({usual_full_name: pseudo}).then()
+		user.friends.push(friend.id)
+		await this.usersRepository.update(user.id, {friends: user.friends})
+		friend.friends.push(user.id)
+		await this.usersRepository.update(friend.id, {friends: friend.friends})
+		for (let i = 0; user.invitations[i]; i++) {
+			if (user.invitations[i] === friend.id)
+				user.invitations.splice(i, 1)
+		}
+		await this.usersRepository.update(user.id, {invitations: user.invitations})
+	}
+
+	async declineFriend(user: User, pseudo: string): Promise<any> {
+		const friend = await this.usersRepository.findOneBy({usual_full_name: pseudo}).then()
+		for (let i = 0; user.invitations[i]; i++) {
+			if (user.invitations[i] === friend.id)
+				user.invitations.splice(i, 1)
+		}
+		await this.usersRepository.update(user.id, {invitations: user.invitations})
+	}
+
+	async removeFriend(user: User, pseudo: string): Promise<any> {
+		const friend = await this.usersRepository.findOneBy({usual_full_name: pseudo}).then()
+		for (let i = 0; user.friends[i]; i++) {
+			if (user.friends[i] === friend.id)
+				user.friends.splice(i, 1)
+		}
+		for (let i = 0; friend.friends[i]; i++) {
+			if (friend.friends[i] === user.id)
+				friend.friends.splice(i, 1)
+		}
+		await this.usersRepository.update(user.id, {friends: user.friends})
+		await this.usersRepository.update(friend.id, {friends: friend.friends})
+	}
+
+	async getFriends(user: User): Promise<any> {
+		let friends = []
+		for (let i = 0; user.friends[i]; i++) {
+			let friend = await this.usersRepository.findOneBy({id: user.friends[i]}).then()
+			if (friend != null) {
+				let item = {
+					pseudo: friend.usual_full_name,
+					avatar: friend.avatarId,
+					wins: friend.wins,
+					status: friend.status
+				}
+				friends[i] = item	
+			}
+		}
+		return friends
+	}
+
+	async getInvitations(user: User): Promise<any> {
+		let invitations = []
+		for (let i = 0; user.invitations[i]; i++) {
+			let friend = await this.usersRepository.findOneBy({id: user.invitations[i]}).then()
+			if (friend != null) {
+				let item = {
+					pseudo: friend.usual_full_name,
+					avatar: friend.avatarId
+				}
+				invitations[i] = item	
+			}
+		}
+		return invitations
+	}
 };
   

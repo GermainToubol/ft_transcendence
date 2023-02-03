@@ -47,4 +47,10 @@ export class User {
 
 	@Column({ default: 0 })
 	wins: number;
+
+	@Column('int', {array: true, default: {}})
+	friends: number[]
+
+	@Column('int', {array: true, default: {}})
+	invitations: number[]
 }

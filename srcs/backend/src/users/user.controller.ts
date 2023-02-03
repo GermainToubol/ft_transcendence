@@ -20,10 +20,46 @@ export class UserController {
         return await this.usersService.getLeaderboard().then();
     }
 
+	@Get('friends')
+    @UseGuards(JwtAuthGuard)
+    async getFriends(@ReqUser() user: any): Promise<any> {
+        return await this.usersService.getFriends(user).then()
+    }
+
+	@Get('invitations')
+    @UseGuards(JwtAuthGuard)
+    async getInvitations(@ReqUser() user: any): Promise<any> {
+        return await this.usersService.getInvitations(user).then()
+    }
+
 	@Post('setpseudo')
 	@UseGuards(JwtAuthGuard)
 	async setPseudo(@ReqUser() user: any, @Body('pseudo') pseudo: string) {
 		return await this.usersService.setPseudo(user, pseudo).then()
+	}
+
+	@Post('addfriend')
+	@UseGuards(JwtAuthGuard)
+	async addFriend(@ReqUser() user: any, @Body('pseudo') pseudo: string): Promise<string> {
+		return await this.usersService.addFriend(user, pseudo).then()
+	}
+
+	@Post('removefriend')
+	@UseGuards(JwtAuthGuard)
+	async removeFriend(@ReqUser() user: any, @Body('pseudo') pseudo: string){
+		await this.usersService.removeFriend(user, pseudo).then()
+	}
+
+	@Post('acceptfriend')
+	@UseGuards(JwtAuthGuard)
+	async acceptFriend(@ReqUser() user: any, @Body('pseudo') pseudo: string){
+		await this.usersService.acceptFriend(user, pseudo).then()
+	}
+
+	@Post('declinefriend')
+	@UseGuards(JwtAuthGuard)
+	async declineFriend(@ReqUser() user: any, @Body('pseudo') pseudo: string) {
+		await this.usersService.declineFriend(user, pseudo).then()
 	}
 
 	@Post('avatar')

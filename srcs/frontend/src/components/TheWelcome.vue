@@ -28,6 +28,7 @@ export default {
     	<RouterLink to="/game">Game</RouterLink>
 			<RouterLink to="/rooms">Rooms</RouterLink>
       <RouterLink to="/history">History</RouterLink>
+      <RouterLink to="/friends">Friends</RouterLink>
 		</nav>
 		<div>
 			<img :src='imgPath'>
