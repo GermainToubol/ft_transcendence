@@ -3,25 +3,18 @@
 #                                                         :::      ::::::::    #
 #    docker-compose.yml                                 :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: gtoubol <marvin@42.fr>                     +#+  +:+       +#+         #
+#    By: iouali <iouali@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/13 09:12:15 by gtoubol           #+#    #+#              #
-#    Updated: 2022/12/13 09:12:15 by gtoubol          ###   ########.fr        #
+#    Updated: 2023/01/23 20:56:34 by iouali           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # Volumes
 # ------------------------------------------------------------------------
 volumes:
-  front_data:
-    name: front_data
+  frontend-node-modules:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: "${TR_FRONT_SRCS}"
-
-  # --------------------------
   back_data:
     name: back_data
     driver: local
@@ -29,9 +22,8 @@ volumes:
       type: none
       o: bind
       device: "${TR_BACK_SRCS}"
-
-  # --------------------------
-  db_data: {}
+  db_data:
+    driver: local
 
 # Networks
 # ------------------------------------------------------------------------
@@ -45,17 +37,20 @@ networks:
 # ------------------------------------------------------------------------
 services:
   frontend:
-    container_name: frontend
-    build: ./frontend
+    image: notrexp_frontend:dev-latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    command: bash -c "yarn serve"
     ports:
-      - "3500:3500"
+      - "8080:8080"
     volumes:
-      - "front_data:/root/srcs"
-    networks:
-      - backend-net
-    environment:
-      - DOMAIN=${DOMAIN}
-      - INTRA_OAUTH=${INTRA_OAUTH}
+      - ./frontend:/frontend
+      - "frontend-node-modules:/frontend/node_modules"
+    depends_on:
+      -  database
+    env_file:
+      - .env
 
   # --------------------------
   backend:
@@ -99,6 +94,6 @@ services:
     image: adminer
     restart: always
     ports:
-      - 8080:8080
+      - 5000:8081
     networks:
       - backend-net

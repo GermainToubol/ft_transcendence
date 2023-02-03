@@ -9,11 +9,16 @@ import { User } from './users/user.entity';
 import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.module';
 import LocalFile from './localfiles/localFile.entity';
 import { LocalFileModule } from './localfiles/localFiles.module';
+
 import { ChatModule } from './chat/chat.module';
 import { Message } from './chat/message/message.entity';
 import { ChatChannel } from './chat/channel/channel.entity';
 import { ChatterModule } from './chatter/chatter.module';
 import { Chatter } from './chatter/chatter.entity';
+
+import { GameModule } from './game/game.module';
+import { Room } from './game/room.entity';
+
 
 @Module({
     imports: [
@@ -28,11 +33,12 @@ import { Chatter } from './chatter/chatter.entity';
             username: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_NAME,
-            entities: [User, LocalFile, Message, ChatChannel, Chatter],
+            entities: [User, LocalFile, Message, ChatChannel, Chatter, Room],
             synchronize: true,
         }),
         ChatModule,
         ChatterModule,
+        GameModule,
     ],
     controllers: [AppController],
     providers: [AppService],

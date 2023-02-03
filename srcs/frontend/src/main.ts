@@ -1,16 +1,11 @@
+/* eslint @typescript-eslint/no-var-requires: "off" */
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-
 import App from './App.vue'
 import router from './router'
+import { store, key } from './store'
+import { Quasar } from 'quasar'
+import axios from 'axios'
 
-import './assets/main.css'
-import useJwtStore from "./stores/store";
+const quasarUserOptions = require('./quasar-user-options')
 
-const pinia = createPinia();
-const app = createApp(App)
-app.use(pinia)
-app.use(router)
-
-const jwtstore = useJwtStore();
-app.mount('#app')
+createApp(App).use(Quasar, quasarUserOptions).use(store, key).use(router).mount('#app')

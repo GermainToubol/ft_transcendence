@@ -2,6 +2,7 @@
 import { Chatter } from 'src/chatter/chatter.entity';
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, OneToOne } from 'typeorm';
 import LocalFile from '../localfiles/localFile.entity';
+import { UserStatus } from './user_status.enum';
 
 @Entity()
 export class User {
@@ -35,13 +36,10 @@ export class User {
     @Column({ nullable: true })
     avatarId: number;
 
-    @Column({ default: true })
-    isActive: boolean;
-
     @OneToOne(() => Chatter, (chatter) => chatter.user)
     @JoinColumn()
     chatter: Chatter;
 
-    // @ManyToMany() friends
-    // dg sdg(( sdfg)) sdfg
+    @Column({ default: UserStatus.OFFLINE })
+    status: UserStatus;
 }
