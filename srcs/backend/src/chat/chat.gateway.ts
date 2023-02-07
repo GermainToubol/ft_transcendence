@@ -14,6 +14,7 @@ import { MessageExceptionFilter } from './message/message.filter';
 import { BanChatterDto } from './types/banchatter.dto';
 import { ChatChannelDto } from './types/channel.dto';
 import { InvitationDto } from './types/invitation.dto';
+import { LeaveDto } from './types/leave.dto';
 import { ChatMessageDto } from './types/message.dto';
 import { PasswordDto } from './types/password.dto';
 import { UserSocket } from './usersocket.adapter';
@@ -112,6 +113,16 @@ export class ChatGateway {
             client.join(`channel${payload.channelId}`)
             client.emit("retriveMessages", payload.channelId)
         }
+    }
+
+    @SubscribeMessage("leaveChannel")
+    async handleLeaveChannel(client: UserSocket, payload: LeaveDto) {
+        const chatter: Chatter = await this.usersService
+            .findOne(client.userLogin, {chatter: true})
+            .then((user => user.chatter))
+            .catch(() => null)
+        if (await this.chatService.leaveChannel(chatter, payload.channelId))
+            client.leave(`channel${payload.channelId}`)
     }
 
     @SubscribeMessage("setPassword")

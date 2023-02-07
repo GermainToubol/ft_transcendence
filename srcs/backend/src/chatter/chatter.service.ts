@@ -28,4 +28,26 @@ export class ChatterService {
         invited.invitations.splice(index, 1);
         await this.chatterRepository.save(invited)
     }
+
+    async blockChatter(user: Chatter, blocked: Chatter){
+        const index = user.blocks.findIndex((chatter) => chatter.id == blocked.id);
+        if (index != -1)
+            return ;
+        user.blocks.push(blocked);
+        await this.chatterRepository.save(user);
+    }
+
+    async unblockChatter(user: Chatter, blocked: Chatter) {
+        const index = user.blocks.findIndex((chatter) => chatter.id == blocked.id);
+        if (index == -1)
+            return ;
+        user.blocks.splice(index, 1);
+        await this.chatterRepository.save(user);
+    }
+
+    isBlocked(user: Chatter, blocked: Chatter) {
+        if (user.blocks.findIndex((chatter) => chatter.id == blocked.id) != -1)
+            return true;
+        return false;
+    }
 }

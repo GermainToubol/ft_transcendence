@@ -5,7 +5,7 @@ import { Message } from '../message/message.entity';
 export enum ChannelStatus {
     Public,
     Protected,
-    Private,
+    Private
 }
 
 @Entity()

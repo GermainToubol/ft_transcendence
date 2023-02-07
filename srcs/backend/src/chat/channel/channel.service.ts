@@ -136,6 +136,18 @@ export class ChannelService {
         return true;
     }
 
+    async leaveChannel(user: Chatter, channel: ChatChannel): Promise<boolean> {
+        if (user.id == channel.owner.id || channel.channelStatus == ChannelStatus.Public) {
+            return false;
+        }
+        const index = channel.channelUsers.findIndex((chatter) => chatter.id == user.id)
+        if (index == -1)
+            return false;
+        channel.channelUsers.splice(index, 1);
+        await this.channelRepository.save(channel);
+        return true;
+    }
+
     async setChannelPassword(password: string, channel: ChatChannel) {
         let hash: string;
         const salt = await bcrypt.genSalt();;
