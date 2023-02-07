@@ -137,7 +137,7 @@ export class ChannelService {
   }
 
   async leaveChannel(user: Chatter, channel: ChatChannel): Promise<boolean> {
-    if (user.id == channel.owner.id || channel.channelStatus == ChannelStatus.Public) {
+    if (user.id == channel.owner.id || channel.channelStatus == ChannelStatus.Public || channel.channelStatus == ChannelStatus.Locked) {
       return false;
     }
     const index = channel.channelUsers.findIndex((chatter) => chatter.id == user.id)

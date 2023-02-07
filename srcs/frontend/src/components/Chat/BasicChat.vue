@@ -1,5 +1,12 @@
 <template>
   <div>
+    <q-list v-for='(n, idx) in statusList' :key='idx'>
+      <q-expansion-item :label="idx">
+            <q-btn v-for='chan in coucou(n)' :key='chan.id' @click="updateSelectedChannel(chan.id)" :label="chan.channelName" />
+      </q-expansion-item>
+    </q-list>
+  </div>
+  <div>
     <button v-for='chan in channels' :key='chan.id' @click="updateSelectedChannel(chan.id)">
       {{ chan.channelName }}({{ chan.id }})
     </button>
@@ -64,7 +71,7 @@
       <button @click="refuseInvitation(id)">refuse</button>
     </li>
   </div>
-  <div>
+  <div v-if="currentChannel && (currentChannel.channelStatus == 1 || currentChannel.channelStatus == 2)" >
     <button @click="leaveChannel">leave channel</button>
   </div>
   <div>
@@ -85,7 +92,13 @@ export default {
   name: 'BasicChat',
   setup () {
     return {
-      store: store
+      store: store,
+      statusList: {
+        public: 0,
+        protected: 1,
+        private: 2,
+        locked: 3
+      }
     }
   },
   data () {
@@ -271,6 +284,9 @@ export default {
         userLogin: this.privateMsg
       }
       socket.emit('askPrivate', chanCreation)
+    },
+    coucou (n: number) {
+      return this.channels.filter((chan) => chan.channelStatus === n)
     }
   },
   computed: {
