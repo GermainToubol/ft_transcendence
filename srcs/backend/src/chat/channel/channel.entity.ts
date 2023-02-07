@@ -3,47 +3,48 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTabl
 import { Message } from '../message/message.entity';
 
 export enum ChannelStatus {
-    Public,
-    Protected,
-    Private
+  Public,
+  Protected,
+  Private,
+  Locked
 }
 
 @Entity()
 export class ChatChannel {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    channelName: string;
+  @Column()
+  channelName: string;
 
-    @Column()
-    channelStatus: ChannelStatus;
+  @Column()
+  channelStatus: ChannelStatus;
 
-    @OneToMany(() => Message, (message) => message.channel)
-    messages: Message[];
+  @OneToMany(() => Message, (message) => message.channel)
+  messages: Message[];
 
-    @ManyToOne(() => Chatter, (chatter) => chatter.ownedChannels)
-    owner: Chatter;
+  @ManyToOne(() => Chatter, (chatter) => chatter.ownedChannels)
+  owner: Chatter;
 
-    @Column({ nullable: true })
-    password: string;
+  @Column({ nullable: true })
+  password: string;
 
-    @ManyToMany(() => Chatter, (chatter) => chatter.channels)
-    @JoinTable()
-    channelUsers: Chatter[];
+  @ManyToMany(() => Chatter, (chatter) => chatter.channels)
+  @JoinTable()
+  channelUsers: Chatter[];
 
-    @ManyToMany(() => Chatter, (chatter) => chatter.bannendFromChannels)
-    @JoinTable()
-    bannedUsers: Chatter[];
+  @ManyToMany(() => Chatter, (chatter) => chatter.bannendFromChannels)
+  @JoinTable()
+  bannedUsers: Chatter[];
 
-    @ManyToMany(() => Chatter, (chatter) => chatter.adminFromChannels)
-    @JoinTable()
-    channelAdmins: Chatter[];
+  @ManyToMany(() => Chatter, (chatter) => chatter.adminFromChannels)
+  @JoinTable()
+  channelAdmins: Chatter[];
 
-    @ManyToMany(() => Chatter, (chatter) => chatter.mutedInChannels)
-    @JoinTable()
-    mutedUsers: Chatter[];
+  @ManyToMany(() => Chatter, (chatter) => chatter.mutedInChannels)
+  @JoinTable()
+  mutedUsers: Chatter[];
 
-    @ManyToMany(() => Chatter, (chatter) => chatter.invitations)
-    invitedUsers: Chatter[];
+  @ManyToMany(() => Chatter, (chatter) => chatter.invitations)
+  invitedUsers: Chatter[];
 }

@@ -50,4 +50,12 @@ export class ChatterService {
             return true;
         return false;
     }
+
+  async askPrivate(inviter: Chatter, invited: Chatter): Promise<boolean> {
+    if (this.isBlocked(inviter, invited) || this.isBlocked(invited, inviter))
+      return
+    inviter.privates.push(invited)
+    await this.chatterRepository.save(inviter)
+    return true
+    }
 }

@@ -64,6 +64,13 @@
       <button @click="refuseInvitation(id)">refuse</button>
     </li>
   </div>
+  <div>
+    <button @click="leaveChannel">leave channel</button>
+  </div>
+  <div>
+    <input v-model.trim="privateMsg" type="text">
+    <button @click="startPrivMsg">Private Message</button>
+  </div>
 </template>
 
 <script lang="ts">
@@ -94,7 +101,8 @@ export default {
       adminlogin: '',
       password: '',
       invitations: [],
-      invitedUser: ''
+      invitedUser: '',
+      privateMsg: ''
     }
   },
   methods: {
@@ -253,6 +261,16 @@ export default {
       }
       console.log(message)
       socket.emit('refuseInvitation', message)
+    },
+    leaveChannel () {
+      const payload = { channelId: this.chatid }
+      socket.emit('leaveChannel', payload)
+    },
+    startPrivMsg () {
+      const chanCreation = {
+        userLogin: this.privateMsg
+      }
+      socket.emit('askPrivate', chanCreation)
     }
   },
   computed: {
@@ -289,6 +307,9 @@ export default {
     })
     socket.on('updateChannel', (channel) => {
       this.channels.push(channel)
+      if (this.chatid === 0) {
+        this.chatid = channel.id
+      }
     })
     socket.on('retriveMessages', (message) => {
       this.getChannelMsg(message)
