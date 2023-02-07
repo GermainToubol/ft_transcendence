@@ -385,7 +385,7 @@ export class ChatGateway {
       .then((user) => user.chatter)
       .catch(() => null)
     const invited: Chatter = await this.usersService
-      .findOne(payload.userLogin, ["chatter", "chatter.privates", "chatter.blocks", "chatter.invitations"])
+      .findOne(payload.userLogin, ["chatter", "chatter.privates", "chatter.blocks"])
       .then((user) => user.chatter)
       .catch(() => null)
     if (!inviter || !invited || !await this.chatService.askPrivate(inviter, invited))
@@ -405,18 +405,12 @@ export class ChatGateway {
       hasPasswd: false
     }
     await this.chatService.addChannelUser(inviter, "", channel.id)
+    await this.chatService.addChannelUser(invited, "", channel.id)
     client.join(`channel${channel.id}`)
     client.emit('updateChannel', chanMsg)
-    await this.chatService.inviteUserToPrivateChannel(invited, channel.id)
     if (this.socketMap.get(payload.userLogin)) {
-      const invitation: ChannelExport = {
-        id: channel.id,
-        channelName: channel.channelName,
-        channelStatus: channel.channelStatus,
-        channelAdm: false,
-        hasPasswd: false,
-      }
-      this.socketMap.get(payload.userLogin).emit("addInvitation", invitation)
+      this.socketMap.get(payload.userLogin).emit('updateChannel', chanMsg)
+      this.socketMap.get(payload.userLogin).join(`channel${channel.id}`)
     }
   }
 }
