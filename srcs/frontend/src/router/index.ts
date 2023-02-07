@@ -4,6 +4,7 @@ import Login from '../views/Login.vue'
 import AuthCallback from '../views/AuthCallback.vue'
 import Account from '../views/Account.vue'
 import store from '../store'
+import Chat from '../views/Chat.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -49,6 +50,15 @@ const routes: Array<RouteRecordRaw> = [
     path: '/account',
     name: 'Account',
     component: Account,
+    meta: {
+      requiresLogin: true,
+      hideNav: false
+    }
+  },
+  {
+    path: '/chat',
+    name: 'Chat',
+    component: Chat,
     meta: {
       requiresLogin: true,
       hideNav: false

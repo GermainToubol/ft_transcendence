@@ -7,6 +7,7 @@ import LocalFilesService from '../localfiles/localFiles.service'
 import { JwtService } from '@nestjs/jwt'
 import { UserStatus } from './user_status.enum'
 import { ChatterService } from 'src/chatter/chatter.service'
+import { Chatter } from 'src/chatter/chatter.entity'
 
 @Injectable()
 export class UsersService {
