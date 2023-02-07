@@ -47,6 +47,11 @@ export class ChatService {
         return await this.channelService.addChannelUser(user, password, channel);
     }
 
+    async leaveChannel(user: Chatter, channelId: number): Promise<boolean> {
+        const channel: ChatChannel = await this.channelService.getChannelById(channelId, {channelUsers: true, owner: true})
+        return await this.channelService.leaveChannel(user, channel);
+    }
+
     async addChannelPassword(user: Chatter, password: string, channelId: number): Promise<boolean> {
         const channel = await this.getChannelById(channelId, { owner: true });
         if (user.id == channel.owner.id) {

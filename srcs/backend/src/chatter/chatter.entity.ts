@@ -32,4 +32,11 @@ export class Chatter {
     @ManyToMany(() => ChatChannel, (channel) => channel.invitedUsers)
     @JoinTable()
     invitations: ChatChannel[];
+
+    @ManyToMany(() => Chatter, (chatter) => chatter.blockedBy)
+    @JoinTable()
+    blocks: Chatter[];
+
+    @ManyToMany(() => Chatter, (chatter) => chatter.blocks)
+    blockedBy: Chatter[];
 }
