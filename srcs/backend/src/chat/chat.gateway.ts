@@ -135,10 +135,11 @@ export class ChatGateway {
 
     @UseFilters(new MessageExceptionFilter("Invalid channel creation"))
     @SubscribeMessage("addChannel")
-    async handleChannelCreation(client: UserSocket, payload: ChatChannelDto) {
+  async handleChannelCreation(client: UserSocket, payload: ChatChannelDto) {
+    console.log("client", client.userLogin)
         const owner: Chatter = await this.usersService
             .findOne(client.userLogin, { chatter: true })
-            .then((user) => user.chatter)
+          .then((user) => {console.log("user", user); return user.chatter})
         const channel = await this.chatService
             .createChannel(
                 payload.channelName,
@@ -146,9 +147,10 @@ export class ChatGateway {
                 payload.password,
                 owner
             );
+      console.log("owner", owner)
         if (!channel || !owner)
             return;
-        console.log("tatata", channel)
+      console.log("tatata", channel, owner)
         client.join(`channel${channel.id}`);
         const chanMsg: ChannelExport = {
             id: channel.id,

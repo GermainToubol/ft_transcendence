@@ -7,16 +7,17 @@ import LocalFilesService from '../localfiles/localFiles.service';
 import { ChatterService } from 'src/chatter/chatter.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserStatus } from './user_status.enum';
+import { Chatter } from 'src/chatter/chatter.entity';
 
 @Injectable()
 export class UsersService {
-    constructor(
-        @InjectRepository(User)
-        private usersRepository: Repository<User>,
-        private localFilesService: LocalFilesService,
-        private chatterService: ChatterService,
-        private jwtService: JwtService,
-    ) { }
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+    private localFilesService: LocalFilesService,
+    private chatterService: ChatterService,
+    private jwtService: JwtService,
+  ) { }
 
     async create(user: UserDto): Promise<User> {
         while (true) {
@@ -25,6 +26,8 @@ export class UsersService {
                 user.usual_full_name += '_';
                 continue;
             }
+          const chatter: Chatter = await this.chatterService.create()
+          user.chatter = chatter
             let save = await this.usersRepository.save(user);
             if (!save)
                 return null

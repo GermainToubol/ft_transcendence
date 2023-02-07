@@ -41,7 +41,7 @@
     >
       <q-list v-if="!$route.meta.hideNav">
         <q-item-label header>Menu</q-item-label>
-        <q-item clickable tag="a" target="_blank">
+        <q-item clickable tag="a" to="/chat">
           <q-item-section avatar>
             <q-icon name="chat" />
           </q-item-section>
