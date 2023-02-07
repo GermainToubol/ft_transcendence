@@ -1,6 +1,6 @@
 <template>
   <q-dialog v-model="card2FA">
-    <q-card class="my-card">
+    <q-card flat bordered class="my-card">
       <img v-bind:src="qrCode" />
 
       <q-card-section>

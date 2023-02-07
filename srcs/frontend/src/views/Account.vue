@@ -4,18 +4,18 @@
   </div>
   <div class="col-6">
     <div class="q-gutter-y-md" style="">
-      <q-card>
+      <q-card flat bordered dark>
         <q-tabs
           v-model="tab"
-          class="bg-grey-3"
           align="justify"
           narrow-indicator
+          secondary
         >
           <q-tab name="infos" label="Informations" />
           <q-tab name="settings" label="Settings" />
         </q-tabs>
         <q-separator />
-        <q-tab-panels v-model="tab" animated>
+        <q-tab-panels v-model="tab" animated dark>
           <q-tab-panel name="infos">
             <div class="row items-center q-mt-md q-mb-md">
               <div class="col-4">

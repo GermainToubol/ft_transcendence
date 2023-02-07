@@ -1,7 +1,7 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header v-if="!$route.meta.hideNav" elevated class="glossy">
-      <q-toolbar class="bg-primary text-white">
+  <q-layout view="lHh Lpr lFf" class="bg-app">
+    <q-header v-if="!$route.meta.hideNav">
+      <q-toolbar class="text-white">
         <q-btn
           flat
           dense
@@ -17,8 +17,8 @@
          <q-avatar>
           <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg">
         </q-avatar>
-        <q-menu transition-show="scale" transition-hide="scale">
-          <q-list style="min-width: 100px">
+        <q-menu secondary transition-show="scale" transition-hide="scale">
+          <q-list>
             <q-item to="/account" clickable v-close-popup>
               <q-item-section>Account</q-item-section>
             </q-item>
@@ -37,7 +37,7 @@
       v-model="leftDrawerOpen"
       show-if-above
       bordered
-      class="bg-grey-2"
+      secondary
     >
       <q-list v-if="!$route.meta.hideNav">
         <q-item-label header>Menu</q-item-label>
@@ -49,7 +49,7 @@
             <q-item-label>Chat</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable tag="a" target="_blank">
+        <q-item clickable to="/game">
           <q-item-section avatar>
             <q-icon name="sports_esports" />
           </q-item-section>
@@ -60,7 +60,7 @@
       </q-list>
     </q-drawer>
 
-    <q-page-container>
+    <q-page-container class="app">
       <router-view />
     </q-page-container>
   </q-layout>
@@ -70,12 +70,15 @@
 import { ref } from 'vue'
 import store from './store'
 import router from '@/router'
+import { useQuasar } from 'quasar'
 
 export default {
   name: 'LayoutDefault',
   components: {
   },
   setup () {
+    const $q = useQuasar()
+    // $q.secondary.set(true)
     return {
       leftDrawerOpen: ref(false)
     }
@@ -88,3 +91,14 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.bg-app {
+  background: #222831;
+}
+</style>

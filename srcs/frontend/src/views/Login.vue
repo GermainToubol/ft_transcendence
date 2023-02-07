@@ -2,7 +2,7 @@
 <div class="row items-center fixed-center">
   <div class="col-5"></div>
   <div class="col-auto">
-  <q-card flat bordered class="login-card bg-grey-1">
+  <q-card flat bordered class="login-card" dark>
       <q-card-section>
         <div class="text-h6">Welcome to Transcendence !</div>
       </q-card-section>
