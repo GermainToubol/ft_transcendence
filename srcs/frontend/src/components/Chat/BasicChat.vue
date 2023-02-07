@@ -1,83 +1,118 @@
 <template>
-  <div>
-    <q-list v-for='(n, idx) in statusList' :key='idx'>
-      <q-expansion-item :label="idx">
-            <q-btn v-for='chan in coucou(n)' :key='chan.id' @click="updateSelectedChannel(chan.id)" :label="chan.channelName" />
-      </q-expansion-item>
-    </q-list>
-  </div>
-  <div>
-    <button v-for='chan in channels' :key='chan.id' @click="updateSelectedChannel(chan.id)">
-      {{ chan.channelName }}({{ chan.id }})
-    </button>
-    <li v-for="item in chanmsg" :key='item'>
-      {{ item.authorUsername }}({{item.authorLogin}}) {{ item.content }}
-    </li>
-  </div>
-  <div>
-    <input v-model.trim="message" type="text"/><button @click="sendMessage">Send</button>
-  </div>
-  <div style="border: 1px solid red">
-    <input type="radio" id="zero" value=0 v-model=picked>
-    <label for="one">Public</label>
-    <br>
-    <input type="radio" id="one" value=1 v-model=picked>
-    <label for="one">Protected</label>
-    <br>
-    <input type="radio" id="two" value=2 v-model=picked>
-    <label for="two">Private</label>
-    <div>
-      <input v-model.trim="channelName" type="text"/><button @click="createChannel">Create channel</button>
-      <br><input v-if="picked == 1" v-model="password" type="text"/>
-    </div>
-  </div>
-  <div>
-    <input v-model="password" type="text"/>
-    <button @click="joinChannel">Join Channel</button>
-  </div>
+    <div class="q-pa-md">
+        <q-card id="chat-menu">
+            <q-list v-for='(n, idx) in statusList' :key='idx' >
+                <q-expansion-item :label="idx">
+                    <q-scroll-area style="height: 200px">
+                    <q-item clickable v-for='chan in coucou(n)' :key='chan.id' @click="updateSelectedChannel(chan.id)" class="q-py-xs">
+                        {{chan.channelName}} ({{chan.id}})
+                    </q-item>
+                    </q-scroll-area>
+                </q-expansion-item>
+            </q-list>
+        </q-card>
 
-  <!-- admin pannel -->
-  <div v-if="chanAdm" style="border: 1px solid red">
-    <div>
-      <input v-model.trim="banlogin" type="text"/>
-      <button @click="banChatter">Ban</button>
-      <button @click="unbanChatter">UnBan</button>
-    </div>
-    <div>
-      <input v-model.trim="mutelogin" type="text"/>
-      <button @click="muteChatter">Mute</button>
-      <button @click="unmuteChatter">UnMute</button>
-    </div>
-    <div>
-      <input v-model.trim="adminlogin" type="text"/>
-      <button @click="adminChatter">Adm</button>
-      <button @click="unadminChatter">UnAdm</button>
-    </div>
-    <div>
-      <input v-model="password" type="text"/>
-      <button @click="setPassword">Set Password</button>
-    </div>
-  </div>
+        <q-card id="chat-pannel" class="column">
+            <q-card-section>
+                <q-scroll-area style="height: 350px">
+                <q-item v-for="item in chanmsg" :key='item' class="q-py-xs" dense clickable>
+                    {{ item.authorUsername }}({{item.authorLogin}}) {{ item.content }}
+                </q-item>
+                </q-scroll-area>
+                <q-form @submit="sendMessage" id="chan-input">
+                    <q-input v-model.trim="message" type="text" counter maxlength="255"/>
+                    <q-btn type="submit" label="Send"/>
+                </q-form>
+            </q-card-section>
+        </q-card>
 
-  <!-- Invitation pannel -->
-  <div style="border: 1px solid red">
-    <div v-if="currentChannel && currentChannel.channelStatus == 2 && chanAdm">
-      <input v-model.trim="invitedUser" type="text">
-      <button @click="inviteUser">invite</button>
+        <q-card>
+            <q-card-section>
+                <q-btn-toggle
+                    v-model="picked"
+                    toggle-color="primary"
+                    :options="[
+                        { label: 'Public', value: 0 },
+                        { label: 'Protected', value: 1 },
+                        { label: 'Private', value: 2 }]"
+                />
+            </q-card-section>
+            <q-card-section>
+                <q-form @submit="createChannel">
+                    <q-input v-model.trim="channelName" placeholder="Channel name" type="text" counter maxlength="255">
+                        <template v-slot:after>
+                            <q-input v-if="picked == 1" v-model="password" placeholder="password" type="text"/>
+                            <q-input v-else v-model="password" placeholder="no password" type="text" disable />
+                        </template>
+                    </q-input>
+                    <q-btn type="submit" label="Create channel"/>
+                </q-form>
+            </q-card-section>
+        </q-card>
+
+        <q-card v-if="currentChannel && currentChannel.channelStatus == 1">
+            <q-form @submit="joinChannel">
+                <q-input v-model="password" type="text"/>
+                <q-btn type="submit" label="Join Channel"/>
+            </q-form>
+        </q-card>
+
+        <!-- admin pannel -->
+        <q-card v-if="chanAdm" class="column">
+            <q-card-section>
+                <q-input v-model.trim="banlogin" type="text">
+                    <template v-slot:after>
+                        <q-btn @click="banChatter" label="Ban" />
+                        <q-btn @click="unbanChatter" label="UnBan" />
+                    </template>
+                </q-input>
+            </q-card-section>
+            <q-card-section>
+                <q-input v-model.trim="mutelogin" type="text">
+                    <template v-slot:after>
+                        <q-btn @click="muteChatter" label="Mute" />
+                        <q-btn @click="unmuteChatter" label="UnMute" />
+                    </template>
+                </q-input>
+            </q-card-section>
+            <q-card-section>
+                <q-input v-model.trim="adminlogin" type="text">
+                    <template v-slot:after>
+                        <q-btn @click="adminChatter" label="Set admin" />
+                        <q-btn @click="unadminChatter" label="Unset admin" />
+                    </template>
+                </q-input>
+            </q-card-section>
+            <q-card-section>
+                <q-form @submit="setPassword" v-if="currentChannel && currentChannel.channelStatus == 1">
+                    <q-input v-model="password" type="text" placeholder="password"/>
+                    <q-btn type="submit" label="Set Password"/>
+                </q-form>
+            </q-card-section>
+        </q-card>
+
+        <!-- Invitation pannel -->
+        <q-card>
+            <div v-if="currentChannel && currentChannel.channelStatus == 2 && chanAdm">
+                <q-form @submit="inviteUser">
+                    <q-input v-model.trim="invitedUser" type="text"/>
+                    <q-button type="submit" label="invite"/>
+                </q-form>
+            </div>
+            <li v-for="(chan, id) in invitations" :key='chan.id'>
+                {{chan.channelName}}({{chan.id}})
+                <button @click="acceptInvitation(id)">accept</button>
+                <button @click="refuseInvitation(id)">refuse</button>
+            </li>
+        </q-card>
+        <div v-if="currentChannel && (currentChannel.channelStatus == 1 || currentChannel.channelStatus == 2)" >
+            <button @click="leaveChannel">leave channel</button>
+        </div>
+        <div>
+            <input v-model.trim="privateMsg" type="text">
+            <button @click="startPrivMsg">Private Message</button>
+        </div>
     </div>
-    <li v-for="(chan, id) in invitations" :key='chan.id'>
-      {{chan.channelName}}({{chan.id}})
-      <button @click="acceptInvitation(id)">accept</button>
-      <button @click="refuseInvitation(id)">refuse</button>
-    </li>
-  </div>
-  <div v-if="currentChannel && (currentChannel.channelStatus == 1 || currentChannel.channelStatus == 2)" >
-    <button @click="leaveChannel">leave channel</button>
-  </div>
-  <div>
-    <input v-model.trim="privateMsg" type="text">
-    <button @click="startPrivMsg">Private Message</button>
-  </div>
 </template>
 
 <script lang="ts">

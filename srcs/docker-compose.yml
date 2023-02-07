@@ -41,7 +41,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    command: bash -c "yarn upgrade && yarn serve --fix"
+    command: bash -c "yarn upgrade && yarn serve"
     ports:
       - "8080:8080"
     volumes:
