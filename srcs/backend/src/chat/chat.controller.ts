@@ -19,7 +19,7 @@ export class ChatController {
     async findChannels(@Res() res: Response, @ReqUser() user: User) {
         const chatter = await this.userService.findOne(user.login, { chatter: true }).then((u) => u.chatter);
         const channels: ChatChannel[] = await this.chatService.getChannels({ relations: { channelAdmins: true, channelUsers: true } });
-        const filtered = channels.filter((chan) => chan.channelStatus != ChannelStatus.Private
+        const filtered = channels.filter((chan) => chan.channelStatus < ChannelStatus.Private
             || chan.channelUsers.findIndex((usr) => usr.id == chatter.id) != -1)
             .map(function(chan: ChatChannel): ChannelExport {
                 return {
