@@ -94,6 +94,6 @@ services:
     image: adminer
     restart: always
     ports:
-      - 5000:8081
+      - 5000:8080
     networks:
       - backend-net
