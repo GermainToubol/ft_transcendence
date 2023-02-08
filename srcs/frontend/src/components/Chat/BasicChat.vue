@@ -1,118 +1,135 @@
 <template>
-    <div class="q-pa-md">
-        <q-card id="chat-menu">
-            <q-list v-for='(n, idx) in statusList' :key='idx' >
-                <q-expansion-item :label="idx">
-                    <q-scroll-area style="height: 200px">
-                    <q-item clickable v-for='chan in coucou(n)' :key='chan.id' @click="updateSelectedChannel(chan.id)" class="q-py-xs">
-                        {{chan.channelName}} ({{chan.id}})
-                    </q-item>
-                    </q-scroll-area>
-                </q-expansion-item>
-            </q-list>
-        </q-card>
-
-        <q-card id="chat-pannel" class="column">
-            <q-card-section>
-                <q-scroll-area style="height: 350px">
-                <q-item v-for="item in chanmsg" :key='item' class="q-py-xs" dense clickable>
-                    {{ item.authorUsername }}({{item.authorLogin}}) {{ item.content }}
+  <div class="q-pa-md q-gutter-y-lg">
+    <q-card id="chat-menu">
+      <q-list>
+        <q-item v-for='(n, idx) in statusList' :key='idx' >
+          <q-item-section>
+            <q-expansion-item :label="idx">
+              <q-list style="max-height: 10vh" class="scroll">
+                <q-item clickable v-for='chan in coucou(n)' :key='chan.id' @click="updateSelectedChannel(chan.id)" class="q-py-xs" dense>
+                  <q-item-section>
+                    <q-item-label>
+                      {{chan.channelName}} ({{chan.id}})
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section>
+                    <template class="row q-gutter-xs justify-end">
+                      <q-input v-if="chan.channelStatus === 1" v-model.trim="chan.passwd" type="text" dense/>
+                      <q-btn v-if="chan.channelStatus === 1" label="Join" @click="joinChannel(chan)"/>
+                      <q-btn v-if="chan.channelStatus === 1" label="Leave" @click="leaveChannel(chan.id)"/>
+                    </template>
+                  </q-item-section>
                 </q-item>
-                </q-scroll-area>
-                <q-form @submit="sendMessage" id="chan-input">
-                    <q-input v-model.trim="message" type="text" counter maxlength="255"/>
-                    <q-btn type="submit" label="Send"/>
-                </q-form>
-            </q-card-section>
-        </q-card>
+              </q-list>
+            </q-expansion-item>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-card>
 
-        <q-card>
-            <q-card-section>
-                <q-btn-toggle
-                    v-model="picked"
-                    toggle-color="primary"
-                    :options="[
-                        { label: 'Public', value: 0 },
-                        { label: 'Protected', value: 1 },
-                        { label: 'Private', value: 2 }]"
-                />
-            </q-card-section>
-            <q-card-section>
-                <q-form @submit="createChannel">
-                    <q-input v-model.trim="channelName" placeholder="Channel name" type="text" counter maxlength="255">
-                        <template v-slot:after>
-                            <q-input v-if="picked == 1" v-model="password" placeholder="password" type="text"/>
-                            <q-input v-else v-model="password" placeholder="no password" type="text" disable />
-                        </template>
-                    </q-input>
-                    <q-btn type="submit" label="Create channel"/>
-                </q-form>
-            </q-card-section>
-        </q-card>
+    <q-card id="chat-pannel" class="column">
+      <q-card-section>
+        <q-scroll-area style="height: 350px">
+          <q-item v-for="item in chanmsg" :key='item' dense clickable>
+            <q-item-section>
+              <div>
+                <q-btn-dropdown :label="item.authorUsername" class="full-width" flat>
+                  <div class="full-width q-gutter-y-xs">
+                    <q-btn label="Private message" @click="startPrivMsg(item.authorLogin)" class="full-width" />
+                    <q-btn-group spread>
+                    <q-btn label="Block" @click="blockChatter(item.authorLogin, 0)"/>
+                    <q-btn label="Unblock" @click="unblockChatter(item.authorLogin, 0)"/>
+                  </q-btn-group>
+                  <q-btn-group spread v-if="chanAdm">
+                    <q-btn label="Ban" @click="banChatter(item.authorLogin, item.channel)"/>
+                    <q-btn label="Unban" @click="unbanChatter(item.authorLogin, item.channel)"/>
+                  </q-btn-group>
+                  <q-btn-group spread v-if="chanAdm">
+                    <q-btn label="Mute" @click="muteChatter(item.authorLogin, item.channel)"/>
+                    <q-btn label="Unmute" @click="unmuteChatter(item.authorLogin, item.channel)"/>
+                  </q-btn-group>
+                  <q-btn-group spread v-if="chanAdm">
+                    <q-btn  label="Set admin" @click="adminChatter(item.authorLogin, item.channel)"/>
+                    <q-btn  label="Unset admin" @click="unadminChatter(item.authorLogin, item.channel)"/>
+                  </q-btn-group>
+                  </div>
+                </q-btn-dropdown>
+              </div>
+              <div>
+                <q-input v-model="item.content" readonly borderless filled type="textarea" autogrow />
+              </div>
+            </q-item-section>
+          </q-item>
+         </q-scroll-area>
+        <q-form @submit="sendMessage" id="chan-input" class="q-gutter-y-sm" >
+          <q-input v-model.trim="message" type="text" counter maxlength="255"/>
+          <q-btn type="submit" label="Send"/>
+        </q-form>
+      </q-card-section>
+    </q-card>
 
-        <q-card v-if="currentChannel && currentChannel.channelStatus == 1">
-            <q-form @submit="joinChannel">
-                <q-input v-model="password" type="text"/>
-                <q-btn type="submit" label="Join Channel"/>
-            </q-form>
-        </q-card>
+    <q-card>
+      <q-card-section>
+        <q-btn-toggle
+          v-model="picked"
+          toggle-color="primary"
+          :options="[
+            { label: 'Public', value: 0 },
+            { label: 'Protected', value: 1 },
+            { label: 'Private', value: 2 }]"
+        />
+      </q-card-section>
+      <q-card-section>
+        <q-form @submit="createChannel" class="q-gutter-y-sm" >
+          <q-input v-model.trim="channelName" placeholder="Channel name" type="text" counter maxlength="255">
+            <template v-slot:after>
+              <q-input v-if="picked == 1" v-model="password" placeholder="password" type="text"/>
+              <q-input v-else v-model="password" placeholder="no password" type="text" disable />
+            </template>
+          </q-input>
+          <q-btn type="submit" label="Create channel"/>
+        </q-form>
+      </q-card-section>
+    </q-card>
 
-        <!-- admin pannel -->
-        <q-card v-if="chanAdm" class="column">
-            <q-card-section>
-                <q-input v-model.trim="banlogin" type="text">
-                    <template v-slot:after>
-                        <q-btn @click="banChatter" label="Ban" />
-                        <q-btn @click="unbanChatter" label="UnBan" />
-                    </template>
-                </q-input>
-            </q-card-section>
-            <q-card-section>
-                <q-input v-model.trim="mutelogin" type="text">
-                    <template v-slot:after>
-                        <q-btn @click="muteChatter" label="Mute" />
-                        <q-btn @click="unmuteChatter" label="UnMute" />
-                    </template>
-                </q-input>
-            </q-card-section>
-            <q-card-section>
-                <q-input v-model.trim="adminlogin" type="text">
-                    <template v-slot:after>
-                        <q-btn @click="adminChatter" label="Set admin" />
-                        <q-btn @click="unadminChatter" label="Unset admin" />
-                    </template>
-                </q-input>
-            </q-card-section>
-            <q-card-section>
-                <q-form @submit="setPassword" v-if="currentChannel && currentChannel.channelStatus == 1">
-                    <q-input v-model="password" type="text" placeholder="password"/>
-                    <q-btn type="submit" label="Set Password"/>
-                </q-form>
-            </q-card-section>
-        </q-card>
+    <q-card v-if="currentChannel && currentChannel.channelStatus == 1">
+      <q-card-section>
+      <q-form @submit="joinChannel" class="q-gutter-y-sm">
+        <q-input v-model="password" type="text"/>
+        <q-btn type="submit" label="Join Channel"/>
+      </q-form>
+      </q-card-section>
+    </q-card>
 
-        <!-- Invitation pannel -->
-        <q-card>
-            <div v-if="currentChannel && currentChannel.channelStatus == 2 && chanAdm">
-                <q-form @submit="inviteUser">
-                    <q-input v-model.trim="invitedUser" type="text"/>
-                    <q-button type="submit" label="invite"/>
-                </q-form>
-            </div>
-            <li v-for="(chan, id) in invitations" :key='chan.id'>
-                {{chan.channelName}}({{chan.id}})
-                <button @click="acceptInvitation(id)">accept</button>
-                <button @click="refuseInvitation(id)">refuse</button>
-            </li>
-        </q-card>
-        <div v-if="currentChannel && (currentChannel.channelStatus == 1 || currentChannel.channelStatus == 2)" >
-            <button @click="leaveChannel">leave channel</button>
-        </div>
-        <div>
-            <input v-model.trim="privateMsg" type="text">
-            <button @click="startPrivMsg">Private Message</button>
-        </div>
+    <!-- admin pannel -->
+    <div v-if="currentChannel && chanAdm">
+    <q-card v-if="currentChannel && currentChannel.channelStatus == 1 && chanAdm" class="column">
+      <q-card-section>
+        <q-form @submit="setPassword" class="q-gutter-y-sm" >
+          <q-input v-model="password" type="text" placeholder="password"/>
+          <q-btn type="submit" label="Set Password"/>
+        </q-form>
+      </q-card-section>
+    </q-card>
     </div>
+
+    <!-- Invitation pannel -->
+    <div v-if="invitations.length > 0 || (currentChannel && currentChannel.channelStatus == 2 && chanAdm)">
+    <q-card>
+      <div v-if="currentChannel && currentChannel.channelStatus == 2 && chanAdm">
+        <q-form @submit="inviteUser" class="q-gutter-y-sm" >
+          <q-input v-model.trim="invitedUser" type="text"/>
+          <q-btn type="submit" label="invite"/>
+        </q-form>
+      </div>
+      <li v-for="(chan, id) in invitations" :key='chan.id'>
+        {{chan.channelName}}({{chan.id}})
+        <button @click="acceptInvitation(id)">accept</button>
+        <button @click="refuseInvitation(id)">refuse</button>
+      </li>
+    </q-card>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -149,8 +166,7 @@ export default {
       adminlogin: '',
       password: '',
       invitations: [],
-      invitedUser: '',
-      privateMsg: ''
+      invitedUser: ''
     }
   },
   methods: {
@@ -216,53 +232,61 @@ export default {
     updateSelectedChannel (chan: number) {
       this.chatid = chan
     },
-    banChatter () {
+    banChatter (login: string, channelId: number) {
       const message = {
-        banLogin: this.banlogin,
-        channelId: this.chatid
+        banLogin: login,
+        channelId: channelId
       }
       socket.emit('banChatter', message)
-      this.banlogin = ''
     },
-    unbanChatter () {
+    unbanChatter (login: string, channelId: number) {
       const message = {
-        banLogin: this.banlogin,
-        channelId: this.chatid
+        banLogin: login,
+        channelId: channelId
       }
       socket.emit('unbanChatter', message)
-      this.banlogin = ''
     },
-    muteChatter () {
+    blockChatter (login: string, channelId: number) {
       const message = {
-        banLogin: this.mutelogin,
-        channelId: this.chatid
+        banLogin: login,
+        channelId: channelId
+      }
+      socket.emit('blockChatter', message)
+    },
+    unblockChatter (login: string, channelId: number) {
+      const message = {
+        banLogin: login,
+        channelId: channelId
+      }
+      socket.emit('unblockChatter', message)
+    },
+    muteChatter (login: string, channelId: number) {
+      const message = {
+        banLogin: login,
+        channelId: channelId
       }
       socket.emit('muteChatter', message)
-      this.mutelogin = ''
     },
-    unmuteChatter () {
+    unmuteChatter (login: string, channelId: number) {
       const message = {
-        banLogin: this.mutelogin,
-        channelId: this.chatid
+        banLogin: login,
+        channelId: channelId
       }
       socket.emit('unmuteChatter', message)
-      this.mutelogin = ''
     },
-    adminChatter () {
+    adminChatter (login: string, channelId: number) {
       const message = {
-        banLogin: this.adminlogin,
-        channelId: this.chatid
+        banLogin: login,
+        channelId: channelId
       }
       socket.emit('adminChatter', message)
-      this.adminlogin = ''
     },
-    unadminChatter () {
+    unadminChatter (login: string, channelId: number) {
       const message = {
-        banLogin: this.adminlogin,
-        channelId: this.chatid
+        banLogin: login,
+        channelId: channelId
       }
       socket.emit('unadminChatter', message)
-      this.adminlogin = ''
     },
     setPassword () {
       const message = {
@@ -272,13 +296,26 @@ export default {
       socket.emit('setPassword', message)
       this.password = ''
     },
-    joinChannel () {
-      const message = {
-        channelId: this.chatid,
-        password: this.password
+    joinChannel (channel?: any) {
+      if (channel === undefined) {
+        const message = {
+          channelId: this.chatid,
+          password: this.password
+        }
+        socket.emit('joinChannel', message)
+        this.password = ''
+        return
       }
+      if (channel.channelPasswd === undefined) {
+        channel.channelPasswd = ''
+      }
+      const message = {
+        channelId: channel.id,
+        password: channel.channelPasswd
+      }
+      console.log('join request', message)
       socket.emit('joinChannel', message)
-      this.password = ''
+      channel.channelPasswd = ''
     },
     inviteUser () {
       const message = {
@@ -310,13 +347,19 @@ export default {
       console.log(message)
       socket.emit('refuseInvitation', message)
     },
-    leaveChannel () {
-      const payload = { channelId: this.chatid }
+    leaveChannel (channelId?: number) {
+      console.log(channelId)
+      if (channelId === undefined) {
+        const payload = { channelId: this.chatid }
+        socket.emit('leaveChannel', payload)
+        return
+      }
+      const payload = { channelId: channelId }
       socket.emit('leaveChannel', payload)
     },
-    startPrivMsg () {
+    startPrivMsg (login: string) {
       const chanCreation = {
-        userLogin: this.privateMsg
+        userLogin: login
       }
       socket.emit('askPrivate', chanCreation)
     },
@@ -348,9 +391,7 @@ export default {
       }
     })
     this.getChannels()
-    console.log('coucou les amisa')
     this.getInvitations()
-    console.log('coucou les amisb')
     socket.on('recvMessage', (message) => {
       message.channel = message.channel.id
       console.log(message)

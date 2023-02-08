@@ -390,6 +390,7 @@ export class ChatGateway {
       .catch(() => null)
     if (!inviter || !invited || !await this.chatService.askPrivate(inviter, invited))
       return;
+    console.log("creation")
     const channel = await this.chatService.createChannel(
       `Priv ${client.userLogin}/${payload.userLogin}`,
       ChannelStatus.Locked,
@@ -397,6 +398,7 @@ export class ChatGateway {
       inviter
     )
     await this.chatService.addChannelUser(inviter, "", channel.id)
+    await this.chatService.addChannelUser(invited, "", channel.id)
     const chanMsg: ChannelExport = {
       id: channel.id,
       channelName: channel.channelName,
@@ -404,8 +406,6 @@ export class ChatGateway {
       channelStatus: channel.channelStatus,
       hasPasswd: false
     }
-    await this.chatService.addChannelUser(inviter, "", channel.id)
-    await this.chatService.addChannelUser(invited, "", channel.id)
     client.join(`channel${channel.id}`)
     client.emit('updateChannel', chanMsg)
     if (this.socketMap.get(payload.userLogin)) {
