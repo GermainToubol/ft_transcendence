@@ -16,7 +16,7 @@
                     <template class="row q-gutter-xs justify-end">
                       <q-input v-if="chan.channelStatus === 1" v-model.trim="chan.passwd" type="text" dense/>
                       <q-btn v-if="chan.channelStatus === 1" label="Join" @click="joinChannel(chan)"/>
-                      <q-btn v-if="chan.channelStatus === 1" label="Leave" @click="leaveChannel(chan.id)"/>
+                      <q-btn v-if="chan.channelStatus === 1 || chan.channelStatus === 2" label="Leave" @click="leaveChannel(chan.id)"/>
                     </template>
                   </q-item-section>
                 </q-item>
@@ -37,8 +37,8 @@
                   <div class="full-width q-gutter-y-xs">
                     <q-btn label="Private message" @click="startPrivMsg(item.authorLogin)" class="full-width" />
                     <q-btn-group spread>
-                    <q-btn label="Block" @click="blockChatter(item.authorLogin, 0)"/>
-                    <q-btn label="Unblock" @click="unblockChatter(item.authorLogin, 0)"/>
+                    <q-btn label="Block" @click="blockChatter(item.authorLogin, 1)"/>
+                    <q-btn label="Unblock" @click="unblockChatter(item.authorLogin, 1)"/>
                   </q-btn-group>
                   <q-btn-group spread v-if="chanAdm">
                     <q-btn label="Ban" @click="banChatter(item.authorLogin, item.channel)"/>
@@ -122,11 +122,19 @@
           <q-btn type="submit" label="invite"/>
         </q-form>
       </div>
-      <li v-for="(chan, id) in invitations" :key='chan.id'>
-        {{chan.channelName}}({{chan.id}})
-        <button @click="acceptInvitation(id)">accept</button>
-        <button @click="refuseInvitation(id)">refuse</button>
-      </li>
+      <q-item v-for="(chan, id) in invitations" :key='chan.id'>
+        <q-item-section>
+          <q-item-label>
+            {{chan.channelName}}({{chan.id}})
+          </q-item-label>
+        </q-item-section>
+        <q-item-section>
+          <q-btn-group spread>
+            <q-btn @click="acceptInvitation(id)" label="accept" />
+            <q-btn @click="refuseInvitation(id)" label="refuse" />
+          </q-btn-group>
+        </q-item-section>
+      </q-item>
     </q-card>
     </div>
   </div>
@@ -425,6 +433,13 @@ export default {
       const index = this.invitations.findIndex((chan) => chan.id === message.id)
       if (index !== -1) {
         this.invitations.splice(index, 1)
+      }
+    })
+    socket.on('leavedDone', (message) => {
+      const index = this.channels.findIndex((chan) => chan.id === message.channelId)
+      if (index !== -1) {
+        this.channels.splice(index, 1)
+        this.messages = this.messages.filter((msg) => msg.channel !== message.channelId)
       }
     })
   },

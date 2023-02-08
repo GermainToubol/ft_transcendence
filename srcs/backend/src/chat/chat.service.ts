@@ -138,6 +138,8 @@ export class ChatService {
   }
 
   async inviteUserToChannel(inviter: Chatter, invited: Chatter, channelId: number): Promise<ChatChannel> {
+    if (this.chatterService.isBlocked(invited, inviter))
+      return null
     const channel: ChatChannel = await this.getChannelById(channelId, { channelAdmins: true, channelUsers: true })
     if (channel.channelStatus == ChannelStatus.Private
       && this.channelService.isChatterAdminFromChannel(inviter, channel)
@@ -176,5 +178,51 @@ export class ChatService {
 
   async askPrivate(inviter: Chatter, invited: Chatter): Promise<boolean> {
     return this.chatterService.askPrivate(inviter, invited)
+  }
+
+  async blockUser(user: Chatter, blocked: Chatter): Promise<number> {
+    await this.chatterService.blockChatter(user, blocked)
+    const chanList: ChatChannel[] = await this.getChannels({
+      where: {
+        channelStatus: ChannelStatus.Locked
+      },
+      relations: {
+        channelUsers: true,
+        bannedUsers: true,
+      }
+    })
+      .then((chlst) => chlst.filter((chan) => {
+        return chan.channelUsers.findIndex((usr) => usr.id === user.id) !== -1
+        && chan.channelUsers.findIndex((usr) => usr.id === blocked.id) !== -1
+      }))
+      .catch(() => [])
+    if (chanList.length > 0) {
+      this.channelService.banChatterFromChannel(user, chanList[0])
+      return chanList[0].id
+    }
+    return -1
+  }
+
+  async unblockUser(user: Chatter, blocked: Chatter): Promise<number> {
+    await this.chatterService.unblockChatter(user, blocked)
+        const chanList: ChatChannel[] = await this.getChannels({
+      where: {
+        channelStatus: ChannelStatus.Locked
+      },
+      relations: {
+        channelUsers: true,
+        bannedUsers: true,
+      }
+    })
+      .then((chlst) => chlst.filter((chan) => {
+        return chan.channelUsers.findIndex((usr) => usr.id === user.id) !== -1
+        && chan.channelUsers.findIndex((usr) => usr.id === blocked.id) !== -1
+      }))
+      .catch(() => [])
+    if (chanList.length > 0) {
+      this.channelService.unbanChatterFromChannel(user, chanList[0])
+      return chanList[0].id
+    }
+    return -1
   }
 }

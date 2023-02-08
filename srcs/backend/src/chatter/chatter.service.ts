@@ -31,7 +31,7 @@ export class ChatterService {
 
     async blockChatter(user: Chatter, blocked: Chatter){
         const index = user.blocks.findIndex((chatter) => chatter.id == blocked.id);
-        if (index != -1)
+        if (index != -1 || user.id === blocked.id)
             return ;
         user.blocks.push(blocked);
         await this.chatterRepository.save(user);
@@ -46,13 +46,16 @@ export class ChatterService {
     }
 
     isBlocked(user: Chatter, blocked: Chatter) {
-        if (user.blocks.findIndex((chatter) => chatter.id == blocked.id) != -1)
+        if (user.blocks.findIndex((chatter) => chatter.id === blocked.id) != -1)
             return true;
         return false;
     }
 
   async askPrivate(inviter: Chatter, invited: Chatter): Promise<boolean> {
-    if (this.isBlocked(inviter, invited) || this.isBlocked(invited, inviter))
+    if (inviter.id === invited.id || this.isBlocked(inviter, invited) || this.isBlocked(invited, inviter))
+      return false
+    if (inviter.privates.findIndex((usr) => usr.id === invited.id) !== -1
+      || invited.privates.findIndex((usr) => usr.id === inviter.id) !== -1)
       return false
     inviter.privates.push(invited)
     await this.chatterRepository.save(inviter)
