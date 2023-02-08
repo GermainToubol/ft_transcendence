@@ -29,20 +29,22 @@ export class ChatterService {
         await this.chatterRepository.save(invited)
     }
 
-    async blockChatter(user: Chatter, blocked: Chatter){
+    async blockChatter(user: Chatter, blocked: Chatter): Promise<boolean> {
         const index = user.blocks.findIndex((chatter) => chatter.id == blocked.id);
         if (index != -1 || user.id === blocked.id)
-            return ;
+            return false
         user.blocks.push(blocked);
         await this.chatterRepository.save(user);
+        return true
     }
 
-    async unblockChatter(user: Chatter, blocked: Chatter) {
+    async unblockChatter(user: Chatter, blocked: Chatter): Promise<boolean> {
         const index = user.blocks.findIndex((chatter) => chatter.id == blocked.id);
         if (index == -1)
-            return ;
+            return false;
         user.blocks.splice(index, 1);
         await this.chatterRepository.save(user);
+        return true
     }
 
     isBlocked(user: Chatter, blocked: Chatter) {
@@ -51,14 +53,14 @@ export class ChatterService {
         return false;
     }
 
-  async askPrivate(inviter: Chatter, invited: Chatter): Promise<boolean> {
-    if (inviter.id === invited.id || this.isBlocked(inviter, invited) || this.isBlocked(invited, inviter))
-      return false
-    if (inviter.privates.findIndex((usr) => usr.id === invited.id) !== -1
-      || invited.privates.findIndex((usr) => usr.id === inviter.id) !== -1)
-      return false
-    inviter.privates.push(invited)
-    await this.chatterRepository.save(inviter)
-    return true
+    async askPrivate(inviter: Chatter, invited: Chatter): Promise<boolean> {
+        if (inviter.id === invited.id || this.isBlocked(inviter, invited) || this.isBlocked(invited, inviter))
+            return false
+        if (inviter.privates.findIndex((usr) => usr.id === invited.id) !== -1
+            || invited.privates.findIndex((usr) => usr.id === inviter.id) !== -1)
+            return false
+        inviter.privates.push(invited)
+        await this.chatterRepository.save(inviter)
+        return true
     }
 }

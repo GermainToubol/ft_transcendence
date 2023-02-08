@@ -137,6 +137,20 @@
       </q-item>
     </q-card>
     </div>
+    <div v-if="blockedUsers.length > 0">
+        <q-card>
+            <q-item v-for="(user, idx) in blockedUsers" :key="idx">
+                <q-item-section>
+                    <q-item-label>
+                        {{ user.name }}
+                    </q-item-label>
+                </q-item-section>
+                <q-item-section>
+                    <q-btn @click="unblockChatter(user.login, 1)" label="unblock" />
+                </q-item-section>
+            </q-item>
+        </q-card>
+    </div>
   </div>
 </template>
 
@@ -174,12 +188,13 @@ export default {
       adminlogin: '',
       password: '',
       invitations: [],
-      invitedUser: ''
+      invitedUser: '',
+      blockedUsers: []
     }
   },
   methods: {
     getChannelMsg (channel: number) {
-      fetch(`${BACK_SERVER}/chat/${channel}`, {
+      fetch(`${BACK_SERVER}/chat/messages/${channel}`, {
         headers: { Authorization: `Bearer ${this.store.state.token}` }
       })
         .then((response) => response.json())
@@ -207,13 +222,18 @@ export default {
         .catch(() => null)
     },
     getInvitations () {
-      fetch(`${BACK_SERVER}/chat/invitations/me`, {
+      fetch(`${BACK_SERVER}/chat/invitations`, {
         headers: { Authorization: `Bearer ${this.store.state.token}` }
       })
         .then((response) => response.json())
         .then((invitations) => {
           invitations.forEach((invitation) => { this.invitations.push(invitation) })
         })
+    },
+    getBlocked () {
+      fetch(`${BACK_SERVER}/chat/blocked`, { headers: { Authorization: `Bearer ${this.store.state.token}` } })
+        .then((response) => response.json())
+        .then((blocks) => { blocks.forEach((block) => { this.blockedUsers.push(block) }) })
     },
     sendMessage () {
       const payload = {
@@ -377,8 +397,8 @@ export default {
   },
   computed: {
     chanmsg: function () {
-      console.log(this.messages)
       return this.messages.filter((msg) => msg.channel === this.chatid)
+        .filter((msg) => this.blockedUsers.findIndex((item) => { console.log(item, msg); return item.login === msg.authorLogin }) === -1)
     },
     chanAdm: function (): boolean {
       const arr = this.channels.filter((chan) => chan.id === this.chatid)
@@ -400,6 +420,7 @@ export default {
     })
     this.getChannels()
     this.getInvitations()
+    this.getBlocked()
     socket.on('recvMessage', (message) => {
       message.channel = message.channel.id
       console.log(message)
@@ -440,6 +461,18 @@ export default {
       if (index !== -1) {
         this.channels.splice(index, 1)
         this.messages = this.messages.filter((msg) => msg.channel !== message.channelId)
+      }
+    })
+    socket.on('addBlock', (message) => {
+      const index = this.blockedUsers.findIndex((user) => user.login === message.login)
+      if (index === -1) {
+        this.blockedUsers.push(message)
+      }
+    })
+    socket.on('popBlock', (message) => {
+      const index = this.blockedUsers.findIndex((user) => user.login === message.login)
+      if (index !== -1) {
+        this.blockedUsers.splice(index, 1)
       }
     })
   },
