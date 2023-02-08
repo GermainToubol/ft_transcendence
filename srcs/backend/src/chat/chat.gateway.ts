@@ -69,7 +69,7 @@ export class ChatGateway {
     const channel: ChatChannel = await this.chatService
       .getChannelById(payload.channel, { mutedUsers: true, bannedUsers: true, channelUsers: true });
     const user: User = await this.usersService
-      .findOne(client.userLogin, { chatter: true })
+      .findOne(client.userLogin, ["chatter", "chatter.blocks"])
 
     if (!channel || !user)
       return;
@@ -122,8 +122,10 @@ export class ChatGateway {
       .findOne(client.userLogin, {chatter: true})
       .then((user => user.chatter))
       .catch(() => null)
-    if (await this.chatService.leaveChannel(chatter, payload.channelId))
+    if (await this.chatService.leaveChannel(chatter, payload.channelId)) {
       client.leave(`channel${payload.channelId}`)
+      client.emit('leavedDone', payload)
+    }
   }
 
   @SubscribeMessage("setPassword")
@@ -314,7 +316,7 @@ export class ChatGateway {
       .then((user) => user.chatter)
       .catch(() => null)
     const invited: Chatter = await this.usersService
-      .findOne(payload.userLogin, ["chatter", "chatter.invitations"])
+      .findOne(payload.userLogin, ["chatter", "chatter.invitations", "chatter.blocks"])
       .then((user) => user.chatter)
       .catch(() => null)
     if (!inviter || !invited)
@@ -378,6 +380,44 @@ export class ChatGateway {
     client.emit("popInvitation", message);
   }
 
+  @SubscribeMessage("blockChatter")
+  async handleBlockChatter(client: UserSocket, payload: BanChatterDto) {
+    const user: Chatter = await this.usersService
+      .findOne(client.userLogin, ["chatter", "chatter.blocks"])
+      .then((user) => user.chatter)
+      .catch(() => null)
+    const blocked: Chatter = await this.usersService
+      .findOne(payload.banLogin, ["chatter"])
+      .then((user) => user.chatter)
+      .catch(() => null)
+
+    if (!user || !blocked)
+      return
+    const chanId = await this.chatService.blockUser(user, blocked)
+    if (chanId !== -1) {
+      client.leave(`channel${chanId}`)
+    }
+  }
+
+  @SubscribeMessage("unblockChatter")
+  async handleUnlockChatter(client: UserSocket, payload: BanChatterDto) {
+    const user: Chatter = await this.usersService
+      .findOne(client.userLogin, ["chatter", "chatter.blocks"])
+      .then((user) => user.chatter)
+      .catch(() => null)
+    const blocked: Chatter = await this.usersService
+      .findOne(payload.banLogin, ["chatter"])
+      .then((user) => user.chatter)
+      .catch(() => null)
+
+    if (!user || !blocked)
+      return
+    const chanId = await this.chatService.unblockUser(user, blocked)
+    if (chanId !== -1) {
+      client.join(`channel${chanId}`)
+    }
+  }
+
   @SubscribeMessage("askPrivate")
   async handleAskPrivate(client: UserSocket, payload: PrivateDto) {
     const inviter: Chatter = await this.usersService
@@ -399,6 +439,7 @@ export class ChatGateway {
     )
     await this.chatService.addChannelUser(inviter, "", channel.id)
     await this.chatService.addChannelUser(invited, "", channel.id)
+    console.log("channel", channel)
     const chanMsg: ChannelExport = {
       id: channel.id,
       channelName: channel.channelName,
