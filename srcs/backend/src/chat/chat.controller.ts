@@ -33,7 +33,7 @@ export class ChatController {
         res.json(filtered);
     }
 
-    @Get(':id')
+    @Get('messages/:id')
     @UseGuards(JwtAuthGuard)
     async findChannelMessages(
         @Res() res: Response,
@@ -63,7 +63,7 @@ export class ChatController {
         res.json(sendMessages)
     }
 
-    @Get("invitations/me")
+    @Get("invitations")
     @UseGuards(JwtAuthGuard)
     async findInvitations(@Res() res: Response, @ReqUser() user: User) {
         console.log("uu")
@@ -84,5 +84,15 @@ export class ChatController {
             };
         })
         res.json(channels);
+    }
+
+    @Get("blocked")
+    @UseGuards(JwtAuthGuard)
+    async findBlocked(@Res() res: Response, @ReqUser() user: User) {
+        const logins = await this.userService.findOne(user.login, ["chatter", "chatter.blocks", "chatter.blocks.user"])
+            .then((chatter) => chatter.chatter.blocks)
+            .then((blocked) => blocked.map((usr) => { return { login: usr.user.login, name: usr.user.usual_full_name } }))
+            .catch(() => [])
+        res.json(logins)
     }
 }
