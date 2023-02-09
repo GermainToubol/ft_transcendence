@@ -6,18 +6,18 @@ import { GameController } from "./game.controller"
 import { GameGateway } from "./game.gateway"
 import { GameService } from "./game.service"
 import { LobbyService } from "./lobby.service"
-import { UsersService } from "src/users/user.service"
 import { User } from "src/users/user.entity"
-import { JwtService } from "@nestjs/jwt"
+import { JwtModule, JwtService } from "@nestjs/jwt"
 import LocalFile from "src/localfiles/localFile.entity"
-import LocalFilesService from "src/localfiles/localFiles.service"
 import { GameHistory } from "src/history/history.entity"
-import { GameHistoryService } from "src/history/history.service"
+import { UsersModule } from "src/users/user.module"
+import { GameHistoryModule } from "src/history/history.module"
+import { LocalFileModule } from "src/localfiles/localFiles.module"
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Room, User, LocalFile, GameHistory]), AuthModule],
+	imports: [TypeOrmModule.forFeature([Room, User, LocalFile, GameHistory]), AuthModule, UsersModule, GameHistoryModule, LocalFileModule, JwtModule],
 	controllers: [GameController],
-	providers: [GameGateway, LobbyService, GameService, UsersService, JwtService, LocalFilesService, GameHistoryService],
+	providers: [GameGateway, LobbyService, GameService, JwtService],
 })
 
 export class GameModule {}

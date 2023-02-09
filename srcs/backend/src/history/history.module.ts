@@ -7,10 +7,12 @@ import { User } from "src/users/user.entity";
 import { UsersService } from "src/users/user.service";
 import { GameHistoryController } from "./history.controller";
 import { GameHistory } from "./history.entity";
+import { GameHistoryService } from "./history.service";
 
 @Module({
-    providers: [ UsersService, LocalFilesService, JwtService ],
-    imports: [TypeOrmModule.forFeature([User, LocalFile, GameHistory])],
-    controllers: [ GameHistoryController ],
+    providers: [GameHistoryService ],
+    imports: [TypeOrmModule.forFeature([GameHistory])],
+  controllers: [ GameHistoryController ],
+  exports: [GameHistoryService]
   })
 export class GameHistoryModule {}

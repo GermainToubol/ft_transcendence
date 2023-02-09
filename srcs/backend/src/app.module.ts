@@ -17,28 +17,28 @@ import { ChatterModule } from './chatter/chatter.module';
 import { Chatter } from './chatter/chatter.entity';
 
 @Module({
-    imports: [
-        AuthModule,
-        TwoFactorAuthModule,
-        UsersModule,
-  LocalFileModule,
-  GameModule,
+  imports: [
+    AuthModule,
+    TwoFactorAuthModule,
+    UsersModule,
+    LocalFileModule,
+    GameModule,
 		GameHistoryModule,
-        TypeOrmModule.forRoot({
-            type: 'postgres',
-            host: 'database.backend-net',
-            port: 5432,
-            username: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_NAME,
-          entities: [User, LocalFile, Message, Room, GameHistory, ChatChannel, Chatter],
-            synchronize: true,
-        }),
-        ChatModule,
-        ChatterModule,
-    ],
-    controllers: [],
-    providers: [],
+    ChatModule,
+    ChatterModule,
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'database.backend-net',
+      port: 5432,
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      entities: [User, LocalFile, Message, Room, GameHistory, ChatChannel, Chatter],
+      synchronize: true,
+    }),
+  ],
+  controllers: [],
+  providers: [],
 })
 
 export class AppModule {
