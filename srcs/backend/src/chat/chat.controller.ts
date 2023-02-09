@@ -9,18 +9,37 @@ import { ChatService } from './chat.service';
 import { Message, SendMessage } from './message/message.entity';
 import { ChannelExport } from './exports/channel.export';
 import { Chatter } from 'src/chatter/chatter.entity';
+import { UserExport } from './exports/user.export';
 
 @Controller('chat')
 export class ChatController {
-    constructor(private chatService: ChatService, private userService: UsersService) { }
+    constructor(
+        private chatService: ChatService,
+        private userService: UsersService
+    ) { }
 
     @Get()
     @UseGuards(JwtAuthGuard)
     async findChannels(@Res() res: Response, @ReqUser() user: User) {
-        const chatter = await this.userService.findOne(user.login, { chatter: true }).then((u) => u.chatter);
-        const channels: ChatChannel[] = await this.chatService.getChannels({ relations: { channelAdmins: true, channelUsers: true } });
-        const filtered = channels.filter((chan) => chan.channelStatus < ChannelStatus.Private
-            || chan.channelUsers.findIndex((usr) => usr.id == chatter.id) != -1)
+        const chatter: Chatter = await this.userService
+            .findOne(user.login, { chatter: true })
+            .then((u) => u.chatter)
+            .catch(() => null)
+        if (!chatter) {
+            return
+        }
+        const channels: ChatChannel[] = await this.chatService
+            .getChannels({
+                relations: {
+                    channelAdmins: true,
+                    channelUsers: true
+                }
+            })
+            .catch(() => [])
+        const filtered = channels.filter(function(chan: ChatChannel): boolean {
+            return chan.channelStatus < ChannelStatus.Private
+                || chan.channelUsers.findIndex((usr) => usr.id == chatter.id) !== -1
+        })
             .map(function(chan: ChatChannel): ChannelExport {
                 return {
                     id: chan.id,
@@ -41,7 +60,10 @@ export class ChatController {
         const chatter: Chatter = await this.userService.findOne(user.login, { chatter: true })
             .then((u) => u.chatter)
             .catch(() => null);
-        const channel: ChatChannel = await this.chatService.getChannelById(chanId, { channelUsers: true, bannedUsers: true })
+        const channel: ChatChannel = await this.chatService.getChannelById(chanId, {
+            channelUsers: true,
+            bannedUsers: true
+        })
             .catch(() => null);
         if (!chatter || !channel)
             return;
@@ -67,31 +89,45 @@ export class ChatController {
     @UseGuards(JwtAuthGuard)
     async findInvitations(@Res() res: Response, @ReqUser() user: User) {
         console.log("uu")
-        const chatter: Chatter = await this.userService.findOne(user.login, ["chatter", "chatter.invitations"])
+        const chatter: Chatter = await this.userService
+            .findOne(user.login, ["chatter", "chatter.invitations"])
             .then((u) => u.chatter)
             .catch(() => null);
         console.log("chatter:", chatter)
         if (!chatter)
             return;
-        const channels = chatter.invitations.map((chan) => {
-            console.log("invited", chan)
-            return {
-                id: chan.id,
-                channelName: chan.channelName,
-                channelAdm: false,
-                channelStatus: chan.channelStatus,
-                hasPasswd: false,
-            };
-        })
+        const channels: ChannelExport[] = chatter.invitations.map(
+            function(chan: ChatChannel): ChannelExport {
+                return {
+                    id: chan.id,
+                    channelName: chan.channelName,
+                    channelAdm: false,
+                    channelStatus: chan.channelStatus,
+                    hasPasswd: false,
+                };
+            })
         res.json(channels);
     }
 
     @Get("blocked")
     @UseGuards(JwtAuthGuard)
     async findBlocked(@Res() res: Response, @ReqUser() user: User) {
-        const logins = await this.userService.findOne(user.login, ["chatter", "chatter.blocks", "chatter.blocks.user"])
-            .then((chatter) => chatter.chatter.blocks)
-            .then((blocked) => blocked.map((usr) => { return { login: usr.user.login, name: usr.user.usual_full_name } }))
+        const logins = await this.userService.findOne(user.login, [
+            "chatter",
+            "chatter.blocks",
+            "chatter.blocks.user"
+        ])
+            .then(function(usr: User): Chatter[] { return usr.chatter.blocks })
+            .then(function(blocked: Chatter[]) {
+                const blockedList: UserExport[] = blocked.map(
+                    function(chatter: Chatter): UserExport {
+                        return {
+                            login: chatter.user.login,
+                            name: chatter.user.usual_full_name
+                        }
+                    })
+                return blockedList
+            })
             .catch(() => [])
         res.json(logins)
     }
