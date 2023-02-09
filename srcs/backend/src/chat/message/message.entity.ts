@@ -4,20 +4,20 @@ import { ChatChannel } from '../channel/channel.entity';
 
 @Entity()
 export class Message {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    content: string;
+  @Column()
+  content: string;
 
-    @ManyToOne(() => ChatChannel, (chan) => chan.messages)
-    channel: ChatChannel;
+  @ManyToOne(() => ChatChannel, (chan) => chan.messages)
+  channel: ChatChannel;
 
-    @ManyToOne(() => Chatter, (chatter) => chatter.messages)
-    author?: Chatter;
+  @ManyToOne(() => Chatter, (chatter) => chatter.messages)
+  author?: Chatter;
 }
 
 export class SendMessage extends Message {
-    authorLogin?: string;
-    authorUsername?: string;
+  authorLogin?: string;
+  authorUsername?: string;
 }
