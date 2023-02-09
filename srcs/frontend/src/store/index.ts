@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { InjectionKey } from 'vue'
 import { createStore, useStore as baseUseStore, Store } from 'vuex'
+import { BACK_SERVER } from '@/config'
 
 export interface State {
   pseudo: string,
@@ -22,7 +23,7 @@ export const store = createStore<State>({
     token: '',
     doubleFA: false,
     isAuthenticated: false,
-    url: 'localhost:3000/'
+    url: BACK_SERVER
   },
   getters: {
     getPseudo (state) {
@@ -40,7 +41,10 @@ export const store = createStore<State>({
   },
   actions: {
     async login (context, params) {
-      const response = await axios.get(`http://localhost:3000/auth/login?code=${params.code}`).then((t) => t.data)
+      const response = await axios.get(`${BACK_SERVER}/auth/login`, {
+        params: { code: params.code }
+      })
+        .then((t) => t.data)
       console.log(response)
       context.commit('AUTHENTICATED', {
         pseudo: response.pseudo,
@@ -50,7 +54,7 @@ export const store = createStore<State>({
       return response
     },
     async logout (context) {
-      const response = await axios.get('http://localhost:3000/auth/logout', {
+      const response = await axios.get(`${BACK_SERVER}/auth/logout`, {
         headers: { Authorization: `Bearer ${this.state.token}` }
       })
       context.commit('DEAUTHENTICATE')
@@ -58,7 +62,7 @@ export const store = createStore<State>({
     },
     async validateToken (context) {
       console.log(localStorage.token)
-      const response = await axios.get('http://localhost:3000/auth/validate', {
+      const response = await axios.get(`${BACK_SERVER}/auth/validate`, {
         headers: { Authorization: `Bearer ${localStorage.token}` }
       }).then((t) => t.data)
 
@@ -76,7 +80,7 @@ export const store = createStore<State>({
     },
     async verify2FA (context, params) {
       const response = await axios.post(
-        'http://localhost:3000/2fa/verify',
+        `${BACK_SERVER}/2fa/verify`,
         {
           code: params.code,
           login: this.state.login
@@ -94,14 +98,14 @@ export const store = createStore<State>({
       return response
     },
     async enable2FA (context) {
-      const response = await axios.get('http://localhost:3000/2fa/enable', {
+      const response = await axios.get(`${BACK_SERVER}/2fa/enable`, {
         headers: { Authorization: `Bearer ${this.state.token}` }
       })
       context.commit('SETDOUBLEFA', { is2fa: true })
       return response
     },
     async disable2FA (context) {
-      const response = await axios.get('http://localhost:3000/2fa/disable', {
+      const response = await axios.get(`${BACK_SERVER}/2fa/disable`, {
         headers: { Authorization: `Bearer ${this.state.token}` }
       })
       context.commit('SETDOUBLEFA', { is2fa: false })

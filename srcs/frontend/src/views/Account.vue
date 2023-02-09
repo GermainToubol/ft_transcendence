@@ -74,6 +74,7 @@ import { ref } from 'vue'
 import store from '../store'
 import axios from 'axios'
 import Form2FA from '../components/Form2FA.vue'
+import { BACK_SERVER } from '@/config'
 
 export default {
   name: 'Account',
@@ -107,7 +108,7 @@ export default {
   },
   methods: {
     async generate2FA () {
-      const response = await axios.get('http://localhost:3000/2fa/generate', {
+      const response = await axios.get(`${BACK_SERVER}/2fa/generate`, {
         headers: { Authorization: `Bearer ${this.store.state.token}` }
       }).then((t) => t.data)
 
