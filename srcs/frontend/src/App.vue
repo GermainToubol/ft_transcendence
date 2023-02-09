@@ -5,17 +5,17 @@
      import { BACK_SERVER } from './config';
 
      export default {
-	   created() {
-		 window.addEventListener('beforeunload', () => {
-		 axios.get(
+     created() {
+     window.addEventListener('beforeunload', () => {
+     axios.get(
      `${BACK_SERVER}/auth/logout`,
      {
      headers: {
      Authorization: `Bearer ${localStorage.token}`,
      }
      })
-		 }, false)
-		 },
+     }, false)
+     },
      }
 
      </script> -->
