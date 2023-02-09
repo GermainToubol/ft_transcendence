@@ -22,7 +22,7 @@ export class ScoreBoard {
 	public get playerTwoScore(): number {
 		return this._playerTwoScore
 	}
-	
+
 	public get round(): number {
 		return this._round
 	}

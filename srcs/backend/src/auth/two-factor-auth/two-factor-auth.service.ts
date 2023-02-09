@@ -40,10 +40,8 @@ export class TwoFactorAuthService {
         return res.status(200).json(dataUrl);
     }
 
-    async verifyCode (login: any, code: string, bool: boolean): Promise<any> {
-        console.log(login)
-        const user = await this.usersService.findOne(login);
-        console.log(user)
+    async verifyCode (data: any, code: string, bool: boolean): Promise<any> {
+        const user = await this.usersService.findOne(data.login);
         if (!user)
             return null;
         const isValid = authenticator.verify({ token: code, secret: user.twoFactorAuthSecret! });

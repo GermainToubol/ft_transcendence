@@ -76,10 +76,10 @@ export class GameService {
 		second.join(roomname)
 		first.data.roomname = roomname
 		second.data.roomname = roomname
-		
+
 		first.data.opponentId = second.data.user.id
 		second.data.opponentId = first.data.user.id
-		
+
 		let add = this.lobbyService.addRooms({ roomname, player1: first.data.user.usual_full_name as string, player2: second.data.user.usual_full_name as string })
 		if (!add)
 			return

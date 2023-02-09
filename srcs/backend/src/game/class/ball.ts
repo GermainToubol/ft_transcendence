@@ -11,7 +11,7 @@ export class Ball {
 	private _speedX: number
 	private _speedY: number
 	private _mode: boolean
-	
+
 	constructor(
 		x: number,
 		y: number,
@@ -79,35 +79,35 @@ export class Ball {
 			right: this._x + this._radius,
 			upper: this._y- this._radius,
 			lower: this._y + this._radius
-		}
+		};
 	}
 
 	public collision(paddle: Paddle) {
-		const { left: paddleLeft, right: paddleRight, upper: paddleTop, lower: paddleBot } = paddle.bounds
-		const { left: ballLeft, right: ballRight, upper: ballTop, lower: ballBot } = this.bounds
-		return ballRight > paddleLeft && ballLeft < paddleRight && ballTop < paddleBot && ballBot > paddleTop
+		const { left: paddleLeft, right: paddleRight, upper: paddleTop, lower: paddleBot } = paddle.bounds;
+		const { left: ballLeft, right: ballRight, upper: ballTop, lower: ballBot } = this.bounds;
+		return ballRight > paddleLeft && ballLeft < paddleRight && ballTop < paddleBot && ballBot > paddleTop;
 	}
 
 	public updateBall(playgroundWidth: number, playgroundHeight: number, leftPaddle: Paddle, rightPaddle: Paddle) {
-		this._x += this._speedX
-		this._y += this._speedY
+		this._x += this._speedX;
+		this._y += this._speedY;
 
 		if (this._y + this._radius > playgroundHeight || this._y - this._radius < 0) {
-			this._speedY *= -1
+			this._speedY *= -1;
 		}
 
-		const player = this._x + this._radius < playgroundWidth / 2 ? leftPaddle : rightPaddle
+		const player = this._x + this._radius < playgroundWidth / 2 ? leftPaddle : rightPaddle;
 
 		if (this.collision(player)) {
-			let collisionPoint = this._y - (player.y + player.height / 2)
-			collisionPoint /= player.height / 2
+			let collisionPoint = this._y - (player.y + player.height / 2);
+			collisionPoint /= player.height / 2;
 
-			const angle = (Math.PI / 4) * collisionPoint
-			const direction = this._x + this._radius < playgroundWidth / 2 ? 1 : -1
+			const angle = (Math.PI / 4) * collisionPoint;
+			const direction = this._x + this._radius < playgroundWidth / 2 ? 1 : -1;
 
-			this._speed += 1
-			this._speedX = direction * this._speed * Math.cos(angle)
-			this._speedY = this._speed * Math.sin(angle)
+			this._speed += 1;
+			this._speedX = direction * this._speed * Math.cos(angle);
+			this._speedY = this._speed * Math.sin(angle);
 		}
 	}
 
@@ -124,9 +124,9 @@ export class Ball {
 	}
 
 	public clean(x: number, y: number) {
-		this._x = x
-		this._y = y
-		this._speed = this._mode ? 7 : 5
-		this._speedX = Math.random() > 0.5 ? -5 : 5
+		this._x = x;
+		this._y = y;
+		this._speed = this._mode ? 7 : 5;
+		this._speedX = Math.random() > 0.5 ? -5 : 5;
 	}
 }

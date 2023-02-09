@@ -29,12 +29,11 @@ export class AuthService {
 
     async login(req: any): Promise<any> {
 		let user = await this.usersService.findOne(req.login);
-		console.log(user)
 		let enable2fa: Boolean;
 		let pseudo: string;
 		let avatar: number;
 		if (user && (user.status === UserStatus.ONLINE || user.status === UserStatus.PLAYING))
-			return user;
+			return null;
 		if (user && user.is2faEnabled) {
 			enable2fa = true;
 		} else if (!user) {

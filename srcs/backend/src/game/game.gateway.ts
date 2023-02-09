@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io'
 import { GameService } from './game.service'
 
 @WebSocketGateway({cors: true, path: '/game'})
-export class GameGateway 
+export class GameGateway
 	implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@WebSocketServer() server: Server

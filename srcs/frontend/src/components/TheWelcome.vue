@@ -1,4 +1,3 @@
-
 <script lang="ts">
 import useJwtStore from "../stores/store";
 import { RouterLink, RouterView } from 'vue-router'
@@ -7,15 +6,10 @@ const jwtstore = useJwtStore();
 export default {
 	data() {
         return {
-            verified: false,
 			avatar: jwtstore.$state.avatar,
 			pseudo: jwtstore.$state.pseudo
         }
     },
-	async mounted() {
-		if (await jwtstore.validateToken(jwtstore.$state.token).then((t) => t))
-			this.verified = true;
-	},
     computed: {
         imgPath() {
             return this.avatar;
@@ -25,13 +19,17 @@ export default {
 </script>
 
 <template>
-	<div v-if="verified" >
 		<nav>
 			<RouterLink to="/2fa/generate">2fa Generate</RouterLink>
 			<RouterLink to="/2fa/enable">2fa Activate</RouterLink>
 			<RouterLink to="/avatar">Set avatar</RouterLink>
 			<RouterLink to="/pseudo">Change pseudo</RouterLink>
 			<RouterLink to="/chat">Chat</RouterLink>
+			<RouterLink to="/logout">Logout</RouterLink>
+    	<RouterLink to="/game">Game</RouterLink>
+			<RouterLink to="/rooms">Rooms</RouterLink>
+      <RouterLink to="/history">History</RouterLink>
+      <RouterLink to="/friends">Friends</RouterLink>
 		</nav>
 		<div>
 			<img :src='imgPath'>
@@ -39,8 +37,6 @@ export default {
 		<div>
 			PSEUDO: {{ pseudo }}
 		</div>
-	</div>
-	<div v-else>LOG TOI</div>
 </template>
 
 <style scoped>

@@ -31,11 +31,10 @@ export class JwtAuthGuardWs extends AuthGuard('jwt') {
 
 @Injectable()
 export class JwtLoginAuthGuard extends AuthGuard('jwtlogin') {
-    // handleRequest(err: any, user: any, info: any) {
-    //     if (err || !user) {
-    // 		console.log('no usreergrrgrger');
-    //         return null;
-    //     }
-    //     return user;
-    // }
+	handleRequest(err: any, user: any, info: any) {
+		if (err || !user) {
+			return null;
+		}
+		return user;
+	}
 }
