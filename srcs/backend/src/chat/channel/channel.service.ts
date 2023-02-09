@@ -20,7 +20,7 @@ export class ChannelService {
     let channel = this.channelRepository.create()
     channel.channelName = channelName;
     channel.channelStatus = channelStatus;
-    return await this.channelRepository.save(channel);
+    return this.channelRepository.save(channel);
   }
 
   async setChannelOwner(
@@ -28,45 +28,45 @@ export class ChannelService {
     channel: ChatChannel): Promise<ChatChannel> {
     channel.owner = owner;
     channel.channelAdmins = [owner];
-    return await this.channelRepository.save(channel);
+    return this.channelRepository.save(channel);
   }
 
   async getChannelList(opts?: any): Promise<ChatChannel[]> {
-    if (opts !== 'undefined')
-      return await this.channelRepository.find(opts)
-    return await this.channelRepository.find();
+    if (opts !== undefined)
+      return this.channelRepository.find(opts)
+    return this.channelRepository.find();
   }
 
   async getChannelById(id: number, opts?: any): Promise<ChatChannel> {
-    if (opts !== 'undefined')
-      return await this.channelRepository.findOne({
+    if (opts !== undefined)
+      return this.channelRepository.findOne({
         where: {
           id: id,
         },
         relations: opts,
       });
-    return await this.channelRepository.findOneBy({ id: id });
+    return this.channelRepository.findOneBy({ id: id });
   }
 
   async getChannelMessages(channel: ChatChannel): Promise<Message[]> {
-    return await this.messageService.findMessageChannel(channel);
+    return this.messageService.findMessageChannel(channel);
   }
 
   async postMessage(content: string, channel: ChatChannel, chatter: Chatter): Promise<Message> {
-    return await this.messageService.create(content, channel, chatter);
+    return this.messageService.create(content, channel, chatter);
   }
 
-  async setAdminFromChannel(chatter: Chatter, channel: ChatChannel) {
+  async setAdminFromChannel(chatter: Chatter, channel: ChatChannel): Promise<ChatChannel> {
     if (channel.channelAdmins.findIndex((user) => user.id === chatter.id) !== -1)
-      return;
+      return null
     channel.channelAdmins.push(chatter);
     await this.channelRepository.save(channel);
   }
 
-  async unsetAdminFromChannel(chatter: Chatter, channel: ChatChannel) {
+  async unsetAdminFromChannel(chatter: Chatter, channel: ChatChannel): Promise<ChatChannel> {
     const index: number = channel.channelAdmins.findIndex((user) => user.id === chatter.id);
     if (index === -1)
-      return;
+      return null
     channel.channelAdmins.splice(index, 1);
     await this.channelRepository.save(channel);
   }
