@@ -1,10 +1,11 @@
-import { IsNotEmpty, IsNumber, Length } from "class-validator";
+import { IsNotEmpty, IsNumber, IsPositive, Length } from "class-validator";
 
 export class ChatMessageDto {
-    @IsNumber()
-    channel: number;
+  @IsNumber()
+  @IsPositive()
+  channel: number;
 
-    @Length(1, 255)
-    @IsNotEmpty()
-    content: string;
+  @Length(1, 255)
+  @IsNotEmpty()
+  content: string;
 }
