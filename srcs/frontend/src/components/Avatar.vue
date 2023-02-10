@@ -3,7 +3,7 @@
       <q-card flat bordered class="my-card">
 
         <q-card-section>
-          <q-uploader outlined v-model="avatar" accept=".jpeg, image/*" @change="uploadFile"/>
+          <input type="file" @change="uploadFile( $event )"/>
         </q-card-section>
 
         <q-separator />
@@ -28,7 +28,7 @@ export default {
   setup (): any {
     return {
       store: store,
-      avatar: null
+      avatar: ''
     }
   },
   computed: {
@@ -50,12 +50,10 @@ export default {
     async setAvatar () {
       const formData = new FormData()
       formData.append('file', this.avatar)
-      const response = await axios.post(`${BACK_SERVER}/user/avatar`,
-        formData,
-        {
-          headers: { Authorization: `Bearer ${this.store.state.token}` }
-        })
-        .then((t) => t.data)
+      const ret = await this.store.dispatch('setAvatar', formData)
+      if (ret) {
+        this.$emit('close')
+      }
     }
   }
 }

@@ -83,7 +83,7 @@ export const store = createStore<State>({
         pseudo: response.pseudo,
         token: response.token,
         login: response.login,
-        avatar: response.avatar !== 0 ? `${BACK_SERVER}/local-files/${response.avatar}` : 'src/avatar/index.jpeg'
+        avatar: response.avatar !== 0 ? `${BACK_SERVER}/local-files/${response.avatar}` : 'https://static.wikia.nocookie.net/powerlisting/images/2/26/Brahman.jpg/revision/latest?cb=20190522200509'
       })
       return response
     },
@@ -107,7 +107,8 @@ export const store = createStore<State>({
       context.commit('AUTHENTICATED', {
         login: response.login,
         pseudo: response.usual_full_name,
-        token: localStorage.token
+        token: localStorage.token,
+        avatar: response.avatarId !== null ? `${BACK_SERVER}/local-files/${response.avatarId}` : 'https://static.wikia.nocookie.net/powerlisting/images/2/26/Brahman.jpg/revision/latest?cb=20190522200509'
       })
       context.commit('SETDOUBLEFA', { is2fa: response.is2faEnabled })
       return true
@@ -126,7 +127,8 @@ export const store = createStore<State>({
         context.commit('AUTHENTICATED', {
           pseudo: this.state.pseudo,
           login: this.state.login,
-          token: response.data.token
+          token: response.data.token,
+          avatar: this.state.avatar
         })
       }
       return response
