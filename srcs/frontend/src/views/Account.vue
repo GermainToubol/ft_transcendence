@@ -58,6 +58,22 @@
                 <q-btn v-else color="primary" :icon="icon" @click="disable2FA" label="Disable 2FA" />
               </q-item-section>
             </q-item>
+            <q-item tag="label" v-ripple>
+              <q-item-section>
+                <q-item-label>Change pseudo</q-item-label>
+              </q-item-section>
+              <q-item-section side >
+                <q-btn color="primary" @click="cardPseudo = true" label="Change pseudo !" />
+              </q-item-section>
+            </q-item>
+            <q-item tag="label" v-ripple>
+              <q-item-section>
+                <q-item-label>Change avatar</q-item-label>
+              </q-item-section>
+              <q-item-section side >
+                <q-btn color="primary" @click="cardAvatar = true" label="Change avatar !" />
+              </q-item-section>
+            </q-item>
           </q-tab-panel>
         </q-tab-panels>
       </q-card>
@@ -66,6 +82,8 @@
   <div class="col-3">
   </div>
   <Form2FA v-model="card2FA" :qrCode="qrCode" @close="card2FA=false" @enabled="doubleFA=true" />
+  <Pseudo v-model="cardPseudo" :pseudo="pseudo" @close="cardPseudo=false" />
+  <Avatar v-model="cardAvatar" :avatar="avatar" @close="cardAvatar=false" />
 </div>
 </template>
 
@@ -74,12 +92,16 @@ import { ref } from 'vue'
 import store from '../store'
 import axios from 'axios'
 import Form2FA from '../components/Form2FA.vue'
+import Pseudo from '../components/Pseudo.vue'
+import Avatar from '../components/Avatar.vue'
 import { BACK_SERVER } from '@/config'
 
 export default {
   name: 'Account',
   components: {
-    Form2FA
+    Form2FA,
+    Pseudo,
+    Avatar
   },
   setup (): any {
     return {
@@ -87,6 +109,8 @@ export default {
       tab: ref('infos'),
       doubleFA: ref(store.getters.getDoubleFA),
       card2FA: ref(false),
+      cardPseudo: ref(false),
+      cardAvatar: ref(false),
       qrCode: ref(''),
       code: ''
     }

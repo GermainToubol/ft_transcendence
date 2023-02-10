@@ -1,49 +1,53 @@
-<script lang="ts">
-import router from "@/router";
-import axios from "axios";
- import useJwtStore from "../stores/store";
- import { BACK_SERVER } from "../config";
+<template>
+  <q-dialog v-model="cardPseudo">
+    <q-card flat bordered class="my-card">
 
-const jwtstore = useJwtStore();
+      <q-card-section>
+        <q-input outlined v-model="pseudo" label="Pseudo" />
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-actions align="right">
+        <q-btn flat color="primary" @click="setPseudo" label="Update pseudo" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+</template>
+
+<script lang="ts">
+import store from '../store'
+
 export default {
-	data() {
-        return {
-			pseudo: "",
-			pseudoOK: true,
-			back: BACK_SERVER,
-        }
-    },
-    methods: {
-        async SetPseudo() {
-            const ret = await axios.post(
-                `${this.back}/user/setpseudo`,
-                 {pseudo: this.pseudo},
-                {
-                    headers: {
-                        Authorization: `Bearer ${jwtstore.$state.token}`,
-                    }
-            }).then((t) => t.data);
-			if (ret)
-			{
-				jwtstore.setPseudo(this.pseudo);
-				router.push('/');
-			}
-			else
-			{
-				this.pseudoOK = false;
-			}
-        }
+  name: 'Pseudo',
+  props: {
+    value: Boolean
+  },
+  setup (): any {
+    return {
+      store: store,
+      pseudo: ''
     }
+  },
+  computed: {
+    cardPseudo: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        if (!value) {
+          this.$emit('close')
+        }
+      }
+    }
+  },
+  methods: {
+    async setPseudo () {
+      const ret = await this.store.dispatch('setPseudo', this.pseudo)
+      if (ret) {
+        this.$emit('close')
+      }
+    }
+  }
 }
 </script>
-
-<template>
-	<div v-if="pseudoOK">
-		<input id="pseudo" v-model="pseudo" type="text"/>
-		<button @click="SetPseudo">coucou {{ pseudo }}</button>
-	</div>
-	<div v-else>
-		<input id="pseudo" v-model="pseudo" type="text"/>
-		<button @click="SetPseudo">ALREADY USED BY SOMEONE {{ pseudo }}</button>
-	</div>
-</template>

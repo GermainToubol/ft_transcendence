@@ -1,39 +1,62 @@
-<script lang="ts">
-import router from "@/router";
-import axios from "axios";
-import useJwtStore from "../stores/store";
-import { BACK_SERVER } from "../config";
+<template>
+  <q-dialog v-model="cardAvatar">
+      <q-card flat bordered class="my-card">
 
-const jwtstore = useJwtStore();
+        <q-card-section>
+          <q-uploader outlined v-model="avatar" accept=".jpeg, image/*" @change="uploadFile"/>
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-actions align="right">
+          <q-btn flat color="primary" @click="setAvatar" label="Update avatar" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+  </template>
+
+<script lang="ts">
+import store from '../store'
+import { BACK_SERVER } from '@/config'
+import axios from 'axios'
+
 export default {
-	data() {
-        return {
-			avatar: "",
+  name: 'Avatar',
+  props: {
+    value: Boolean
+  },
+  setup (): any {
+    return {
+      store: store,
+      avatar: null
+    }
+  },
+  computed: {
+    cardAvatar: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        if (!value) {
+          this.$emit('close')
         }
+      }
+    }
+  },
+  methods: {
+    uploadFile (event: any) {
+      this.avatar = event.target.files[0]
     },
-	methods: {
-		uploadFile( event: any ) {
-			this.avatar = event.target.files[0];
-		},
-		async submitFile() {
-			const formData = new FormData();
-			formData.append('file', this.avatar);
-			const avatarId = await axios.post(`${BACK_SERVER}/user/avatar`, formData,
-			{
-                    headers: {
-                        Authorization: `Bearer ${jwtstore.$state.token}`,
-                    }
-            }).then((t) => t.data);
-			jwtstore.setAvatar(`${BACK_SERVER}/local-files/${avatarId}`);
-            router.push('/');
-		}
-	}
+    async setAvatar () {
+      const formData = new FormData()
+      formData.append('file', this.avatar)
+      const response = await axios.post(`${BACK_SERVER}/user/avatar`,
+        formData,
+        {
+          headers: { Authorization: `Bearer ${this.store.state.token}` }
+        })
+        .then((t) => t.data)
+    }
+  }
 }
 </script>
-
-<template>
-	<div>
-		<input type="file" @change="uploadFile( $event )">
-        <button @click="submitFile">Upload!</button>
-	</div>
-</template>

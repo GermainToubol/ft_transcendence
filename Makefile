@@ -13,11 +13,11 @@ CONF =	./srcs/docker-compose.yml
 
 
 all: 	clean
-		docker-compose -f $(CONF) up --build --force-recreate -d
+		docker compose -f $(CONF) up --build --force-recreate -d
 
 
 clean:
-		docker-compose -f $(CONF) down
+		docker compose -f $(CONF) down
 
 
 fclean: clean
@@ -44,7 +44,7 @@ status:
 
 
 logs:
-		docker-compose -f $(CONF) logs -f
+		docker compose -f $(CONF) logs -f
 
 
 .PHONY: all clean fclean re connect status logs

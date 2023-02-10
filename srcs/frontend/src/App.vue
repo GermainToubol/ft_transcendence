@@ -37,7 +37,7 @@
         </q-toolbar-title>
         <q-item clickable>
          <q-avatar>
-          <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg">
+          <img :src='avatar'>
         </q-avatar>
         <q-menu secondary transition-show="scale" transition-hide="scale">
           <q-list>
@@ -102,7 +102,15 @@ export default {
     const $q = useQuasar()
     // $q.secondary.set(true)
     return {
-      leftDrawerOpen: ref(false)
+      leftDrawerOpen: ref(false),
+      store: store
+    }
+  },
+  computed: {
+    avatar (): string {
+      console.log('tets')
+      console.log(this.store.state.avatar)
+      return this.store.state.avatar
     }
   },
   methods: {

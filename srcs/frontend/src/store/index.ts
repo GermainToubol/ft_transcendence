@@ -37,9 +37,42 @@ export const store = createStore<State>({
     },
     getDoubleFA (state) {
       return state.doubleFA
+    },
+    getAvatar (state) {
+      return state.avatar
     }
   },
   actions: {
+    async setPseudo (context, pseudo: string) {
+      const response = await axios.post(`${BACK_SERVER}/user/setpseudo`,
+        { pseudo: pseudo },
+        {
+          headers: { Authorization: `Bearer ${this.state.token}` }
+        })
+        .then((t) => t.data)
+      if (response) {
+        context.commit('SETPSEUDO', {
+          pseudo: pseudo
+        })
+        return pseudo
+      }
+      return null
+    },
+    async setAvatar (context, avatar: any) {
+      const response = await axios.post(`${BACK_SERVER}/user/avatar`,
+        avatar,
+        {
+          headers: { Authorization: `Bearer ${this.state.token}` }
+        })
+        .then((t) => t.data)
+      if (response) {
+        context.commit('SETAVATAR', {
+          avatar: `${BACK_SERVER}/local-files/${response}`
+        })
+        return avatar
+      }
+      return null
+    },
     async login (context, params) {
       const response = await axios.get(`${BACK_SERVER}/auth/login`, {
         params: { code: params.code }
@@ -49,7 +82,8 @@ export const store = createStore<State>({
       context.commit('AUTHENTICATED', {
         pseudo: response.pseudo,
         token: response.token,
-        login: response.login
+        login: response.login,
+        avatar: response.avatar !== 0 ? `${BACK_SERVER}/local-files/${response.avatar}` : 'src/avatar/index.jpeg'
       })
       return response
     },
@@ -117,6 +151,7 @@ export const store = createStore<State>({
       state.isAuthenticated = true
       state.login = params.login
       state.pseudo = params.pseudo
+      state.avatar = params.avatar
       state.token = params.token
       localStorage.token = params.token
     },
@@ -127,6 +162,12 @@ export const store = createStore<State>({
     },
     SETDOUBLEFA (state, params) {
       state.doubleFA = params.is2fa
+    },
+    SETPSEUDO (state, params) {
+      state.pseudo = params.pseudo
+    },
+    SETAVATAR (state, params) {
+      state.avatar = params.avatar
     }
   }
 })
