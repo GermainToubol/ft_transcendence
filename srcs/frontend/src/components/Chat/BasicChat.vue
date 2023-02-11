@@ -1,31 +1,6 @@
 <template>
-  <div class="q-pa-md q-gutter-y-lg">
-    <q-card id="chat-menu">
-      <q-list>
-        <q-item v-for='(n, idx) in statusList' :key='idx' >
-          <q-item-section>
-            <q-expansion-item :label="idx">
-              <q-list style="max-height: 10vh" class="scroll">
-                <q-item clickable v-for='chan in coucou(n)' :key='chan.id' @click="updateSelectedChannel(chan.id)" class="q-py-xs" dense>
-                  <q-item-section>
-                    <q-item-label>
-                      {{chan.channelName}} ({{chan.id}})
-                    </q-item-label>
-                  </q-item-section>
-                  <q-item-section>
-                    <template class="row q-gutter-xs justify-end">
-                      <q-input v-if="chan.channelStatus === 1" v-model.trim="chan.passwd" type="text" dense/>
-                      <q-btn v-if="chan.channelStatus === 1" label="Join" @click="joinChannel(chan)"/>
-                      <q-btn v-if="chan.channelStatus === 1 || chan.channelStatus === 2" label="Leave" @click="leaveChannel(chan.id)"/>
-                    </template>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </q-expansion-item>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-card>
+    <div class="full-width row wrap justify-evenly items-start content-center q-gutter-y-md">
+     <div class="col-xs-11 col-md-6 itemps-stretch q-gutter-md">
 
     <q-card id="chat-pannel" class="column">
       <q-card-section>
@@ -66,6 +41,34 @@
           <q-btn type="submit" label="Send"/>
         </q-form>
       </q-card-section>
+    </q-card>
+    </div>
+    <div class="col-md-5 col-xs-11 q-gutter-md">
+    <q-card id="chat-menu">
+      <q-list>
+        <q-item v-for='(n, idx) in statusList' :key='idx' >
+          <q-item-section>
+            <q-expansion-item :label="idx">
+              <q-list style="max-height: 10vh" class="scroll">
+                <q-item clickable v-for='chan in coucou(n)' :key='chan.id' @click="updateSelectedChannel(chan.id)" class="q-py-xs" dense>
+                  <q-item-section>
+                    <q-item-label>
+                      {{chan.channelName}} ({{chan.id}})
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section>
+                    <template class="row q-gutter-xs justify-end">
+                      <q-input v-if="chan.channelStatus === 1 && !chan.channelUser" v-model.trim="chan.password" type="text" dense/>
+                      <q-btn v-if="chan.channelStatus === 1 && !chan.channelUser" label="Join" @click="joinChannel(chan)"/>
+                      <q-btn v-if="(chan.channelStatus === 1 || chan.channelStatus === 2) && chan.channelUser" label="Leave" @click="leaveChannel(chan.id)"/>
+                    </template>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-expansion-item>
+          </q-item-section>
+        </q-item>
+      </q-list>
     </q-card>
 
     <q-card>
@@ -151,7 +154,8 @@
             </q-item>
         </q-card>
     </div>
-  </div>
+    </div>
+    </div>
 </template>
 
 <script lang="ts">
@@ -243,7 +247,6 @@ export default {
       if (this.message.length > 255) {
         return
       }
-      console.log('payload', payload)
       socket.emit('sendMessage', payload)
       this.message = ''
     },
@@ -334,16 +337,15 @@ export default {
         this.password = ''
         return
       }
-      if (channel.channelPasswd === undefined) {
-        channel.channelPasswd = ''
+      if (channel.password === undefined) {
+        channel.password = ''
       }
       const message = {
         channelId: channel.id,
-        password: channel.channelPasswd
+        password: channel.password
       }
-      console.log('join request', message)
       socket.emit('joinChannel', message)
-      channel.channelPasswd = ''
+      channel.password = ''
     },
     inviteUser () {
       const message = {
@@ -361,7 +363,6 @@ export default {
         channelId: Number(this.invitations[id].id),
         userLogin: 'me'
       }
-      console.log(message)
       socket.emit('acceptInvitation', message)
     },
     refuseInvitation (id: number) {
@@ -372,11 +373,9 @@ export default {
         channelId: Number(this.invitations[id].id),
         userLogin: 'me'
       }
-      console.log(message)
       socket.emit('refuseInvitation', message)
     },
     leaveChannel (channelId?: number) {
-      console.log(channelId)
       if (channelId === undefined) {
         const payload = { channelId: this.chatid }
         socket.emit('leaveChannel', payload)
@@ -433,6 +432,8 @@ export default {
       }
     })
     socket.on('retriveMessages', (message) => {
+      const index = this.channels.findIndex((chan) => chan.id === message)
+      this.channels[index].channelUser = true
       this.getChannelMsg(message)
     })
     socket.on('badMessage', (message) => {
@@ -440,10 +441,9 @@ export default {
     })
     socket.on('updateAdmin', (message) => {
       const index = this.channels.findIndex((chan) => chan.id === message.channelId)
-      console.log(message)
-      console.log(index)
       if (index !== -1) {
         this.channels[index].channelAdm = Boolean(message.adminStatus)
+        this.channels[index].channelUser = true
       }
       console.log(this.channels[index])
     })
@@ -459,7 +459,13 @@ export default {
     socket.on('leavedDone', (message) => {
       const index = this.channels.findIndex((chan) => chan.id === message.channelId)
       if (index !== -1) {
-        this.channels.splice(index, 1)
+        console.log('before leave:', this.channels[index].channelStatus)
+        if (this.channels[index].channelStatus === 2) {
+          console.log('deleted')
+          this.channels.splice(index, 1)
+        } else {
+          this.channels[index].channelUser = false
+        }
         this.messages = this.messages.filter((msg) => msg.channel !== message.channelId)
       }
     })

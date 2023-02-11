@@ -6,4 +6,5 @@ export class ChannelExport {
     channelAdm: boolean;
     channelStatus: ChannelStatus;
     hasPasswd: boolean;
+    channelUser: boolean;
 }
