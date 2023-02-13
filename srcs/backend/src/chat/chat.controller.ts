@@ -47,6 +47,7 @@ export class ChatController {
                     channelAdm: chan.channelAdmins.findIndex((c) => c.id === chatter.id) !== -1,
                     channelStatus: chan.channelStatus,
                     hasPasswd: false,
+                    channelUser: chan.channelUsers.findIndex((c) => c.id === chatter.id) !== -1
                 };
             })
         res.json(filtered);
@@ -104,6 +105,7 @@ export class ChatController {
                     channelAdm: false,
                     channelStatus: chan.channelStatus,
                     hasPasswd: false,
+                    channelUser: false
                 };
             })
         res.json(channels);
