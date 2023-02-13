@@ -16,7 +16,6 @@ import { jwtConstants } from './constants';
 export class AuthController {
     constructor(private authService: AuthService) { }
 
-
     @Get('/login')
     async login(@Query('code') code: string, @Req() req: any): Promise<any> {
         const token: { access_token: string } = await axios.post('https://api.intra.42.fr/oauth/token', {
