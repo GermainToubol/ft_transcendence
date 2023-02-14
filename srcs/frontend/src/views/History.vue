@@ -4,7 +4,7 @@ import axios from "axios";
 import { ref } from "vue";
 import useJwtStore from "../stores/store";
 import { BACK_SERVER } from "../config";
-import type { roomsInterface } from "../interfaces/room.interface";
+import type { roomsInterface } from "../interfaces/any.interface";
 
 const jwtstore = useJwtStore();
 export default {

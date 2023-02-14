@@ -39,6 +39,7 @@ export class ChatGateway {
 
 
     async handleConnection(client: UserSocket) {
+        console.log("SALUTTT")
         this.socketMap.set(client.userLogin, client);
         const channels: ChatChannel[] = await this.chatService
             .getChannels({ relations: { bannedUsers: true, channelUsers: true } })

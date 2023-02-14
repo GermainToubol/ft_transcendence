@@ -22,7 +22,7 @@ export default {
       name: 'Game',
       store: store,
       router: router,
-      socket: ref(null as unknown),
+      socket: null,
       game: ref({} as HTMLCanvasElement),
       context: ref({} as CanvasRenderingContext2D),
       playground: ref(null as unknown),
@@ -32,14 +32,18 @@ export default {
   },
   mounted (): void {
     this.socket = io(BACK_SERVER, {
-      path: '/game/',
+      path: '/game',
+      transports: ['websocket'],
       query: {
         accessToken: this.store.getters.getToken,
         role: 'player',
         mode: 'normal'
+      },
+      auth: {
+        accessToken: this.store.getters.getToken
       }
     })
-    console.log('ici')
+    console.log(this.socket)
     if (this.game) {
       this.context = this.game.getContext('2d')
       this.tokenError()
@@ -78,6 +82,11 @@ export default {
           (this.socket as Socket).emit('KeyDownUnpressed')
         }
       })
+    }
+  },
+  beforeUnmount () {
+    if (this.socket != null) {
+      this.socket.disconnect()
     }
   },
   methods: {
@@ -145,8 +154,12 @@ export default {
       })
     },
     endGame () {
-      (this.socket as Socket).on('interruptedGame', (data) => {
-        this.playground = data.playground
+      (this.socket as Socket).on('endGame', (data) => {
+        console.log(data)
+        const { winner, loser } = data
+        if (winner && loser) {
+          this.message = winner + ' wins against ' + loser
+        }
         if (this.playground != null) {
           this.game.width = this.game.offsetWidth
           this.game.height = this.game.width * 0.6

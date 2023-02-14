@@ -14,4 +14,5 @@ export interface playGroundInterface {
 	score: scoreBoardInterface
 	player1: string
 	player2: string
+	mode: boolean
 }

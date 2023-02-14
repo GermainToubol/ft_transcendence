@@ -86,7 +86,7 @@ export class UsersService {
             let opponent = await this.findOneById(users[0].gamesHistory[i].opponentId).then()
             let test = {
                 opponentPseudo: opponent.usual_full_name,
-                opponentAvatar: opponent.avatarId,
+                opponentAvatar: opponent.avatarId != null? opponent.avatarId : 0,
                 playerOneScore: users[0].gamesHistory[i].playerOneScore,
                 playerTwoScore: users[0].gamesHistory[i].playerTwoScore,
                 hard: users[0].gamesHistory[i].hard,
