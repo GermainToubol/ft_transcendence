@@ -18,6 +18,7 @@ export class GameGateway
 	}
 
 	async handleConnection(client: Socket) {
+		console.log('ICI')
 		await this.gameService.handleConnectedUser(client, this.players, this.playershard, this.playerschat, this.playerschathard, this.server)
 	}
 

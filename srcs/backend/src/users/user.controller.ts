@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
+import { BadRequestException, Body, Controller, Get, Param, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 import { ReqUser } from './req-user.decorator'
 import { UsersService } from './user.service'
@@ -12,6 +12,18 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     async validate(@ReqUser() user: string): Promise<string> {
         return await this.usersService.getPseudo(user).then()
+    }
+
+	@Get('/info/:pseudo')
+    @UseGuards(JwtAuthGuard)
+    async getInfo(@Param('pseudo') pseudo: string): Promise<string> {
+        return await this.usersService.getInfo(pseudo).then()
+    }
+
+	@Get('/history/:pseudo')
+    @UseGuards(JwtAuthGuard)
+    async getHistory(@Param('pseudo') pseudo: string): Promise<string> {
+        return await this.usersService.getHistory(pseudo).then()
     }
 
 	@Get('leaderboard')

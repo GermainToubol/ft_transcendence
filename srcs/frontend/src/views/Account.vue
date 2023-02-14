@@ -83,7 +83,7 @@
   </div>
   <Form2FA v-model="card2FA" :qrCode="qrCode" @close="card2FA=false" @enabled="doubleFA=true" />
   <Pseudo v-model="cardPseudo" :pseudo="pseudo" @close="cardPseudo=false" />
-  <Avatar v-model="cardAvatar" :avatar="avatar" @close="cardAvatar=false" />
+  <Avatar v-model="cardAvatar" @close="cardAvatar=false" />
 </div>
 </template>
 

@@ -1,6 +1,5 @@
 <template>
   <div>
-    <LeaderBoard />
     <q-card id="div-canvas" flat bordered dark>
         <canvas id="responsive-canvas" ref="game"></canvas>
         <p class="mt-8 text-xl" style="color:aquamarine; text-align: center;">{{ message }}</p>
@@ -14,13 +13,10 @@ import { io, Socket } from 'socket.io-client'
 import store from '../store'
 import router from '@/router'
 
-import Draw from '../pong/Draw'
-import LeaderBoard from '../components/LeaderBoard.vue'
+import Draw from '../Draw'
+import { BACK_SERVER } from '@/config'
 
 export default {
-  components: {
-    LeaderBoard
-  },
   setup (): any {
     return {
       name: 'Game',
@@ -35,7 +31,7 @@ export default {
     }
   },
   mounted (): void {
-    this.socket = io('http://localhost:3000', {
+    this.socket = io(BACK_SERVER, {
       path: '/game/',
       query: {
         accessToken: this.store.getters.getToken,
@@ -43,6 +39,7 @@ export default {
         mode: 'normal'
       }
     })
+    console.log('ici')
     if (this.game) {
       this.context = this.game.getContext('2d')
       this.tokenError()
@@ -50,7 +47,6 @@ export default {
       this.drawWaiting()
       this.drawGame()
       this.drawInterruptedGame()
-      this.missingOpponent()
       this.endGame()
       this.abortedGame()
 
@@ -96,6 +92,7 @@ export default {
     },
     drawWaiting () {
       (this.socket as Socket).on('waitingForPlayer', (data) => {
+        console.log('SALUT')
         this.playground = data.playground
         if (this.playground != null) {
           this.game.width = this.game.offsetWidth
@@ -162,11 +159,6 @@ export default {
             this.playground.player2
           )
         }
-      })
-    },
-    missingOpponent () {
-      (this.socket as Socket).on('missingOpponent', (data) => {
-        this.message = data.message
       })
     },
     alreadyPlaying () {

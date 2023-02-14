@@ -240,7 +240,7 @@ export class UsersService {
             if (friend != null) {
                 let item = {
                     pseudo: friend.usual_full_name,
-                    avatar: friend.avatarId,
+                    avatar: friend.avatarId != null ? friend.avatarId : 0,
                     wins: friend.wins,
                     status: friend.status
                 }
@@ -257,11 +257,24 @@ export class UsersService {
             if (friend != null) {
                 let item = {
                     pseudo: friend.usual_full_name,
-                    avatar: friend.avatarId
+                    avatar: friend.avatarId != null ? friend.avatarId : 0 
                 }
                 invitations[i] = item
             }
         }
         return invitations
+    }
+
+    async getInfo(pseudo: string): Promise<any> {
+        const user = await this.usersRepository.findOneBy({ usual_full_name: pseudo }).then()
+        if (!user)
+            return null
+        const info = {
+            pseudo: user.usual_full_name,
+            avatar: user.avatarId != null ? user.avatarId : 0,
+            wins: user.wins,
+            status: user.status
+        }
+        return info
     }
 };

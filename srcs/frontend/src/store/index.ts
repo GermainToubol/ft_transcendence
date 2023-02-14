@@ -78,24 +78,23 @@ export const store = createStore<State>({
         params: { code: params.code }
       })
         .then((t) => t.data)
-      console.log(response)
       context.commit('AUTHENTICATED', {
         pseudo: response.pseudo,
         token: response.token,
         login: response.login,
-        avatar: response.avatar !== 0 ? `${BACK_SERVER}/local-files/${response.avatar}` : 'https://static.wikia.nocookie.net/powerlisting/images/2/26/Brahman.jpg/revision/latest?cb=20190522200509'
+        avatar: response.avatar !== 0 ? `${BACK_SERVER}/local-files/${response.avatar}` : 'http://sitedemonstre.e-monsite.com/medias/site/logos/39bpdyn_seirjfulq1azt-o0sgw.jpg'
       })
       return response
     },
     async logout (context) {
       const response = await axios.get(`${BACK_SERVER}/auth/logout`, {
-        headers: { Authorization: `Bearer ${this.state.token}` }
+        headers: { Authorization: `Bearer ${localStorage.token}` }
       })
       context.commit('DEAUTHENTICATE')
+      localStorage.token = ''
       return response
     },
     async validateToken (context) {
-      console.log(localStorage.token)
       const response = await axios.get(`${BACK_SERVER}/auth/validate`, {
         headers: { Authorization: `Bearer ${localStorage.token}` }
       }).then((t) => t.data)
@@ -108,7 +107,7 @@ export const store = createStore<State>({
         login: response.login,
         pseudo: response.usual_full_name,
         token: localStorage.token,
-        avatar: response.avatarId !== null ? `${BACK_SERVER}/local-files/${response.avatarId}` : 'https://static.wikia.nocookie.net/powerlisting/images/2/26/Brahman.jpg/revision/latest?cb=20190522200509'
+        avatar: response.avatarId !== null ? `${BACK_SERVER}/local-files/${response.avatarId}` : 'http://sitedemonstre.e-monsite.com/medias/site/logos/39bpdyn_seirjfulq1azt-o0sgw.jpg'
       })
       context.commit('SETDOUBLEFA', { is2fa: response.is2faEnabled })
       return true
@@ -123,7 +122,6 @@ export const store = createStore<State>({
         { headers: { Authorization: `Bearer ${this.state.token}` } }
       )
       if (response) {
-        console.log(response)
         context.commit('AUTHENTICATED', {
           pseudo: this.state.pseudo,
           login: this.state.login,
@@ -159,7 +157,6 @@ export const store = createStore<State>({
     },
     DEAUTHENTICATE (state) {
       state.token = ''
-      localStorage.token = ''
       state.isAuthenticated = false
     },
     SETDOUBLEFA (state, params) {

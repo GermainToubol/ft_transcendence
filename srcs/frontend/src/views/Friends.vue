@@ -1,121 +1,185 @@
+<template>
+    <div class="full-width row wrap justify-evenly items-start content-center q-gutter-y-md">
+     <div class="col-xs-11 col-md-6 itemps-stretch q-gutter-md">
+      <q-card class="column">
+        <q-card-section class="bg-primary text-white text-h6">
+          Friends
+        </q-card-section>
+        <q-card-section v-if="friend">
+          <q-list>
+            <q-item clickable v-for="friend in msg" :key="friend.pseudo" @click="selectFriend(friend)">
+              <q-item-section avatar>
+                <q-avatar>
+                  <img :src='getAvatar(friend.avatar)' />
+                </q-avatar>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ friend.pseudo }}</q-item-label>
+                <q-item-label caption class="text-red" v-if="friend.status == 'offline'">{{ friend.status }}</q-item-label>
+                <q-item-label caption class="text-orange-12" v-else-if="friend.status == 'playing'">{{ friend.status }}</q-item-label>
+                <q-item-label caption class="text-light-green-13" v-else>{{ friend.status }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+        <q-card-section v-else>You have no friends...</q-card-section>
+      </q-card>
+  </div>
+  <div class="col-md-5 col-xs-11 q-gutter-md">
+    <q-card class="column">
+      <q-card-section class="bg-primary text-white text-h6">
+        Add friends
+      </q-card-section>
+      <q-card-section>
+        <q-input v-model="pseudo" type="text" placeholder="Player pseudo" clearable/>
+      </q-card-section>
+      <q-card-section v-if="msgs">{{ msgs }}</q-card-section>
+      <q-card-section>
+        <q-btn @click="addFriend" label="Add Friend" />
+      </q-card-section>
+    </q-card>
+      <q-card class="column">
+        <q-card-section class="bg-primary text-white text-h6">
+          Invitations
+        </q-card-section>
+        <q-card-section v-if="invit">
+          <q-list>
+            <q-item v-for="friend in msg2" :key="friend.pseudo">
+              <q-item-section avatar>
+                <q-avatar>
+                  <img :src='getAvatar(friend.avatar)' />
+                </q-avatar>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ friend.pseudo }}</q-item-label>
+              </q-item-section>
+              <q-item-section avatar>
+                <q-btn round color="green" icon="check_circle" @click="acceptFriend(friend.pseudo)"/>
+              </q-item-section>
+              <q-item-section avatar>
+                <q-btn round color="red" icon="cancel" @click="declineFriend(friend.pseudo)"/>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+        <q-card-section v-else>You have no pending invitations...</q-card-section>
+      </q-card>
+  </div>
+  <Friend v-model="cardFriend" :friendPseudo="friendPseudo" @close="cardFriend=false" />
+</div>
+</template>
+
 <script lang="ts">
-import router from "@/router";
-import axios from "axios";
-import { ref } from "vue";
-import useJwtStore from "../stores/store";
-import { BACK_SERVER } from "../config";
-import type { friendstype } from "../interfaces/friend.type";
+import type { friendstype } from '../interfaces/friend.type'
+import axios from 'axios'
+import store from '@/store'
+import { BACK_SERVER } from '@/config'
+import Friend from '../components/Friend.vue'
+import { ref } from 'vue'
 
-const jwtstore = useJwtStore();
 export default {
-	data() {
-        return {
-			friend: {} as friendstype[],
-			invit: {} as friendstype[],
-            msgs: 'test',
-            pseudo: ''
-        }
-    },
-
-	async mounted(){
-		const ret = await axios.get(
-			`${BACK_SERVER}/user/friends`,
-			{
-				headers: {
-					Authorization: `Bearer ${jwtstore.$state.token}`,
-				}
-		}).then((t) => t.data)
-		this.friend = ret
-		const re = await axios.get(
-			`${BACK_SERVER}/user/invitations`,
-			{
-				headers: {
-					Authorization: `Bearer ${jwtstore.$state.token}`,
-				}
-		}).then((t) => t.data)
-		this.invit = re
-    },
-    computed: {
-		msg: function() {
-			return this.friend;
-		},
-        msg2: function() {
-			return this.invit;
-		}
-	},
-    methods: {
-        async AddFriend() {
-            const ret = await axios.post(
-                `${BACK_SERVER}/user/addfriend`,
-                 {pseudo: this.pseudo},
-                {
-                    headers: {
-                        Authorization: `Bearer ${jwtstore.$state.token}`,
-                    }
-            }).then((t) => t.data);
-			if (ret)
-			{
-				this.msgs = ret
-			}
-            else
-                this.msgs = 'caca'
-        },
-        async AcceptFriend(pseudo: string) {
-            const ret = await axios.post(
-                `${BACK_SERVER}/user/acceptfriend`,
-                 {pseudo: pseudo},
-                {
-                    headers: {
-                        Authorization: `Bearer ${jwtstore.$state.token}`,
-                    }
-            }).then()
-        },
-        async DeclineFriend(pseudo: string) {
-            const ret = await axios.post(
-                `${BACK_SERVER}/user/declinefriend`,
-                 {pseudo: pseudo},
-                {
-                    headers: {
-                        Authorization: `Bearer ${jwtstore.$state.token}`,
-                    }
-            }).then()
-        },
-        async RemoveFriend(pseudo: string) {
-            const ret = await axios.post(
-                `${BACK_SERVER}/user/removefriend`,
-                 {pseudo: pseudo},
-                {
-                    headers: {
-                        Authorization: `Bearer ${jwtstore.$state.token}`,
-                    }
-            }).then()
-        }
+  name: 'Friends',
+  components: {
+    Friend
+  },
+  setup () {
+    return {
+      store: store,
+      cardFriend: ref(false)
     }
+  },
+  data () {
+    return {
+      friend: null as friendstype[],
+      invit: null as friendstype[],
+      msgs: '',
+      pseudo: '',
+      friendPseudo: ''
+    }
+  },
+
+  async mounted () {
+    const re = await axios.get(
+      `${BACK_SERVER}/user/invitations`,
+      {
+        headers: {
+          Authorization: `Bearer ${store.state.token}`
+        }
+      }).then((t) => t.data)
+    if (re.length > 0) {
+      this.invit = re
+    }
+    const ret = await axios.get(
+      `${BACK_SERVER}/user/friends`,
+      {
+        headers: {
+          Authorization: `Bearer ${store.state.token}`
+        }
+      }).then((t) => t.data)
+    if (ret.length > 0) {
+      this.friend = ret
+    }
+  },
+  computed: {
+    msg: function () {
+      return this.friend
+    },
+    msg2: function () {
+      return this.invit
+    }
+  },
+  methods: {
+    getAvatar (id: number) {
+      if (id !== 0) {
+        return `${BACK_SERVER}/local-files/${id}`
+      }
+      return 'http://sitedemonstre.e-monsite.com/medias/site/logos/39bpdyn_seirjfulq1azt-o0sgw.jpg'
+    },
+    async addFriend () {
+      if (this.pseudo === '') {
+        return
+      }
+      const ret = await axios.post(
+      `${BACK_SERVER}/user/addfriend`,
+      { pseudo: this.pseudo },
+      {
+        headers: {
+          Authorization: `Bearer ${store.state.token}`
+        }
+      }).then((t) => t.data)
+      if (ret) {
+        this.msgs = ret
+      }
+    },
+    async acceptFriend (pseudo: string) {
+      const ret = await axios.post(
+      `${BACK_SERVER}/user/acceptfriend`,
+      { pseudo: pseudo },
+      {
+        headers: {
+          Authorization: `Bearer ${store.state.token}`
+        }
+      }).then()
+      this.$router.go()
+    },
+    async declineFriend (pseudo: string) {
+      const ret = await axios.post(
+      `${BACK_SERVER}/user/declinefriend`,
+      { pseudo: pseudo },
+      {
+        headers: {
+          Authorization: `Bearer ${store.state.token}`
+        }
+      }).then()
+      this.$router.go()
+    },
+    clearInput () {
+      this.pseudo = ''
+    },
+    selectFriend (friend) {
+      this.friendPseudo = friend.pseudo
+      this.cardFriend = true
+    }
+  }
 }
 </script>
-
-<template>
-    <div>
-		<input id="pseudo" v-model="pseudo" type="text"/>
-		<button @click="AddFriend"></button>
-	</div>
-    <div>{{ msgs }}</div>
-	<div>
-		AMIS
-            <button v-for="friend in msg" @click="RemoveFriend(friend.pseudo)">
-                {{ friend.pseudo}}
-                Remove
-			</button>
-	</div>
-	<div>
-        INVITATIONS
-			<button v-for="friend in msg2" @click="AcceptFriend(friend.pseudo)">
-                {{ friend.pseudo}}
-                Accept
-			</button>
-            <button v-for="friend in msg2" @click="DeclineFriend(friend.pseudo)">
-                {{ friend.pseudo}}
-				Decline
-			</button>
-	</div>
-</template>

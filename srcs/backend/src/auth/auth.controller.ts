@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import axios from "axios";
 import { AuthService } from "./auth.service";
-import { JwtAuthGuard } from "./guards/jwt-auth.guard";
+import { JwtAuthGuard, JwtLogoutAuthGuard } from "./guards/jwt-auth.guard";
 import { ReqUser } from "../users/req-user.decorator";
 import { User } from "../users/user.entity";
 import { jwtConstants } from './constants';
@@ -38,7 +38,7 @@ export class AuthController {
     }
 
 	@Get('/logout')
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtLogoutAuthGuard)
 	async logout(@ReqUser() user: User): Promise<any> {
 		if (user)
 			return await this.authService.logout(user);
