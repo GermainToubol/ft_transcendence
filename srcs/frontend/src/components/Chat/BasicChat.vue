@@ -1,162 +1,184 @@
 <template>
-    <div class="full-width row wrap justify-evenly items-start content-center q-gutter-y-md">
-     <div class="col-xs-11 col-md-6 itemps-stretch q-gutter-md">
+  <div class="full-width row wrap justify-evenly items-start content-center q-gutter-y-md">
+    <div class="col-xs-11 col-md-6 itemps-stretch q-gutter-md">
 
-         <q-card id="chat-pannel" class="column">
-             <q-card-section class="bg-primary text-white">
-                 <div v-if="currentChannel !== undefined" class="text-h6">{{currentChannel.channelName}} (#{{currentChannel.id}})</div>
-                 <div v-else class="text-h6">No channel Selected</div>
-             </q-card-section>
-      <q-card-section>
-        <q-scroll-area style="height: 60vh">
-          <q-item v-for="item in chanmsg" :key='item' dense clickable>
-            <q-item-section>
-              <div>
-                <q-btn-dropdown :label="item.authorUsername" class="full-width" flat>
-                  <div class="full-width q-gutter-y-xs">
-                    <q-btn label="Private message" @click="startPrivMsg(item.authorLogin)" class="full-width" />
-                    <q-btn-group spread>
-                    <q-btn label="Block" @click="blockChatter(item.authorLogin, 1)"/>
-                    <q-btn label="Unblock" @click="unblockChatter(item.authorLogin, 1)"/>
-                  </q-btn-group>
-                  <q-btn-group spread v-if="chanAdm">
-                    <q-btn label="Ban" @click="banChatter(item.authorLogin, item.channel)"/>
-                    <q-btn label="Unban" @click="unbanChatter(item.authorLogin, item.channel)"/>
-                  </q-btn-group>
-                  <q-btn-group spread v-if="chanAdm">
-                    <q-btn label="Mute" @click="muteChatter(item.authorLogin, item.channel)"/>
-                    <q-btn label="Unmute" @click="unmuteChatter(item.authorLogin, item.channel)"/>
-                  </q-btn-group>
-                  <q-btn-group spread v-if="chanAdm">
-                    <q-btn  label="Set admin" @click="adminChatter(item.authorLogin, item.channel)"/>
-                    <q-btn  label="Unset admin" @click="unadminChatter(item.authorLogin, item.channel)"/>
-                  </q-btn-group>
-                  </div>
-                </q-btn-dropdown>
-              </div>
-              <div>
-                <q-input v-model="item.content" readonly borderless filled type="textarea" autogrow />
-              </div>
+      <!-- Main chat pannel -->
+      <q-card id="chat-pannel" class="column">
+        <q-card-section id="chat-pannel-title" class="bg-primary text-white full-width" style="overflow-wrap: break-word">
+          <div v-if="currentChannel !== undefined"  class="text-h6">
+            {{currentChannel.channelName}} (#{{currentChannel.id}})
+          </div>
+          <div v-else class="text-h6">
+            No channel Selected
+          </div>
+        </q-card-section>
+
+        <q-card-section id="chat-message-list"  class="full-width">
+          <q-list class="scroll full-width" style="height: 60vh; min-height: 350px">
+            <q-item v-for="item in chanmsg" :key='item' dense clickable @click="selected = item.authorLogin" class="full-width">
+              <q-item-section class="full-width" style="overflow-wrap: break-word">
+                <div class="full-width">
+                  <q-item class="full-width" align="right" style="overflow-wrap: break-word">
+                    <q-item-section>
+                      <q-item-label v-if="item.authorLogin !== store.state.login" align="left">
+                        {{item.authorUsername}}
+                      </q-item-label>
+                      <q-item-label v-else align="right">
+                        {{item.authorUsername}}
+                      </q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </div>
+                <div>
+                  <q-input v-model="item.content" readonly borderless filled type="textarea" autogrow />
+                </div>
+              </q-item-section>
+            </q-item>
+            </q-list>
+          <q-separator/>
+          <q-form @submit="sendMessage" id="chan-input" class="q-gutter-y-sm" >
+            <q-input v-model.trim="message" type="text" counter maxlength="255"/>
+            <q-btn type="submit" label="Send"/>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </div>
+
+    <!-- Channel choice menu -->
+    <div class="col-md-5 col-xs-11 q-gutter-md">
+      <q-card id="channel-selection-menu">
+        <q-list>
+          <q-expansion-item v-for='(n, idx) in statusList' :key='idx' :label="idx" header-class="bg-primary text-white" style="overflow-wrap: break-word" class="full-width">
+            <q-list style="max-height: 15vh" class="scroll">
+              <q-item clickable v-for='chan in coucou(n)' :key='chan.id' @click="updateSelectedChannel(chan.id)" class="q-py-xs" dense>
+                <q-item-section>
+                  <q-item-label>
+                    {{chan.channelName}} (#{{chan.id}})
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side top class="text-black">
+                  <template class="row q-gutter-xs justify-end">
+                    <q-input v-if="chan.channelStatus === 1 && !chan.channelUser" v-model="chan.password" type="password" dense/>
+                    <q-btn v-if="chan.channelStatus === 1 && !chan.channelUser" label="Join" @click="joinChannel(chan)"/>
+                    <q-btn v-if="(chan.channelStatus === 1 || chan.channelStatus === 2) && chan.channelUser" label="Leave" @click="leaveChannel(chan.id)"/>
+                  </template>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-expansion-item>
+        </q-list>
+      </q-card>
+
+      <q-card>
+        <q-card-section>
+          <q-btn-toggle
+            v-model="picked"
+            toggle-color="primary"
+            :options="[
+              { label: 'Public', value: 0 },
+              { label: 'Protected', value: 1 },
+              { label: 'Private', value: 2 }]"
+          />
+        </q-card-section>
+        <q-card-section>
+          <q-form @submit="createChannel" class="q-gutter-y-sm" >
+            <q-input v-model.trim="channelName" placeholder="Channel name" type="text" counter maxlength="255">
+              <template v-slot:after>
+                <q-input v-if="picked == 1" v-model="password" placeholder="password" type="password"/>
+                <q-input v-else  placeholder="no password" type="text" disable />
+              </template>
+            </q-input>
+            <q-btn type="submit" label="Create channel"/>
+          </q-form>
+        </q-card-section>
+        <q-separator/>
+          <q-card-section v-if="currentChannel && currentChannel.channelStatus == 1 && chanAdm" class="column">
+            <q-form @submit="setPassword" class="q-gutter-y-sm" >
+              <q-input v-model="password" type="password" placeholder="password"/>
+              <q-btn type="submit" label="Change Password"/>
+            </q-form>
+          </q-card-section>
+      </q-card>
+
+
+      <q-card v-if="selected && selected !== store.state.login">
+        <q-card-section class="bg-primary text-white">
+          <div class="text-h6" style="overflow-wrap: break-word">
+            {{userList.get(selected).name}}
+          </div>
+        </q-card-section>
+        <q-card-section class="full-width q-gutter-y-xs">
+          <q-btn label="Private message" @click="startPrivMsg(selected)" class="full-width" />
+          <q-btn label="Profile" class="full-width" />
+          <q-btn label="Invite for game" class="full-width" />
+          <q-btn-group spread>
+            <q-btn label="Block" @click="blockChatter(selected, 1)"/>
+            <q-btn label="Unblock" @click="unblockChatter(selected, 1)"/>
+          </q-btn-group>
+          <q-btn-group spread v-if="chanAdm">
+            <q-btn label="Ban" @click="banChatter(selected, chatid)"/>
+            <q-btn label="Unban" @click="unbanChatter(selected, chatid)"/>
+          </q-btn-group>
+          <q-btn-group spread v-if="chanAdm">
+            <q-btn label="Mute" @click="muteChatter(selected, chatid)"/>
+            <q-btn label="Unmute" @click="unmuteChatter(selected, chatid)"/>
+          </q-btn-group>
+          <q-btn-group spread v-if="chanAdm">
+            <q-btn  label="Set admin" @click="adminChatter(selected, chatid)"/>
+            <q-btn  label="Unset admin" @click="unadminChatter(selected, chatid)"/>
+          </q-btn-group>
+        </q-card-section>
+      </q-card>
+
+      <!-- Invitation pannel -->
+      <div v-if="invitations.length > 0 || (currentChannel && currentChannel.channelStatus == 2 && chanAdm)">
+        <q-card>
+            <q-list>
+            <q-item v-for="(chan, id) in invitations" :key='chan.id' class="row q-gutter-x-xs">
+              <q-item-section multiline>
+                <q-item-label style="overflow-wrap: break-word" class="full-width">
+                  {{chan.channelName}} (#{{chan.id}})
+                </q-item-label>
+              </q-item-section>
+              <q-item-section top side class="text-black">
+                <q-btn-group spread>
+                  <q-btn @click="acceptInvitation(id)" label="accept" />
+                  <q-btn @click="refuseInvitation(id)" label="refuse" />
+                </q-btn-group>
+              </q-item-section>
+            </q-item>
+            </q-list>
+        </q-card>
+      </div>
+
+      <div v-if="blockedUsers.length > 0">
+        <q-card>
+          <q-item v-for="(user, idx) in blockedUsers" :key="idx">
+            <q-item-section multiline>
+              <q-item-label  style="overflow-wrap: break-word" class="full-width">
+                {{ user.name }}
+              </q-item-label>
+            </q-item-section>
+            <q-item-section top side class="text-black">
+              <q-btn @click="unblockChatter(user.login, 1)" label="unblock" />
             </q-item-section>
           </q-item>
-         </q-scroll-area>
-        <q-form @submit="sendMessage" id="chan-input" class="q-gutter-y-sm" >
-          <q-input v-model.trim="message" type="text" counter maxlength="255"/>
-          <q-btn type="submit" label="Send"/>
-        </q-form>
-      </q-card-section>
-    </q-card>
-    </div>
-    <div class="col-md-5 col-xs-11 q-gutter-md">
-    <q-card id="chat-menu">
-      <q-list>
-        <q-item v-for='(n, idx) in statusList' :key='idx' >
-          <q-item-section>
-            <q-expansion-item :label="idx">
-              <q-list style="max-height: 10vh" class="scroll">
-                <q-item clickable v-for='chan in coucou(n)' :key='chan.id' @click="updateSelectedChannel(chan.id)" class="q-py-xs" dense>
-                  <q-item-section>
-                    <q-item-label>
-                      {{chan.channelName}} (#{{chan.id}})
-                    </q-item-label>
-                  </q-item-section>
-                  <q-item-section>
-                    <template class="row q-gutter-xs justify-end">
-                      <q-input v-if="chan.channelStatus === 1 && !chan.channelUser" v-model.trim="chan.password" type="text" dense/>
-                      <q-btn v-if="chan.channelStatus === 1 && !chan.channelUser" label="Join" @click="joinChannel(chan)"/>
-                      <q-btn v-if="(chan.channelStatus === 1 || chan.channelStatus === 2) && chan.channelUser" label="Leave" @click="leaveChannel(chan.id)"/>
-                    </template>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </q-expansion-item>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-card>
-
-    <q-card>
-      <q-card-section>
-        <q-btn-toggle
-          v-model="picked"
-          toggle-color="primary"
-          :options="[
-            { label: 'Public', value: 0 },
-            { label: 'Protected', value: 1 },
-            { label: 'Private', value: 2 }]"
-        />
-      </q-card-section>
-      <q-card-section>
-        <q-form @submit="createChannel" class="q-gutter-y-sm" >
-          <q-input v-model.trim="channelName" placeholder="Channel name" type="text" counter maxlength="255">
-            <template v-slot:after>
-              <q-input v-if="picked == 1" v-model="password" placeholder="password" type="text"/>
-              <q-input v-else v-model="password" placeholder="no password" type="text" disable />
-            </template>
-          </q-input>
-          <q-btn type="submit" label="Create channel"/>
-        </q-form>
-      </q-card-section>
-    </q-card>
-
-    <!-- admin pannel -->
-    <div v-if="currentChannel && chanAdm">
-    <q-card v-if="currentChannel && currentChannel.channelStatus == 1 && chanAdm" class="column">
-      <q-card-section>
-        <q-form @submit="setPassword" class="q-gutter-y-sm" >
-          <q-input v-model="password" type="text" placeholder="password"/>
-          <q-btn type="submit" label="Set Password"/>
-        </q-form>
-      </q-card-section>
-    </q-card>
-    </div>
-
-    <!-- Invitation pannel -->
-    <div v-if="invitations.length > 0 || (currentChannel && currentChannel.channelStatus == 2 && chanAdm)">
-    <q-card>
-      <q-item v-for="(chan, id) in invitations" :key='chan.id'>
-        <q-item-section>
-          <q-item-label>
-            {{chan.channelName}}(#{{chan.id}})
-          </q-item-label>
-        </q-item-section>
-        <q-item-section>
-          <q-btn-group spread>
-            <q-btn @click="acceptInvitation(id)" label="accept" />
-            <q-btn @click="refuseInvitation(id)" label="refuse" />
-          </q-btn-group>
-        </q-item-section>
-      </q-item>
-    </q-card>
-    </div>
-    <div v-if="blockedUsers.length > 0">
-        <q-card>
-            <q-item v-for="(user, idx) in blockedUsers" :key="idx">
-                <q-item-section>
-                    <q-item-label>
-                        {{ user.name }}
-                    </q-item-label>
-                </q-item-section>
-                <q-item-section>
-                    <q-btn @click="unblockChatter(user.login, 1)" label="unblock" />
-                </q-item-section>
-            </q-item>
         </q-card>
-    </div>
-    <div v-if="currentChannel && currentChannel.channelStatus === 2 && chanAdm && userList.size > 0">
+      </div>
+      <div v-if="currentChannel && currentChannel.channelStatus === 2 && chanAdm && userList.size > 0">
         <q-card>
-            <q-item v-for="(user, idx) in userList" :key="idx">
-                <q-item-section>
-                    {{user[1].name}}
-                </q-item-section>
-                <q-item-section>
-                    <q-btn label="invite" @click="inviteUser(user[1].login)"/>
-                </q-item-section>
-            </q-item>
+          <q-item v-for="(user, idx) in userList" :key="idx">
+            <q-item-section>
+              {{user[1].name}}
+            </q-item-section>
+            <q-item-section>
+              <q-btn label="invite" @click="inviteUser(user[1].login)"/>
+            </q-item-section>
+          </q-item>
         </q-card>
+      </div>
     </div>
-    </div>
-    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -178,10 +200,10 @@ export default {
     return {
       store: store,
       statusList: {
-        public: 0,
-        protected: 1,
-        private: 2,
-        locked: 3
+        Public: 0,
+        Protected: 1,
+        Private: 2,
+        'Private messages': 3
       }
     }
   },
@@ -200,7 +222,8 @@ export default {
       invitations: [],
       invitedUser: '',
       blockedUsers: [],
-      userList: new Map<string, UserInfo>()
+      userList: new Map<string, UserInfo>(),
+      selected: ''
     }
   },
   methods: {
@@ -212,7 +235,10 @@ export default {
         .then((msgTab) => {
           msgTab.forEach((msg) => {
             msg.channel = channel
-            this.userList.set(msg.authorLogin, { name: msg.authorUsername, login: msg.authorLogin })
+            if (msg.authorLogin !== this.store.state.login) {
+              console.log('Push', msg.authorLogin, this.store.state.login)
+              this.userList.set(msg.authorLogin, { name: msg.authorUsername, login: msg.authorLogin })
+            }
             this.messages.push(msg)
           })
         })
@@ -429,10 +455,12 @@ export default {
     this.getBlocked()
     socket.on('recvMessage', (message) => {
       message.channel = message.channel.id
-      this.userList.set(message.authorLogin, {
-        name: message.authorUsername,
-        login: message.authorLogin
-      })
+      if (message.authorLogin !== this.store.state.login) {
+        this.userList.set(message.authorLogin, {
+          name: message.authorUsername,
+          login: message.authorLogin
+        })
+      }
       this.messages.push(message)
     })
     socket.on('updateChannel', (channel) => {
