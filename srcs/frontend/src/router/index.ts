@@ -5,6 +5,9 @@ import AuthCallback from '../views/AuthCallback.vue'
 import Account from '../views/Account.vue'
 import store from '../store'
 import Chat from '../views/Chat.vue'
+import Friends from '../views/Friends.vue'
+import User from '../views/User.vue'
+import Game from '../views/Game.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -63,6 +66,33 @@ const routes: Array<RouteRecordRaw> = [
       requiresLogin: true,
       hideNav: false
     }
+  },
+  {
+    path: '/friends',
+    name: 'Friends',
+    component: Friends,
+    meta: {
+      requiresLogin: true,
+      hideNav: false
+    }
+  },
+  {
+    path: '/user',
+    name: 'User',
+    component: User,
+    meta: {
+      requiresLogin: true,
+      hideNav: false
+    }
+  },
+  {
+    path: '/game',
+    name: 'Game',
+    component: Game,
+    meta: {
+      requiresLogin: true,
+      hideNav: false
+    }
   }
 ]
 
@@ -80,6 +110,7 @@ router.beforeEach(async (to, from, next) => {
     await store.dispatch('validateToken')
   }
   if (store.getters.isAuthenticated === false) {
+    await store.dispatch('logout')
     return next('/login')
   }
 

@@ -20,6 +20,7 @@ export class Playground {
 	private _win_score: number
 	private _player1: string
 	private _player2: string
+	private _mode: boolean
 
 	constructor(x: number, y: number, width: number, height: number, color: string, win_score: number, player1: string, player2: string, mode: boolean) {
 		this._x = x
@@ -51,6 +52,7 @@ export class Playground {
 	  this._win_score = win_score
 	  this._player1 = player1
 	  this._player2 = player2
+	  this._mode = mode
 	}
 
 	public get x(): number {
@@ -95,6 +97,10 @@ export class Playground {
 	  return this._player1
 	}
 
+	public get mode(): boolean {
+		return this._mode
+	  }
+
 	private getRadius(): number {
 	  let rad = (this._width + this._height) / 25 < 20 ? (this._width + this._height) / 25 : 20
 	  return rad
@@ -123,6 +129,7 @@ export class Playground {
 		score: this._scoreBoard.getScoreInterface(),
 		player1: this._player1,
 		player2: this._player2,
+		mode: this._mode
 	  }
 	}
 

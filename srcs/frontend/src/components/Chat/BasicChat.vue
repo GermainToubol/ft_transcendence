@@ -450,6 +450,7 @@ export default {
         Authorization: `Bearer ${this.store.state.token}`
       }
     })
+    console.log(socket)
     this.getChannels()
     this.getInvitations()
     this.getBlocked()

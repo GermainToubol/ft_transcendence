@@ -47,7 +47,6 @@ export default {
     async verify2FA () {
       const response = await this.store.dispatch('verify2FA', { code: this.code })
       if (response.data.token === undefined) {
-        console.log('MAUVAIS CODE')
         this.$emit('verified', false)
         return
       }

@@ -21,7 +21,6 @@ export default {
   },
   async mounted (): Promise<void> {
     const response = await this.store.dispatch('login', { code: this.route.query.code })
-    console.log(response)
     if (response.is2faEnabled === true || response.enable2fa === true) {
       this.card2FA = true
     } else if (response.token) {
@@ -30,7 +29,6 @@ export default {
   },
   methods: {
     goToHome (value) {
-      console.log('Value: ', value)
       if (value === true) {
         router.push('/')
         return

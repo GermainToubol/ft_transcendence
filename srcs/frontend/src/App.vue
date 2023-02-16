@@ -32,9 +32,10 @@
           aria-label="Menu"
           icon="menu"
         />
-        <q-toolbar-title>
+        <q-btn flat to="/">
           Transcendence
-        </q-toolbar-title>
+        </q-btn>
+        <q-space />
         <q-item clickable>
          <q-avatar>
           <img :src='avatar'>
@@ -79,6 +80,14 @@
             <q-item-label>Pong</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item clickable to="/friends">
+          <q-item-section avatar>
+            <q-icon name="supervised_user_circle" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Friends</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 
@@ -108,8 +117,6 @@ export default {
   },
   computed: {
     avatar (): string {
-      console.log('tets')
-      console.log(this.store.state.avatar)
       return this.store.state.avatar
     }
   },
@@ -118,6 +125,11 @@ export default {
       await store.dispatch('logout')
       router.push('/login')
     }
+  },
+  created () {
+    window.addEventListener('beforeunload', () => {
+      store.dispatch('logout')
+    }, false)
   }
 }
 </script>

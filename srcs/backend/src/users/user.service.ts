@@ -86,7 +86,7 @@ export class UsersService {
             let opponent = await this.findOneById(users[0].gamesHistory[i].opponentId).then()
             let test = {
                 opponentPseudo: opponent.usual_full_name,
-                opponentAvatar: opponent.avatarId,
+                opponentAvatar: opponent.avatarId != null? opponent.avatarId : 0,
                 playerOneScore: users[0].gamesHistory[i].playerOneScore,
                 playerTwoScore: users[0].gamesHistory[i].playerTwoScore,
                 hard: users[0].gamesHistory[i].hard,
@@ -240,7 +240,7 @@ export class UsersService {
             if (friend != null) {
                 let item = {
                     pseudo: friend.usual_full_name,
-                    avatar: friend.avatarId,
+                    avatar: friend.avatarId != null ? friend.avatarId : 0,
                     wins: friend.wins,
                     status: friend.status
                 }
@@ -257,11 +257,24 @@ export class UsersService {
             if (friend != null) {
                 let item = {
                     pseudo: friend.usual_full_name,
-                    avatar: friend.avatarId
+                    avatar: friend.avatarId != null ? friend.avatarId : 0 
                 }
                 invitations[i] = item
             }
         }
         return invitations
+    }
+
+    async getInfo(pseudo: string): Promise<any> {
+        const user = await this.usersRepository.findOneBy({ usual_full_name: pseudo }).then()
+        if (!user)
+            return null
+        const info = {
+            pseudo: user.usual_full_name,
+            avatar: user.avatarId != null ? user.avatarId : 0,
+            wins: user.wins,
+            status: user.status
+        }
+        return info
     }
 };

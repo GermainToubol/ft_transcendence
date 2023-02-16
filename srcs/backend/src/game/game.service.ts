@@ -103,26 +103,19 @@ export class GameService {
 	async endGame(first: Socket, second: Socket, server: Server, playground: Playground, mode: boolean) {
 		clearInterval(first.data.gameInterval)
 		this.logger.log('Game in Room: ' + first.data.roomname + ' between: ', first.data.user.usual_full_name + ' & ' + second.data.user.usual_full_name + ' Finished')
+		let add = await this.gameHistoryService.addGameHistory({ userId: first.data.user.id as number, opponentId: first.data.opponentId as number, playerOneScore: playground.scoreBoard.playerOneScore as number, playerTwoScore: playground.scoreBoard.playerTwoScore as number, hard: mode })
+		if (!add)
+			return
+		let add2 = await this.gameHistoryService.addGameHistory({ userId: first.data.opponentId as number, opponentId: first.data.user.id as number, playerOneScore: playground.scoreBoard.playerTwoScore as number, playerTwoScore: playground.scoreBoard.playerOneScore as number, hard: mode })
+		if (!add2)
+			return
 		if (playground.scoreBoard.playerOneScore > playground.scoreBoard.playerTwoScore) {
 			server.to(first.data.roomname).emit('endGame', { winner: first.data.user.usual_full_name, loser: second.data.user.usual_full_name })
-			let add = await this.gameHistoryService.addGameHistory({ userId: first.data.user.id as number, opponentId: first.data.opponentId as number, playerOneScore: playground.scoreBoard.playerOneScore as number, playerTwoScore: playground.scoreBoard.playerTwoScore as number, hard: mode })
-			if (!add)
-				return
-				let add2 = await this.gameHistoryService.addGameHistory({ userId: first.data.opponentId as number, opponentId: first.data.user.id as number, playerOneScore: playground.scoreBoard.playerTwoScore as number, playerTwoScore: playground.scoreBoard.playerOneScore as number, hard: mode })
-			if (!add2)
-				return
 			let wins = await this.usersService.updateWins(first.data.user.id, first.data.user.wins + 1)
 			if (!wins)
 				return
 		} else {
-			console.log(second.data.user.usual_full_name)
 			server.to(first.data.roomname).emit('endGame', { winner: second.data.user.usual_full_name, loser: first.data.user.usual_full_name })
-			let add = await this.gameHistoryService.addGameHistory({ userId: first.data.user.id as number, opponentId: first.data.opponentId as number, playerOneScore: playground.scoreBoard.playerOneScore as number, playerTwoScore: playground.scoreBoard.playerTwoScore as number, hard: mode })
-			if (!add)
-				return
-			let add2 = await this.gameHistoryService.addGameHistory({ userId: first.data.opponentId as number, opponentId: first.data.user.id as number, playerOneScore: playground.scoreBoard.playerTwoScore as number, playerTwoScore: playground.scoreBoard.playerOneScore as number, hard: mode })
-			if (!add2)
-				return
 			let wins = await this.usersService.updateWins(second.data.user.id, second.data.user.wins + 1)
 			if (!wins)
 				return
@@ -152,6 +145,15 @@ export class GameService {
 					this.logger.error('Error trying to delete room')
 				else
 					this.logger.log('Game in Room: ' + client.data.roomname + ' Finished')
+				let add = await this.gameHistoryService.addGameHistory({ userId: client.data.user.id as number, opponentId: client.data.opponentId as number, playerOneScore: client.data.playground.scoreBoard.playerOneScore as number, playerTwoScore: client.data.playground.scoreBoard.playerTwoScore as number, hard: client.data.playground.mode })
+				if (!add)
+					return
+				let add2 = await this.gameHistoryService.addGameHistory({ userId: client.data.opponentId as number, opponentId: client.data.user.id as number, playerOneScore: client.data.playground.scoreBoard.playerTwoScore as number, playerTwoScore: client.data.playground.scoreBoard.playerOneScore as number, hard: client.data.playground.mode })
+				if (!add2)
+					return
+				let wins = await this.usersService.updateWins(second.id as unknown as string, second.wins + 1)
+				if (!wins)
+					return
 			}
 			client.leave(client.data.roomname)
 			let update = await this.usersService.updateStatus(client.data.user.login, UserStatus.OFFLINE)

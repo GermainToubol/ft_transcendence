@@ -89,12 +89,10 @@ export class ChatController {
     @Get("invitations")
     @UseGuards(JwtAuthGuard)
     async findInvitations(@Res() res: Response, @ReqUser() user: User) {
-        console.log("uu")
         const chatter: Chatter = await this.userService
             .findOne(user.login, ["chatter", "chatter.invitations"])
             .then((u) => u.chatter)
             .catch(() => null);
-        console.log("chatter:", chatter)
         if (!chatter)
             return;
         const channels: ChannelExport[] = chatter.invitations.map(

@@ -3,7 +3,7 @@ import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGa
 import { Server, Socket } from 'socket.io'
 import { GameService } from './game.service'
 
-@WebSocketGateway({cors: true, path: '/game'})
+@WebSocketGateway({cors: { origin: "*" }, path: '/game'})
 export class GameGateway
 	implements OnGatewayConnection, OnGatewayDisconnect {
 
@@ -15,9 +15,13 @@ export class GameGateway
 
 	constructor(private gameService: GameService) {
 		this.players = []
+		this.playershard = []
+		this.playerschat = []
+		this.playerschathard = []
 	}
 
 	async handleConnection(client: Socket) {
+		console.log('ICI')
 		await this.gameService.handleConnectedUser(client, this.players, this.playershard, this.playerschat, this.playerschathard, this.server)
 	}
 

@@ -9,6 +9,7 @@ import { User } from '../../users/user.entity';
 import { JwtStrategy } from "../strategies/jwt.strategy";
 import { AuthService } from "../auth.service";
 import { JwtLoginStrategy } from "../strategies/jwtlogin.strategy";
+import { JwtLogoutStrategy } from "../strategies/jwtlogout.strategy";
 import { ConfigService } from "@nestjs/config";
 import LocalFile from "src/localfiles/localFile.entity";
 import { LocalFileModule } from "src/localfiles/localFiles.module";
@@ -23,6 +24,6 @@ import { ChatterModule } from "src/chatter/chatter.module";
         ChatterModule,
     ],
     controllers: [TwoFactorAuthController],
-    providers: [TwoFactorAuthService, UsersService, JwtStrategy, JwtLoginStrategy, AuthService, ConfigService],
+    providers: [TwoFactorAuthService, UsersService, JwtStrategy, JwtLoginStrategy, JwtLogoutStrategy, AuthService, ConfigService],
 })
 export class TwoFactorAuthModule { }

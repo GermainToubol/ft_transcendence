@@ -1,6 +1,5 @@
 <template>
   <div>
-    <LeaderBoard />
     <q-card id="div-canvas" flat bordered dark>
         <canvas id="responsive-canvas" ref="game"></canvas>
         <p class="mt-8 text-xl" style="color:aquamarine; text-align: center;">{{ message }}</p>
@@ -14,19 +13,16 @@ import { io, Socket } from 'socket.io-client'
 import store from '../store'
 import router from '@/router'
 
-import Draw from '../pong/Draw'
-import LeaderBoard from '../components/LeaderBoard.vue'
+import Draw from '../Draw'
+import { BACK_SERVER } from '@/config'
 
 export default {
-  components: {
-    LeaderBoard
-  },
   setup (): any {
     return {
       name: 'Game',
       store: store,
       router: router,
-      socket: ref(null as unknown),
+      socket: null,
       game: ref({} as HTMLCanvasElement),
       context: ref({} as CanvasRenderingContext2D),
       playground: ref(null as unknown),
@@ -35,14 +31,19 @@ export default {
     }
   },
   mounted (): void {
-    this.socket = io('http://localhost:3000', {
-      path: '/game/',
+    this.socket = io(BACK_SERVER, {
+      path: '/game',
+      transports: ['websocket'],
       query: {
         accessToken: this.store.getters.getToken,
         role: 'player',
-        mode: 'normal'
+        mode: 'hard'
+      },
+      auth: {
+        accessToken: this.store.getters.getToken
       }
     })
+    console.log(this.socket)
     if (this.game) {
       this.context = this.game.getContext('2d')
       this.tokenError()
@@ -50,7 +51,6 @@ export default {
       this.drawWaiting()
       this.drawGame()
       this.drawInterruptedGame()
-      this.missingOpponent()
       this.endGame()
       this.abortedGame()
 
@@ -84,6 +84,11 @@ export default {
       })
     }
   },
+  beforeUnmount () {
+    if (this.socket != null) {
+      this.socket.disconnect()
+    }
+  },
   methods: {
     abortedGame () {
       (this.socket as Socket).on('abortedGame', (data) => {
@@ -96,6 +101,7 @@ export default {
     },
     drawWaiting () {
       (this.socket as Socket).on('waitingForPlayer', (data) => {
+        console.log('SALUT')
         this.playground = data.playground
         if (this.playground != null) {
           this.game.width = this.game.offsetWidth
@@ -148,8 +154,12 @@ export default {
       })
     },
     endGame () {
-      (this.socket as Socket).on('interruptedGame', (data) => {
-        this.playground = data.playground
+      (this.socket as Socket).on('endGame', (data) => {
+        console.log(data)
+        const { winner, loser } = data
+        if (winner && loser) {
+          this.message = winner + ' wins against ' + loser
+        }
         if (this.playground != null) {
           this.game.width = this.game.offsetWidth
           this.game.height = this.game.width * 0.6
@@ -162,11 +172,6 @@ export default {
             this.playground.player2
           )
         }
-      })
-    },
-    missingOpponent () {
-      (this.socket as Socket).on('missingOpponent', (data) => {
-        this.message = data.message
       })
     },
     alreadyPlaying () {

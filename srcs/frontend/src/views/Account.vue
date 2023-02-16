@@ -59,7 +59,7 @@
               </q-item-section>
             </q-item>
             <q-item tag="label" v-ripple>
-              <q-item-section>
+              <q-item-section style="width: 200px">
                 <q-item-label>Change pseudo</q-item-label>
               </q-item-section>
               <q-item-section side >
@@ -83,7 +83,7 @@
   </div>
   <Form2FA v-model="card2FA" :qrCode="qrCode" @close="card2FA=false" @enabled="doubleFA=true" />
   <Pseudo v-model="cardPseudo" :pseudo="pseudo" @close="cardPseudo=false" />
-  <Avatar v-model="cardAvatar" :avatar="avatar" @close="cardAvatar=false" />
+  <Avatar v-model="cardAvatar" @close="cardAvatar=false" />
 </div>
 </template>
 

@@ -125,12 +125,10 @@ export class ChannelService {
 
     async addChannelUser(user: Chatter, password: string, channel: ChatChannel): Promise<boolean> {
         let isMatch: boolean;
-        console.log(password)
         if (channel.password)
             isMatch = await bcrypt.compare(password, channel.password);
         else
             isMatch = (password === "")
-        console.log(isMatch)
         if (!isMatch && channel.channelStatus === ChannelStatus.Protected)
             return false;
         channel.channelUsers.push(user);

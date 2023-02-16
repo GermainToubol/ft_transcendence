@@ -53,7 +53,6 @@ export class ChatService {
         if (channel.channelStatus === ChannelStatus.Private
             && (opt === undefined || opt === false)
             && channel.invitedUsers.findIndex((usr) => user.id === usr.id) === -1) {
-            console.log("coucou")
             return false
         }
         if (channel.channelStatus === ChannelStatus.Locked
