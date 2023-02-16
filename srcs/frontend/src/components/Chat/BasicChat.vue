@@ -100,7 +100,6 @@
           </q-card-section>
       </q-card>
 
-
       <q-card v-if="selected && selected !== store.state.login">
         <q-card-section class="bg-primary text-white">
           <div class="text-h6" style="overflow-wrap: break-word">
