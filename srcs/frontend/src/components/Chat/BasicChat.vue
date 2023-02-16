@@ -45,10 +45,10 @@
     </div>
 
     <!-- Channel choice menu -->
-    <div class="col-md-5 col-xs-11 q-gutter-md">
+    <div class="col-md-5 col-xs-11 q-gutter-md scroll" style="height: 90vh; min-height: 400px">
       <q-card id="channel-selection-menu">
         <q-list>
-          <q-expansion-item v-for='(n, idx) in statusList' :key='idx' :label="idx" header-class="bg-primary text-white" style="overflow-wrap: break-word" class="full-width">
+          <q-expansion-item v-for='(n, idx) in statusList' :key='idx' :label="idx" group="channel-select-group" header-class="bg-primary text-white" style="overflow-wrap: break-word" class="full-width">
             <q-list style="max-height: 15vh" class="scroll">
               <q-item clickable v-for='chan in coucou(n)' :key='chan.id' @click="updateSelectedChannel(chan.id)" class="q-py-xs" dense>
                 <q-item-section>
@@ -67,6 +67,60 @@
             </q-list>
           </q-expansion-item>
         </q-list>
+      </q-card>
+      <q-card v-if="selected && selected !== store.state.login">
+        <q-card-section class="bg-primary text-white row justify-between">
+          <div class="text-h6" style="overflow-wrap: break-word">
+            {{userList.get(selected).name}}
+          </div>
+          <q-btn label="X" @click="selected = ''"/>
+        </q-card-section>
+        <q-card-section class="full-width q-gutter-y-xs">
+          <q-btn label="Private message" @click="startPrivMsg(selected)" class="full-width" />
+          <q-btn label="Profile" @click="profileRoute(selected)" class="full-width" />
+          <q-btn label="Invite for game" class="full-width" />
+          <q-btn-group spread>
+            <q-btn label="Block" @click="blockChatter(selected, 1)"/>
+            <q-btn label="Unblock" @click="unblockChatter(selected, 1)"/>
+          </q-btn-group>
+          <q-btn-group spread v-if="chanAdm">
+            <q-btn label="Ban" @click="banChatter(selected, chatid)"/>
+            <q-btn label="Unban" @click="unbanChatter(selected, chatid)"/>
+          </q-btn-group>
+          <q-btn-group spread v-if="chanAdm">
+            <q-btn label="Mute" @click="muteChatter(selected, chatid)"/>
+            <q-btn label="Unmute" @click="unmuteChatter(selected, chatid)"/>
+          </q-btn-group>
+          <q-btn-group spread v-if="chanAdm">
+            <q-btn  label="Set admin" @click="adminChatter(selected, chatid)"/>
+            <q-btn  label="Unset admin" @click="unadminChatter(selected, chatid)"/>
+          </q-btn-group>
+        </q-card-section>
+      </q-card>
+
+      <!-- Invitation pannel -->
+      <q-card>
+          <q-card-section class="bg-primary text-white full-width row q-gutter-sm justify-between" style="overflow-wrap: break-word">
+              <div class="text-h6">
+                  Invitations to join
+              </div>
+              <q-btn class="bg-white text-black" @click="showListInvitations = !showListInvitations" :label="invitations.length" />
+          </q-card-section>
+          <q-list v-if="showListInvitations">
+              <q-item v-for="(chan, id) in invitations" :key='chan.id' class="row q-gutter-x-xs">
+                  <q-item-section multiline>
+                      <q-item-label style="overflow-wrap: break-word" class="full-width">
+                          {{chan.channelName}} (#{{chan.id}})
+                      </q-item-label>
+                  </q-item-section>
+                  <q-item-section top side class="text-black">
+                      <q-btn-group spread>
+                          <q-btn @click="acceptInvitation(id)" label="accept" />
+                          <q-btn @click="refuseInvitation(id)" label="refuse" />
+                      </q-btn-group>
+                  </q-item-section>
+              </q-item>
+          </q-list>
       </q-card>
 
       <q-card>
@@ -100,61 +154,36 @@
           </q-card-section>
       </q-card>
 
-      <q-card v-if="selected && selected !== store.state.login">
-        <q-card-section class="bg-primary text-white">
-          <div class="text-h6" style="overflow-wrap: break-word">
-            {{userList.get(selected).name}}
-          </div>
-        </q-card-section>
-        <q-card-section class="full-width q-gutter-y-xs">
-          <q-btn label="Private message" @click="startPrivMsg(selected)" class="full-width" />
-          <q-btn label="Profile" class="full-width" />
-          <q-btn label="Invite for game" class="full-width" />
-          <q-btn-group spread>
-            <q-btn label="Block" @click="blockChatter(selected, 1)"/>
-            <q-btn label="Unblock" @click="unblockChatter(selected, 1)"/>
-          </q-btn-group>
-          <q-btn-group spread v-if="chanAdm">
-            <q-btn label="Ban" @click="banChatter(selected, chatid)"/>
-            <q-btn label="Unban" @click="unbanChatter(selected, chatid)"/>
-          </q-btn-group>
-          <q-btn-group spread v-if="chanAdm">
-            <q-btn label="Mute" @click="muteChatter(selected, chatid)"/>
-            <q-btn label="Unmute" @click="unmuteChatter(selected, chatid)"/>
-          </q-btn-group>
-          <q-btn-group spread v-if="chanAdm">
-            <q-btn  label="Set admin" @click="adminChatter(selected, chatid)"/>
-            <q-btn  label="Unset admin" @click="unadminChatter(selected, chatid)"/>
-          </q-btn-group>
-        </q-card-section>
-      </q-card>
-
-      <!-- Invitation pannel -->
-      <div v-if="invitations.length > 0 || (currentChannel && currentChannel.channelStatus == 2 && chanAdm)">
-        <q-card>
-            <q-list>
-            <q-item v-for="(chan, id) in invitations" :key='chan.id' class="row q-gutter-x-xs">
-              <q-item-section multiline>
-                <q-item-label style="overflow-wrap: break-word" class="full-width">
-                  {{chan.channelName}} (#{{chan.id}})
-                </q-item-label>
-              </q-item-section>
-              <q-item-section top side class="text-black">
-                <q-btn-group spread>
-                  <q-btn @click="acceptInvitation(id)" label="accept" />
-                  <q-btn @click="refuseInvitation(id)" label="refuse" />
-                </q-btn-group>
-              </q-item-section>
+      <q-card v-if="currentChannel && currentChannel.channelStatus === 2 && chanAdm && userList.size > 0">
+            <q-card-section class="bg-primary text-white full-width row q-gutter-sm justify-between" style="overflow-wrap: break-word">
+              <div class="text-h6">
+                  Invite user
+              </div>
+              <q-btn class="bg-white text-black" @click="showUserList = !showUserList" :label="showUserList ? 'hide' : 'show'" />
+            </q-card-section>
+            <q-list v-if="showUserList">
+            <q-item v-for="(user, idx) in userList" :key="idx">
+            <q-item-section>
+              {{user[1].name}}
+            </q-item-section>
+            <q-item-section>
+              <q-btn label="invite" @click="inviteUser(user[1].login)"/>
+            </q-item-section>
             </q-item>
             </q-list>
         </q-card>
-      </div>
 
-      <div v-if="blockedUsers.length > 0">
-        <q-card>
-          <q-item v-for="(user, idx) in blockedUsers" :key="idx">
-            <q-item-section multiline>
-              <q-item-label  style="overflow-wrap: break-word" class="full-width">
+    <q-card v-if="blockedUsers.length > 0">
+        <q-card-section class="bg-primary text-white full-width row q-gutter-sm justify-between" style="overflow-wrap: break-word">
+            <div class="text-h6">
+                Blocked users
+            </div>
+            <q-btn class="bg-white text-black" @click="showBlockedList = !showBlockedList" :label="showBlockedList ? 'Hide': 'Show'" />
+        </q-card-section>
+        <q-list v-if="showBlockedList">
+            <q-item v-for="(user, idx) in blockedUsers" :key="idx">
+                <q-item-section multiline>
+                    <q-item-label  style="overflow-wrap: break-word" class="full-width">
                 {{ user.name }}
               </q-item-label>
             </q-item-section>
@@ -162,20 +191,8 @@
               <q-btn @click="unblockChatter(user.login, 1)" label="unblock" />
             </q-item-section>
           </q-item>
+          </q-list>
         </q-card>
-      </div>
-      <div v-if="currentChannel && currentChannel.channelStatus === 2 && chanAdm && userList.size > 0">
-        <q-card>
-          <q-item v-for="(user, idx) in userList" :key="idx">
-            <q-item-section>
-              {{user[1].name}}
-            </q-item-section>
-            <q-item-section>
-              <q-btn label="invite" @click="inviteUser(user[1].login)"/>
-            </q-item-section>
-          </q-item>
-        </q-card>
-      </div>
     </div>
   </div>
 </template>
@@ -184,6 +201,7 @@
 import { io, Socket } from 'socket.io-client'
 import { ref } from 'vue'
 import store from '@/store'
+import router from '@/router'
 import { BACK_SERVER } from '@/config'
 
 class UserInfo {
@@ -222,7 +240,10 @@ export default {
       invitedUser: '',
       blockedUsers: [],
       userList: new Map<string, UserInfo>(),
-      selected: ''
+      selected: '',
+      showListInvitations: false,
+      showUserList: false,
+      showBlockedList: false
     }
   },
   methods: {
@@ -424,6 +445,9 @@ export default {
     },
     coucou (n: number) {
       return this.channels.filter((chan) => chan.channelStatus === n)
+    },
+    profileRoute (login: string) {
+      router.push(`/user?user=${this.userList.get(login).name}`)
     }
   },
   computed: {
