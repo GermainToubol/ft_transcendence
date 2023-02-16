@@ -37,7 +37,7 @@ export default {
       query: {
         accessToken: this.store.getters.getToken,
         role: 'player',
-        mode: 'normal'
+        mode: 'hard'
       },
       auth: {
         accessToken: this.store.getters.getToken

@@ -32,9 +32,10 @@
           aria-label="Menu"
           icon="menu"
         />
-        <q-toolbar-title>
+        <q-btn flat to="/">
           Transcendence
-        </q-toolbar-title>
+        </q-btn>
+        <q-space />
         <q-item clickable>
          <q-avatar>
           <img :src='avatar'>

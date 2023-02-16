@@ -15,6 +15,9 @@ export class GameGateway
 
 	constructor(private gameService: GameService) {
 		this.players = []
+		this.playershard = []
+		this.playerschat = []
+		this.playerschathard = []
 	}
 
 	async handleConnection(client: Socket) {

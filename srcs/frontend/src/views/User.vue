@@ -113,8 +113,23 @@
           Game history
         </q-card-section>
         <q-card-section v-if="history">
-          <q-list v-for="entry in history" :key="entry.opponentPseudo">
-            <q-item v-if="entry.victory" class="bg-green-2 rounded-borders">
+          <q-scroll-area style="height: 424px"
+            :thumb-style="{
+              right: '0px',
+              borderRadius: '5px',
+              width: '5px',
+              opacity: '0.75'
+            }"
+            :content-style="{
+              backgroundColor: 'rgba(0,0,0,0.02)',
+              color: '#555'
+            }"
+            :content-active-style="{
+              backgroundColor: '#eee',
+              color: 'black'
+            }">
+            <q-list v-for="entry in history" :key="entry.opponentPseudo">
+              <q-item v-if="entry.victory" class="bg-green-2 rounded-borders">
               <q-item-section avatar>
                 <q-avatar>
                   <img :src='store.getters.getAvatar' />
@@ -123,7 +138,17 @@
               <q-item-section>
                 <q-item-label caption>{{ store.getters.getPseudo }}</q-item-label>
               </q-item-section>
-              <q-item-section class="content-center text-h6">{{ entry.playerOneScore }} - {{ entry.playerTwoScore }}</q-item-section>
+              <q-item-section class="text-center text-h6">
+                <q-item-label>
+                  {{ entry.playerOneScore }} - {{ entry.playerTwoScore }}
+                </q-item-label>
+                <q-item-label caption v-if="entry.hard == false">
+                  Normal
+                </q-item-label>
+                <q-item-label caption v-else>
+                  Difficult
+                </q-item-label>
+              </q-item-section>
               <q-item-section>
                 <q-item-label caption>{{ entry.opponentPseudo }}</q-item-label>
               </q-item-section>
@@ -142,7 +167,17 @@
               <q-item-section>
                 <q-item-label caption>{{ store.getters.getPseudo }}</q-item-label>
               </q-item-section>
-              <q-item-section class="content-center text-h6">{{ entry.playerOneScore }} - {{ entry.playerTwoScore }}</q-item-section>
+              <q-item-section class="text-center text-h6">
+                <q-item-label>
+                  {{ entry.playerOneScore }} - {{ entry.playerTwoScore }}
+                </q-item-label>
+                <q-item-label caption v-if="entry.hard == false">
+                  Normal
+                </q-item-label>
+                <q-item-label caption v-else>
+                  Difficult
+                </q-item-label>
+              </q-item-section>
               <q-item-section>
                 <q-item-label caption>{{ entry.opponentPseudo }}</q-item-label>
               </q-item-section>
@@ -154,6 +189,7 @@
             </q-item>
             <q-separator spaced inset="item" />
           </q-list>
+        </q-scroll-area>
         </q-card-section>
         <q-card-section v-else class="text-h6">
           This player has never played...
@@ -186,8 +222,12 @@ export default {
     }
   },
   async mounted () {
+    let pseudo = router.currentRoute.value.query.user
+    if (!pseudo) {
+      pseudo = this.store.getters.getPseudo
+    }
     this.user = await axios.get(
-      `${BACK_SERVER}/user/info/${router.currentRoute.value.query.user}`,
+      `${BACK_SERVER}/user/info/${pseudo}`,
       {
         headers: {
           Authorization: `Bearer ${store.state.token}`
@@ -198,13 +238,12 @@ export default {
         this.avatar = `${BACK_SERVER}/local-files/${this.user.avatar}`
       }
       const ret = await axios.get(
-      `${BACK_SERVER}/user/history/${router.currentRoute.value.query.user}`,
+      `${BACK_SERVER}/user/history/${pseudo}`,
       {
         headers: {
           Authorization: `Bearer ${store.state.token}`
         }
       }).then((t) => t.data)
-      console.log(ret)
       if (ret.length > 0) {
         this.history = ret
         this.winrate = this.user.wins / this.history.length * 100

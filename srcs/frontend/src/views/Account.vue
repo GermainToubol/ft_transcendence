@@ -59,7 +59,7 @@
               </q-item-section>
             </q-item>
             <q-item tag="label" v-ripple>
-              <q-item-section>
+              <q-item-section style="width: 200px">
                 <q-item-label>Change pseudo</q-item-label>
               </q-item-section>
               <q-item-section side >
