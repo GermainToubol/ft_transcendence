@@ -10,18 +10,19 @@
 #                                                                              #
 #******************************************************************************#
 CONF =	./srcs/docker-compose.yml
+SHELL	= '/bin/bash'
+DOMAIN	= transcendence.42.fr
+CERT	= $(addprefix ./srcs/cert_utils/$(DOMAIN), .cnf .crt .csr .key)
 
-
-all: 	clean
+.PHONY: all
+all: 	clean certificates
 		docker compose -f $(CONF) up --build --force-recreate -d
 
-default: clean
-		docker compose -f $(CONF) up -d
-
+.PHONY: clean
 clean:
 		docker compose -f $(CONF) down
 
-
+.PHONY: fclean
 fclean: clean
 		@echo "rm volumes:"
 		@for volume in "$$(docker volume ls -q)"; do	\
@@ -30,23 +31,11 @@ fclean: clean
 			fi;											\
 		done;
 
-
+.PHONY: re
 re: fclean all
 
+.PHONY: certificates
+certificates: $(CERT)
 
-connect:
-		docker-compose -f $(CONF) exec -it backend sh || exit 0
-
-connectfront:
-		docker compose -f $(CONF) exec -it frontend sh || exit 0
-
-
-status:
-		docker-compose -f $(CONF) ps
-
-
-logs:
-		docker compose -f $(CONF) logs -f
-
-
-.PHONY: all clean fclean re connect status logs
+$(CERT):
+		cd srcs/cert_utils && yes "no" | ./utils.sh $(DOMAIN)

@@ -52,6 +52,9 @@ services:
       - "release-front:/var/www"
     networks:
       - frontend-net
+    secrets:
+      - transcendence_key
+      - transcendence_crt
 
   frontend:
     container_name: frontend
@@ -113,3 +116,11 @@ services:
       - 5000:8080
     networks:
       - backend-net
+
+# Secrets
+# ------------------------------------------------------------------------
+secrets:
+  transcendence_key:
+    file: "./cert_utils/transcendence.42.fr.key"
+  transcendence_crt:
+    file: "./cert_utils/transcendence.42.fr.crt"
