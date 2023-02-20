@@ -3,7 +3,7 @@ import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGa
 import { Server, Socket } from 'socket.io'
 import { GameService } from './game.service'
 
-@WebSocketGateway({cors: { origin: "*" }, path: '/api/game'})
+@WebSocketGateway({path: '/api/game'})
 export class GameGateway
 	implements OnGatewayConnection, OnGatewayDisconnect {
 

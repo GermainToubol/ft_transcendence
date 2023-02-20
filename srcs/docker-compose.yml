@@ -41,10 +41,10 @@ networks:
 # ------------------------------------------------------------------------
 services:
   nginx:
+    container_name: nginx
     build: ./nginx
     ports:
       - "8080:8080"
-      - "3000:3000"
     depends_on:
       frontend:
         condition: service_completed_successfully
@@ -54,6 +54,7 @@ services:
       - frontend-net
 
   frontend:
+    container_name: frontend
     image: notrexp_frontend:dev-latest
     build:
       context: ./frontend
