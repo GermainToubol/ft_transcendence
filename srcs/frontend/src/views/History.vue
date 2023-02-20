@@ -17,7 +17,7 @@ export default {
 
 	async mounted(){
 		const ret = await axios.get(
-			`${BACK_SERVER}/history/${jwtstore.$state.pseudo}`,
+			`${BACK_SERVER}/api/history/${jwtstore.$state.pseudo}`,
 			{
 				headers: {
 					Authorization: `Bearer ${jwtstore.$state.token}`,
@@ -26,7 +26,7 @@ export default {
 		if (this.room)
 			this.room = ret
 		const re = await axios.get(
-			`${BACK_SERVER}/user/leaderboard`,
+			`${BACK_SERVER}/api/user/leaderboard`,
 			{
 				headers: {
 					Authorization: `Bearer ${jwtstore.$state.token}`,

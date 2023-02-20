@@ -100,7 +100,7 @@ export default {
 
   async mounted () {
     const re = await axios.get(
-      `${BACK_SERVER}/user/invitations`,
+      `${BACK_SERVER}/api/user/invitations`,
       {
         headers: {
           Authorization: `Bearer ${store.state.token}`
@@ -110,7 +110,7 @@ export default {
       this.invit = re
     }
     const ret = await axios.get(
-      `${BACK_SERVER}/user/friends`,
+      `${BACK_SERVER}/api/user/friends`,
       {
         headers: {
           Authorization: `Bearer ${store.state.token}`
@@ -147,7 +147,7 @@ export default {
   methods: {
     getAvatar (id: number) {
       if (id !== 0) {
-        return `${BACK_SERVER}/local-files/${id}`
+        return `${BACK_SERVER}/api/local-files/${id}`
       }
       return 'http://sitedemonstre.e-monsite.com/medias/site/logos/39bpdyn_seirjfulq1azt-o0sgw.jpg'
     },
@@ -156,7 +156,7 @@ export default {
         return
       }
       const ret = await axios.post(
-      `${BACK_SERVER}/user/addfriend`,
+      `${BACK_SERVER}/api/user/addfriend`,
       { pseudo: this.pseudo },
       {
         headers: {
@@ -172,7 +172,7 @@ export default {
     },
     async acceptFriend (pseudo: string) {
       const ret = await axios.post(
-      `${BACK_SERVER}/user/acceptfriend`,
+      `${BACK_SERVER}/api/user/acceptfriend`,
       { pseudo: pseudo },
       {
         headers: {
@@ -183,7 +183,7 @@ export default {
     },
     async declineFriend (pseudo: string) {
       const ret = await axios.post(
-      `${BACK_SERVER}/user/declinefriend`,
+      `${BACK_SERVER}/api/user/declinefriend`,
       { pseudo: pseudo },
       {
         headers: {

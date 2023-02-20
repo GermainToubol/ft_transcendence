@@ -14,7 +14,7 @@ export default {
     methods: {
         async ValidityState() {
             const test = await axios.get(
-                `${BACK_SERVER}/2fa/generate`,
+                `${BACK_SERVER}/api/2fa/generate`,
                 {
                     headers: {
                         Authorization: `Bearer ${jwtstore.$state.token}`,

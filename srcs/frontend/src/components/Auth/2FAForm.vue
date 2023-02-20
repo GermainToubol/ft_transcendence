@@ -1,8 +1,8 @@
 <script lang="ts">
 import router from "@/router";
 import axios from "axios";
- import useJwtStore from "../../stores/store";
- import { BACK_SERVER } from "../../config";
+import useJwtStore from "../../stores/store";
+import { BACK_SERVER } from "../../config";
 
 const jwtstore = useJwtStore();
 export default {
@@ -14,7 +14,7 @@ export default {
     methods: {
         async ValidityState() {
             const test: {token: string} = await axios.post(
-                `${BACK_SERVER}/2fa/verify`,
+                `${BACK_SERVER}/api/2fa/verify`,
                 {code: this.authcode},
                 {
                     headers: {

@@ -52,7 +52,7 @@ export default {
   methods: {
     async removeFriend (pseudo: string) {
       const ret = await axios.post(
-      `${BACK_SERVER}/user/removefriend`,
+      `${BACK_SERVER}/api/user/removefriend`,
       { pseudo: pseudo },
       {
         headers: {

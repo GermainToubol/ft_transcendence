@@ -22,7 +22,7 @@ const useJwtStore = defineStore('jwt', {
 	},
 	async validateToken(token: string): Promise<boolean> {
 		const test = await axios.get(
-			`${BACK_SERVER}/auth/validate`,
+			`${BACK_SERVER}/api/auth/validate`,
 			{
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -38,7 +38,7 @@ const useJwtStore = defineStore('jwt', {
 			this.token = token;
 			this.pseudo = test.usual_full_name;
 			if (test.avatarId != null)
-				this.avatar = `${BACK_SERVER}/local-files/${test.avatarId}`
+				this.avatar = `${BACK_SERVER}/api/local-files/${test.avatarId}`
 			else
 				this.avatar = "src/avatar/default.jpg"
 		}

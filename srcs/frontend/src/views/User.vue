@@ -227,7 +227,7 @@ export default {
       pseudo = this.store.getters.getPseudo
     }
     this.user = await axios.get(
-      `${BACK_SERVER}/user/info/${pseudo}`,
+      `${BACK_SERVER}/api/user/info/${pseudo}`,
       {
         headers: {
           Authorization: `Bearer ${store.state.token}`
@@ -235,10 +235,10 @@ export default {
       }).then((t) => t.data)
     if (this.user) {
       if (this.user.avatar as number > 0) {
-        this.avatar = `${BACK_SERVER}/local-files/${this.user.avatar}`
+        this.avatar = `${BACK_SERVER}/api/local-files/${this.user.avatar}`
       }
       const ret = await axios.get(
-      `${BACK_SERVER}/user/history/${pseudo}`,
+      `${BACK_SERVER}/api/user/history/${pseudo}`,
       {
         headers: {
           Authorization: `Bearer ${store.state.token}`
@@ -253,7 +253,7 @@ export default {
   methods: {
     getAvatar (id: number) {
       if (id !== 0) {
-        return `${BACK_SERVER}/local-files/${id}`
+        return `${BACK_SERVER}/api/local-files/${id}`
       }
       return 'http://sitedemonstre.e-monsite.com/medias/site/logos/39bpdyn_seirjfulq1azt-o0sgw.jpg'
     }

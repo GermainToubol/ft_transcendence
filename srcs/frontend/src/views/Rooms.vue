@@ -16,7 +16,7 @@ export default {
 
 	async mounted(){
 		const ret = await axios.get(
-			`${BACK_SERVER}/rooms`,
+			`${BACK_SERVER}/api/rooms`,
 			{
 				headers: {
 					Authorization: `Bearer ${jwtstore.$state.token}`,

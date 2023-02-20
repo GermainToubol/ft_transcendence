@@ -44,7 +44,7 @@ export const store = createStore<State>({
   },
   actions: {
     async setPseudo (context, pseudo: string) {
-      const response = await axios.post(`${BACK_SERVER}/user/setpseudo`,
+      const response = await axios.post(`${BACK_SERVER}/api/user/setpseudo`,
         { pseudo: pseudo },
         {
           headers: { Authorization: `Bearer ${this.state.token}` }
@@ -60,7 +60,7 @@ export const store = createStore<State>({
     },
     async setAvatar (context, avatar: any) {
       try {
-        const response = await axios.post(`${BACK_SERVER}/user/avatar`,
+        const response = await axios.post(`${BACK_SERVER}/api/user/avatar`,
           avatar,
           {
             headers: { Authorization: `Bearer ${this.state.token}` }
@@ -68,7 +68,7 @@ export const store = createStore<State>({
           .then((t) => t.data)
         if (response) {
           context.commit('SETAVATAR', {
-            avatar: `${BACK_SERVER}/local-files/${response}`
+            avatar: `${BACK_SERVER}/api/local-files/${response}`
           })
           return avatar
         }
@@ -77,7 +77,7 @@ export const store = createStore<State>({
       }
     },
     async login (context, params) {
-      const response = await axios.get(`${BACK_SERVER}/auth/login`, {
+      const response = await axios.get(`${BACK_SERVER}/api/auth/login`, {
         params: { code: params.code }
       })
         .then((t) => t.data)
@@ -85,12 +85,12 @@ export const store = createStore<State>({
         pseudo: response.pseudo,
         token: response.token,
         login: response.login,
-        avatar: response.avatar !== 0 ? `${BACK_SERVER}/local-files/${response.avatar}` : 'http://sitedemonstre.e-monsite.com/medias/site/logos/39bpdyn_seirjfulq1azt-o0sgw.jpg'
+        avatar: response.avatar !== 0 ? `${BACK_SERVER}/api/local-files/${response.avatar}` : 'http://sitedemonstre.e-monsite.com/medias/site/logos/39bpdyn_seirjfulq1azt-o0sgw.jpg'
       })
       return response
     },
     async logout (context) {
-      const response = await axios.get(`${BACK_SERVER}/auth/logout`, {
+      const response = await axios.get(`${BACK_SERVER}/api/auth/logout`, {
         headers: { Authorization: `Bearer ${localStorage.token}` }
       })
       context.commit('DEAUTHENTICATE')
@@ -98,7 +98,7 @@ export const store = createStore<State>({
       return response
     },
     async validateToken (context) {
-      const response = await axios.get(`${BACK_SERVER}/auth/validate`, {
+      const response = await axios.get(`${BACK_SERVER}/api/auth/validate`, {
         headers: { Authorization: `Bearer ${localStorage.token}` }
       }).then((t) => t.data)
 
@@ -110,14 +110,14 @@ export const store = createStore<State>({
         login: response.login,
         pseudo: response.usual_full_name,
         token: localStorage.token,
-        avatar: response.avatarId !== null ? `${BACK_SERVER}/local-files/${response.avatarId}` : 'http://sitedemonstre.e-monsite.com/medias/site/logos/39bpdyn_seirjfulq1azt-o0sgw.jpg'
+        avatar: response.avatarId !== null ? `${BACK_SERVER}/api/local-files/${response.avatarId}` : 'http://sitedemonstre.e-monsite.com/medias/site/logos/39bpdyn_seirjfulq1azt-o0sgw.jpg'
       })
       context.commit('SETDOUBLEFA', { is2fa: response.is2faEnabled })
       return true
     },
     async verify2FA (context, params) {
       const response = await axios.post(
-        `${BACK_SERVER}/2fa/verify`,
+        `${BACK_SERVER}/api/2fa/verify`,
         {
           code: params.code,
           login: this.state.login
@@ -135,14 +135,14 @@ export const store = createStore<State>({
       return response.data
     },
     async enable2FA (context) {
-      const response = await axios.get(`${BACK_SERVER}/2fa/enable`, {
+      const response = await axios.get(`${BACK_SERVER}/api/2fa/enable`, {
         headers: { Authorization: `Bearer ${this.state.token}` }
       })
       context.commit('SETDOUBLEFA', { is2fa: true })
       return response
     },
     async disable2FA (context) {
-      const response = await axios.get(`${BACK_SERVER}/2fa/disable`, {
+      const response = await axios.get(`${BACK_SERVER}/api/2fa/disable`, {
         headers: { Authorization: `Bearer ${this.state.token}` }
       })
       context.commit('SETDOUBLEFA', { is2fa: false })

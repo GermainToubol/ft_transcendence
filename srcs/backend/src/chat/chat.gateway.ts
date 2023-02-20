@@ -23,7 +23,7 @@ import { UserSocket } from './usersocket.adapter';
 
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 @UseGuards(JwtAuthGuardWs)
-@WebSocketGateway({ cors: { origin: "*" }, path: '/chatsocket' })
+@WebSocketGateway({ cors: { origin: "*" }, path: '/api/chatsocket' })
 export class ChatGateway {
     @WebSocketServer()
     server: Server;

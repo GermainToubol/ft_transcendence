@@ -16,7 +16,7 @@ let end = ref(false as boolean);
 
 onMounted(() => {
     socket.value = io(BACK_SERVER, {
-        path: '/game/',
+        path: '/api/game/',
         query: {
             'accessToken': jwtstore.$state.token,
             'role': 'spectator',
@@ -31,7 +31,7 @@ onMounted(() => {
 		alreadyPlaying();
 
         drawWaiting();
-        
+
         drawGame();
 
 		drawInterruptedGame();
@@ -39,7 +39,7 @@ onMounted(() => {
 		missingOpponent();
 
 		endGame();
-        
+
         window.addEventListener('resize', () => {
             game.value.width = game.value.offsetWidth;
             game.value.height = game.value.width * 0.6;

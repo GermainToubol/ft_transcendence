@@ -8,7 +8,7 @@ const jwtstore = useJwtStore();
 export default {
 	async mounted() {
 		await axios.get(
-                `${BACK_SERVER}/auth/logout`,
+                `${BACK_SERVER}/api/auth/logout`,
                 {
                     headers: {
                         Authorization: `Bearer ${jwtstore.$state.token}`,

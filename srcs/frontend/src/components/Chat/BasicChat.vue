@@ -227,7 +227,7 @@ export default {
   },
   methods: {
     getChannelMsg (channel: number) {
-      fetch(`${BACK_SERVER}/chat/messages/${channel}`, {
+      fetch(`${BACK_SERVER}/api/chat/messages/${channel}`, {
         headers: { Authorization: `Bearer ${this.store.state.token}` }
       })
         .then((response) => response.json())
@@ -243,7 +243,7 @@ export default {
         })
     },
     getChannels () {
-      fetch(`${BACK_SERVER}/chat`, {
+      fetch(`${BACK_SERVER}/api/chat`, {
         headers: { Authorization: `Bearer ${this.store.state.token}` }
       })
         .then((response) => response.json())
@@ -259,7 +259,7 @@ export default {
         .catch(() => null)
     },
     getInvitations () {
-      fetch(`${BACK_SERVER}/chat/invitations`, {
+      fetch(`${BACK_SERVER}/api/chat/invitations`, {
         headers: { Authorization: `Bearer ${this.store.state.token}` }
       })
         .then((response) => response.json())
@@ -268,7 +268,7 @@ export default {
         })
     },
     getBlocked () {
-      fetch(`${BACK_SERVER}/chat/blocked`, { headers: { Authorization: `Bearer ${this.store.state.token}` } })
+      fetch(`${BACK_SERVER}/api/chat/blocked`, { headers: { Authorization: `Bearer ${this.store.state.token}` } })
         .then((response) => response.json())
         .then((blocks) => { blocks.forEach((block) => { this.blockedUsers.push(block) }) })
     },
@@ -440,8 +440,8 @@ export default {
     }
   },
   mounted () {
-    socket = io(BACK_SERVER, {
-      path: '/chatsocket',
+    socket = io(`${BACK_SERVER}`, {
+      path: '/api/chatsocket',
       auth: {
         accessToken: this.store.state.token
       },

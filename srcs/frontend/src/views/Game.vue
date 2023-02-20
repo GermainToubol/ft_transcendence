@@ -32,7 +32,7 @@ export default {
   },
   mounted (): void {
     this.socket = io(BACK_SERVER, {
-      path: '/game',
+      path: '/api/game',
       transports: ['websocket'],
       query: {
         accessToken: this.store.getters.getToken,

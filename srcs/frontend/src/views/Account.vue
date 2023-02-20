@@ -155,7 +155,7 @@ export default {
   },
   methods: {
     async generate2FA () {
-      const response = await axios.get(`${BACK_SERVER}/2fa/generate`, {
+      const response = await axios.get(`${BACK_SERVER}/api/2fa/generate`, {
         headers: { Authorization: `Bearer ${this.store.state.token}` }
       }).then((t) => t.data)
 
