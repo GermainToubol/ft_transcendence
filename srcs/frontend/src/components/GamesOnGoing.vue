@@ -9,7 +9,7 @@
           <q-item>
             <q-item-section>{{ game.playerOne }} VS {{ game.playerTwo }}</q-item-section>
             <q-item-section side>
-              <q-btn color="secondary">Spectate</q-btn>
+              <q-btn color="secondary" @click="specGame(game.roomName)">Spectate</q-btn>
             </q-item-section>
           </q-item>
           <q-separator />
@@ -20,17 +20,39 @@
 </template>
 
 <script lang="ts">
+import axios from 'axios'
+import store from '../store'
+import router from '@/router'
+import { ref } from 'vue'
+
 export default {
   name: 'GamesOnGoing',
   setup (): any {
     return {
-      games: [
-        { playerOne: 'iouali', playerTwo: 'emcariot' },
-        { playerOne: 'iouali', playerTwo: 'jdupont' },
-        { playerOne: 'iouali', playerTwo: 'emcariot' },
-        { playerOne: 'iouali', playerTwo: 'emcariot' },
-        { playerOne: 'iouali', playerTwo: 'emcariot' }
-      ]
+      games: ref([])
+    }
+  },
+  async beforeMount (): Promise<void> {
+    const response = await axios.get('http://localhost:3000/rooms', {
+      headers: { Authorization: `Bearer ${store.getters.getToken}` }
+    })
+
+    if (response.data.rooms.length > 0) {
+      this.populateGames(response.data.rooms)
+    }
+  },
+  methods: {
+    populateGames (gamesResponse): void {
+      for (const game of gamesResponse) {
+        this.games.push({
+          playerOne: game.player1,
+          playerTwo: game.player2,
+          roomName: game.roomname
+        })
+      }
+    },
+    specGame (roomId): void {
+      router.push(`/spec?roomname=${roomId}`)
     }
   }
 }

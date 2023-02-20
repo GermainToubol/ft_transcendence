@@ -34,8 +34,8 @@ export default {
       path: '/game/',
       query: {
         accessToken: this.store.getters.getToken,
-        role: 'player',
-        mode: 'normal'
+        role: 'spectator',
+        roomname: router.currentRoute.value.query.roomname
       }
     })
     console.log(this.socket)

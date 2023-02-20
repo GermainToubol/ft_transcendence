@@ -8,7 +8,7 @@
     table-header-class="grey"
     :rows="games"
     :columns="headers"
-    row-key="name"
+    row-key="label"
     separator="horizontal"
     no-results-label="No data available"
     hide-pagination
@@ -26,22 +26,46 @@
 </template>
 
 <script lang="ts">
+import axios from 'axios'
+import store from '../store'
+import { ref } from 'vue'
+
 export default {
   name: 'History',
   setup (): any {
     return {
-      user: null,
-      games: [
-        { playerOne: 'iouali', playerTwo: 'emcariot', score: '5-10', date: '15/01/2023', victory: false },
-        { playerOne: 'iouali', playerTwo: 'jbidou', score: '10-5', date: '15/01/2023', victory: true }
-      ],
+      pseudo: store.getters.getPseudo,
+      tableKey: 0,
+      games: ref([]),
       headers: [
         { name: 'playerOne', required: true, label: 'You', field: 'playerOne', align: 'center' },
         { name: 'playerTwo', required: true, label: 'Opponent', field: 'playerTwo', align: 'center' },
         { name: 'score', required: true, label: 'Score', field: 'score', align: 'center' },
-        { name: 'victory', required: true, label: 'Result', field: 'victory', align: 'center' },
-        { name: 'date', required: true, label: 'Date', field: 'date', align: 'center' }
+        { name: 'victory', required: true, label: 'Result', field: 'victory', align: 'center' }
       ]
+    }
+  },
+  async beforeMount (): Promise<void> {
+    const response = await axios.get(`http://localhost:3000/history/${this.pseudo}`, {
+      headers: { Authorization: `Bearer ${store.getters.getToken}` }
+    })
+    if (response.data.length > 0) {
+      this.games = this.populateGames(response.data)
+    }
+  },
+  methods: {
+    populateGames (gamesResponse): any {
+      const games = []
+      for (const game of gamesResponse) {
+        games.push({
+          playerOne: this.pseudo,
+          playerTwo: game.opponentPseudo,
+          score: `${game.playerOneScore} - ${game.playerTwoScore}`,
+          victory: game.victory
+        })
+      }
+
+      return games
     }
   }
 }

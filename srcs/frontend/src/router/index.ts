@@ -3,6 +3,9 @@ import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import AuthCallback from '../views/AuthCallback.vue'
 import Account from '../views/Account.vue'
+import Game from '../views/Game.vue'
+import ManageGame from '../views/ManageGame.vue'
+import Spec from '../views/Spec.vue'
 import store from '../store'
 
 const routes: Array<RouteRecordRaw> = [
@@ -53,6 +56,33 @@ const routes: Array<RouteRecordRaw> = [
       requiresLogin: true,
       hideNav: false
     }
+  },
+  {
+    path: '/game',
+    name: 'ManageGame',
+    component: ManageGame,
+    meta: {
+      requiresLogin: true,
+      hideNav: false
+    }
+  },
+  {
+    path: '/play',
+    name: 'Game',
+    component: Game,
+    meta: {
+      requiresLogin: true,
+      hideNav: false
+    }
+  },
+  {
+    path: '/spec',
+    name: 'Spec',
+    component: Spec,
+    meta: {
+      requiresLogin: true,
+      hideNav: false
+    }
   }
 ]
 
@@ -71,10 +101,6 @@ router.beforeEach(async (to, from, next) => {
   }
   if (store.getters.isAuthenticated === false) {
     return next('/login')
-  }
-
-  if (to.meta.requiresLogin === false) {
-    return next('/')
   }
 
   return next()

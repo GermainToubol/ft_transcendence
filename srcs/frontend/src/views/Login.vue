@@ -16,13 +16,11 @@
 </template>
 
 <script lang="ts">
-import { INTRA_PATH } from '@/config'
-
 export default {
   name: 'Login',
   setup (): any {
     return {
-      intra_url: INTRA_PATH
+      intra_url: 'https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-d5f93b42e0d0ca5aa92dba079e52b3c30eff46e08e31f5c9aaceb2b8e999b8cc&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth_callback&response_type=code'
     }
   },
   computed: {

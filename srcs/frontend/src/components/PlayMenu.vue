@@ -23,7 +23,7 @@
         </q-item-section>
       </q-item>
       <q-card-actions vertical>
-        <q-btn :disable="btnDisabled" color="secondary">Play</q-btn>
+        <q-btn :disable="btnDisabled" to="/play" color="secondary">Play</q-btn>
       </q-card-actions>
     </q-card>
   </div>
