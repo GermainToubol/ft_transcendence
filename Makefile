@@ -15,6 +15,8 @@ CONF =	./srcs/docker-compose.yml
 all: 	clean
 		docker compose -f $(CONF) up --build --force-recreate -d
 
+default: clean
+		docker compose -f $(CONF) up -d
 
 clean:
 		docker compose -f $(CONF) down

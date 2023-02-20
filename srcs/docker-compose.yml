@@ -24,10 +24,14 @@ volumes:
       device: "${TR_BACK_SRCS}"
   db_data:
     driver: local
+  release-front: {}
 
 # Networks
 # ------------------------------------------------------------------------
 networks:
+  frontend-net:
+    name: "frontend-net"
+    driver: "bridge"
   backend-net:
     name: "backend-net"
     driver: "bridge"
@@ -36,16 +40,28 @@ networks:
 # Servicies
 # ------------------------------------------------------------------------
 services:
+  nginx:
+    build: ./nginx
+    ports:
+      - "8080:8080"
+      - "3000:3000"
+    depends_on:
+      frontend:
+        condition: service_completed_successfully
+    volumes:
+      - "release-front:/var/www"
+    networks:
+      - frontend-net
+
   frontend:
     image: notrexp_frontend:dev-latest
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    command: bash -c "/frontend/configure.sh /frontend/src && yarn upgrade && yarn serve"
-    ports:
-      - "8080:8080"
+    command: bash -c "/frontend/configure.sh /frontend/src && yarn upgrade && yarn build && rm -rf /frontbuild/* && cp -r ./dist /frontbuild"
     volumes:
       - ./frontend:/frontend
+      - release-front:/frontbuild
       - "frontend-node-modules:/frontend/node_modules"
     depends_on:
       -  database
@@ -56,12 +72,11 @@ services:
   backend:
     container_name: backend
     build: ./backend
-    ports:
-      - 3000:3000
     volumes:
       - "back_data:/root/srcs"
     networks:
       - backend-net
+      - frontend-net
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost:3000"]
     environment:
