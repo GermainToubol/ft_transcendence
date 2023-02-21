@@ -6,4 +6,4 @@ RUN mkdir -p /var/www/dist
 RUN chown -R www-data:www-data /var/www/dist
 
 COPY ./conf/nginx.conf /tmp/nginx.template
-ENTRYPOINT ["sh", "-c", "envsubst < /tmp/ngix.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]
+ENTRYPOINT ["sh", "-c", "envsubst < /tmp/nginx.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]
