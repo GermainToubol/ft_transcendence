@@ -39,7 +39,6 @@ export class ChatGateway {
 
 
     async handleConnection(client: UserSocket) {
-        console.log("SALUTTT")
         this.socketMap.set(client.userLogin, client);
         const channels: ChatChannel[] = await this.chatService
             .getChannels({ relations: { bannedUsers: true, channelUsers: true } })
@@ -106,6 +105,7 @@ export class ChatGateway {
 
     @SubscribeMessage("sendGameInvitation")
     async handleGameRequest(client: UserSocket, payload: ChatMessageDto) {
+		console.log('TEST')
         const channel: ChatChannel = await this.chatService
             .getChannelById(payload.channel, {
                 mutedUsers: true,
@@ -123,7 +123,7 @@ export class ChatGateway {
             || this.chatService.isBannedFromChannel(user.chatter, channel)
             || this.chatService.isMutedFromChannel(user.chatter, channel))
             return
-        this.server.to(`channel${channel.id}`).emit('sendGameInvitation', {login: user.login})
+        this.server.to(`channel${channel.id}`).emit('receiveInvitation', {login: user.login})
     }
 
 	@SubscribeMessage("acceptGameInvitation")
@@ -145,7 +145,8 @@ export class ChatGateway {
             || this.chatService.isBannedFromChannel(user.chatter, channel)
             || this.chatService.isMutedFromChannel(user.chatter, channel))
             return
-        this.server.to(`channel${channel.id}`).emit('acceptGameInvitation', {accept: accept})
+		console.log(accept)
+        this.server.to(`channel${channel.id}`).emit('acceptInvitation', {accept: accept})
     }
 
     addUsersToChannel(room: string, userlist: string[]) {

@@ -109,7 +109,8 @@
         <q-card-section class="full-width q-gutter-y-xs">
           <q-btn label="Private message" @click="startPrivMsg(selected)" class="full-width" />
           <q-btn label="Profile" class="full-width" />
-          <q-btn label="Invite for game" class="full-width" @click="sendGameInvitation"/>
+          <q-btn v-if="currentChannel && currentChannel.channelStatus === 3" label="Invite for game" class="full-width" @click="sendGameInvitation(false)"/>
+		  <q-btn v-if="currentChannel && currentChannel.channelStatus === 3" label="Invite for game hard" class="full-width" @click="sendGameInvitation(true)"/>
           <q-btn-group spread>
             <q-btn label="Block" @click="blockChatter(selected, 1)"/>
             <q-btn label="Unblock" @click="unblockChatter(selected, 1)"/>
@@ -255,16 +256,17 @@ export default {
       selected: '',
       alertLoad: ref(false),
       alertAccept: ref(false),
-      requester: '',
-      requested: false
+      requester: ref(''),
+      requested: ref(false),
     }
   },
   watch: {
-    async requested () {
+    async requester () {
+	  console.log('ICICI')
       if (this.requested === false && this.requester === this.store.state.login) {
-        this.cardLoad = true
+        this.alertLoad = true
       } else if (this.requested === true) {
-        this.cardAccept = true
+        this.alertAccept = true
       }
     }
   },
@@ -328,7 +330,7 @@ export default {
     },
     sendGameInvitation () {
       const payload = {
-        content: '',
+        content: 'test',
         channel: this.chatid
       }
       socket.emit('sendGameInvitation', payload)
@@ -566,17 +568,19 @@ export default {
         this.blockedUsers.push(message)
       }
     })
-    socket.on('sendGameInvitation', (data) => {
+    socket.on('receiveInvitation', (data) => {
+	console.log(data)
       if (data.login !== this.store.state.login) {
         this.requested = true
       }
-      this.requester = data
+      this.requester = data.login
     })
-    socket.on('acceptGameInvitation', (data) => {
-      this.cardLoad = false
-      this.cardAccept = false
-      if (data.accept) {
-        this.$router.push('/')
+    socket.on('acceptInvitation', (data) => {
+      this.alertLoad = false
+      this.alertAccept = false
+	  console.log(data.accept)
+      if (data.accept[0] == true) {
+        this.$router.push('/game')
       }
       this.requester = ''
       this.requested = false
