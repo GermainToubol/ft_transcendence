@@ -105,7 +105,6 @@ export class ChatGateway {
 
     @SubscribeMessage("sendGameInvitation")
     async handleGameRequest(client: UserSocket, payload: ChatMessageDto) {
-		console.log('TEST')
         const channel: ChatChannel = await this.chatService
             .getChannelById(payload.channel, {
                 mutedUsers: true,
@@ -145,7 +144,6 @@ export class ChatGateway {
             || this.chatService.isBannedFromChannel(user.chatter, channel)
             || this.chatService.isMutedFromChannel(user.chatter, channel))
             return
-		console.log(accept)
         this.server.to(`channel${channel.id}`).emit('acceptInvitation', {accept: accept})
     }
 

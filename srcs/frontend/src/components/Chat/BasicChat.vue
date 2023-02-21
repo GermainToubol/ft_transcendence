@@ -262,7 +262,6 @@ export default {
   },
   watch: {
     async requester () {
-	  console.log('ICICI')
       if (this.requested === false && this.requester === this.store.state.login) {
         this.alertLoad = true
       } else if (this.requested === true) {
