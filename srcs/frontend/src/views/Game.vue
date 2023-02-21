@@ -43,7 +43,6 @@ export default {
         accessToken: this.store.getters.getToken
       }
     })
-    console.log(this.socket)
     if (this.game) {
       this.context = this.game.getContext('2d')
       this.tokenError()
@@ -101,7 +100,6 @@ export default {
     },
     drawWaiting () {
       (this.socket as Socket).on('waitingForPlayer', (data) => {
-        console.log('SALUT')
         this.playground = data.playground
         if (this.playground != null) {
           this.game.width = this.game.offsetWidth
@@ -155,7 +153,6 @@ export default {
     },
     endGame () {
       (this.socket as Socket).on('endGame', (data) => {
-        console.log(data)
         const { winner, loser } = data
         if (winner && loser) {
           this.message = winner + ' wins against ' + loser

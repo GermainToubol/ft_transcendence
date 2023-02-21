@@ -2,15 +2,17 @@
   <q-dialog v-model="card2FA">
     <q-card flat bordered class="my-card">
       <img v-bind:src="qrCode" />
-
+      <q-card-section v-if="qrCode !== ''">
+          Scan with Google Authenticator
+      </q-card-section>
       <q-card-section>
-        <q-input outlined v-model="code" label="Code" />
+        <q-input outlined v-model="code" label="2FA Code" />
       </q-card-section>
 
       <q-separator />
 
       <q-card-actions align="right">
-        <q-btn flat color="primary" @click="verify2FA" label="Enable 2FA" />
+        <q-btn flat color="primary" @click="verify2FA" label="Check code" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -46,12 +48,13 @@ export default {
   methods: {
     async verify2FA () {
       const response = await this.store.dispatch('verify2FA', { code: this.code })
-      if (response.data.token === undefined) {
+      if (!response) {
+        this.$emit('alert')
         this.$emit('verified', false)
         return
       }
       await this.enable2FA()
-      this.card2FA = false
+      this.$emit('close')
       this.$emit('enabled')
       this.$emit('verified', true)
     },

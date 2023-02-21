@@ -17,12 +17,20 @@
 
 <script lang="ts">
 import { INTRA_PATH } from '@/config'
+import store from '../store'
 
 export default {
   name: 'Login',
   setup (): any {
     return {
-      intra_url: INTRA_PATH
+      intra_url: INTRA_PATH,
+      store: store
+    }
+  },
+  async mounted () {
+    await store.dispatch('validateToken')
+    if (store.getters.isAuthenticated === true) {
+      this.$router.push('/')
     }
   },
   computed: {

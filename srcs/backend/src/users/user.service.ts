@@ -125,8 +125,18 @@ export class UsersService {
         const check = await this.usersRepository.findOneBy({ usual_full_name: usual_full_name })
         if (check)
             return null
+        if (usual_full_name.length < 1 || usual_full_name.length > 15) {
+            return null
+        }
+        for (let i = 0; i < usual_full_name.length; i++) {
+            const char1 = usual_full_name.charAt(i)
+            const cc = usual_full_name.charCodeAt(0)
+            if (!((cc > 47 && cc < 58) || (cc > 64 && cc < 91) || (cc > 96 && cc < 123) || (cc === 95))) {
+                return null
+            }
+        }
         const res = await this.usersRepository.update(user.id, { usual_full_name: usual_full_name })
-        return "OK"
+        return usual_full_name
     }
 
     async updateWins(id: string, wins: number): Promise<any> {

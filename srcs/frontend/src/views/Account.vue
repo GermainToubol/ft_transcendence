@@ -5,85 +5,104 @@
   <div class="col-6">
     <div class="q-gutter-y-md" style="">
       <q-card flat bordered dark>
-        <q-tabs
-          v-model="tab"
-          align="justify"
-          narrow-indicator
-          secondary
-        >
-          <q-tab name="infos" label="Informations" />
-          <q-tab name="settings" label="Settings" />
-        </q-tabs>
-        <q-separator />
-        <q-tab-panels v-model="tab" animated dark>
-          <q-tab-panel name="infos">
-            <div class="row items-center q-mt-md q-mb-md">
-              <div class="col-4">
-                <div class="text-h6">Pseudo</div>
-                  {{ pseudo }}
-                </div>
-                <div class="col-4">
-                  <div class="text-h6">Channels</div>
-                    20
-                </div>
-                <div class="col-4">
-                  <div class="text-h6">Friends</div>
-                    20
-                </div>
-            </div>
-            <q-separator />
-            <div class="row items-center q-mt-md q-mb-md">
-              <div class="col-4">
-                <div class="text-h6">Games played</div>
-                  20
-              </div>
-              <div class="col-4">
-                <div class="text-h6">Games won</div>
-                  20
-              </div>
-              <div class="col-4">
-                <div class="text-h6">Winrate</div>
-                  20
-              </div>
-            </div>
-          </q-tab-panel>
-
-          <q-tab-panel name="settings">
-            <q-item tag="label" v-ripple>
+            <q-item>
               <q-item-section>
                 <q-item-label>Two factors authentication</q-item-label>
               </q-item-section>
-              <q-item-section side >
-                <q-btn v-if="doubleFA === false" color="primary" :icon="icon" @click="card2FA = true" label="Enable 2FA" />
-                <q-btn v-else color="primary" :icon="icon" @click="disable2FA" label="Disable 2FA" />
+              <q-item-section>
+                <q-btn style="width: 5%px;" v-if="doubleFA === false" color="primary" :icon="icon" @click="card2FA = true" label="Enable 2FA" />
+                <q-btn style="width: 5%px;" v-else color="primary" :icon="icon" @click="disable2FA" label="Disable 2FA" />
               </q-item-section>
             </q-item>
-            <q-item tag="label" v-ripple>
-              <q-item-section style="width: 200px">
+            <q-item>
+              <q-item-section>
                 <q-item-label>Change pseudo</q-item-label>
               </q-item-section>
-              <q-item-section side >
-                <q-btn color="primary" @click="cardPseudo = true" label="Change pseudo !" />
+              <q-item-section >
+                <q-btn color="primary" style="width: 5%px;" @click="cardPseudo = true" label="Change pseudo" />
               </q-item-section>
             </q-item>
-            <q-item tag="label" v-ripple>
+            <q-item>
               <q-item-section>
                 <q-item-label>Change avatar</q-item-label>
               </q-item-section>
-              <q-item-section side >
-                <q-btn color="primary" @click="cardAvatar = true" label="Change avatar !" />
+              <q-item-section >
+                <q-btn color="primary" style="width: 5%px;" @click="cardAvatar = true" label="Change avatar" />
               </q-item-section>
             </q-item>
-          </q-tab-panel>
-        </q-tab-panels>
       </q-card>
     </div>
   </div>
   <div class="col-3">
   </div>
-  <Form2FA v-model="card2FA" :qrCode="qrCode" @close="card2FA=false" @enabled="doubleFA=true" />
-  <Pseudo v-model="cardPseudo" :pseudo="pseudo" @close="cardPseudo=false" />
-  <Avatar v-model="cardAvatar" @close="cardAvatar=false" />
+  <Form2FA v-model="card2FA" :qrCode="qrCode" @close="card2FA=false" @enabled="doubleFA=true" @alert="alert2fa=true" @updated="alertUpdated=true"/>
+  <Pseudo v-model="cardPseudo" :pseudo="pseudo" @close="cardPseudo=false" @alert="alertPseudo=true" @updated="alertUpdated=true"/>
+  <Avatar v-model="cardAvatar" @close="cardAvatar=false" @alert="alertAvatar=true" @updated="alertUpdated=true"/>
+  <q-dialog v-model="alertAvatar">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Alert</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          Please, upload a valid image
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="OK" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="alertPseudo">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Alert</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          This pseudo either has a bad format or has already been choosen by someone else or is yours.
+          Please try with an other one.
+          Choose a pseudo with 15 characters max only with numbers and letters.
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="OK" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="alert2fa">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Alert</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          Invalid code.
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="OK" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="alertUpdated">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Success</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          Your account has been successfully updated !
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="OK" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 </div>
 </template>
 
@@ -112,7 +131,11 @@ export default {
       cardPseudo: ref(false),
       cardAvatar: ref(false),
       qrCode: ref(''),
-      code: ''
+      code: '',
+      alertAvatar: ref(false),
+      alertPseudo: ref(false),
+      alert2fa: ref(false),
+      alertUpdated: ref(false)
     }
   },
   computed: {
@@ -141,6 +164,11 @@ export default {
     async disable2FA () {
       await this.store.dispatch('disable2FA')
       this.doubleFA = false
+    },
+    reloadPseudo () {
+      this.cardPseudo = false
+      this.$router.go()
+      this.cardPseudo = true
     }
   }
 }

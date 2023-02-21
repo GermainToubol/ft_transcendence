@@ -15,6 +15,7 @@ export default {
       route: useRoute(),
       store: useStore(),
       card2FA: ref(false),
+      alert2fa: ref(false),
       qrCode: ref(''),
       code: ''
     }
@@ -31,9 +32,7 @@ export default {
     goToHome (value) {
       if (value === true) {
         router.push('/')
-        return
       }
-      router.push('/login')
     }
   }
 }
@@ -41,6 +40,26 @@ export default {
 
 <template>
 <div>
-  <Form2FA v-model="card2FA" :qrCode="qrCode" @close="card2FA=false" @verified="goToHome" />
+  <Form2FA v-model="card2FA" v-if="card2FA" :qrCode="qrCode" @close="card2FA=false" @verified="goToHome" @alert="alert2fa=true" />
+  <div v-else class="fixed-center">
+    <q-circular-progress
+      indeterminate
+      rounded
+      size="50px"
+      color="white"
+      class="q-ma-md"
+    />
+  </div>
+  <q-dialog v-model="alert2fa">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Alert</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          Invalid code.
+        </q-card-section>
+      </q-card>
+    </q-dialog>
 </div>
 </template>

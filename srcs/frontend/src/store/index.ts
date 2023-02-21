@@ -59,19 +59,22 @@ export const store = createStore<State>({
       return null
     },
     async setAvatar (context, avatar: any) {
-      const response = await axios.post(`${BACK_SERVER}/user/avatar`,
-        avatar,
-        {
-          headers: { Authorization: `Bearer ${this.state.token}` }
-        })
-        .then((t) => t.data)
-      if (response) {
-        context.commit('SETAVATAR', {
-          avatar: `${BACK_SERVER}/local-files/${response}`
-        })
-        return avatar
+      try {
+        const response = await axios.post(`${BACK_SERVER}/user/avatar`,
+          avatar,
+          {
+            headers: { Authorization: `Bearer ${this.state.token}` }
+          })
+          .then((t) => t.data)
+        if (response) {
+          context.commit('SETAVATAR', {
+            avatar: `${BACK_SERVER}/local-files/${response}`
+          })
+          return avatar
+        }
+      } catch (error) {
+        return error.message
       }
-      return null
     },
     async login (context, params) {
       const response = await axios.get(`${BACK_SERVER}/auth/login`, {
@@ -121,7 +124,7 @@ export const store = createStore<State>({
         },
         { headers: { Authorization: `Bearer ${this.state.token}` } }
       )
-      if (response) {
+      if (response.data) {
         context.commit('AUTHENTICATED', {
           pseudo: this.state.pseudo,
           login: this.state.login,
@@ -129,7 +132,7 @@ export const store = createStore<State>({
           avatar: this.state.avatar
         })
       }
-      return response
+      return response.data
     },
     async enable2FA (context) {
       const response = await axios.get(`${BACK_SERVER}/2fa/enable`, {

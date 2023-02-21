@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="cardAvatar">
+  <q-dialog v-model="cardAvatar" persistent>
       <q-card flat bordered class="my-card">
 
         <q-card-section>
@@ -48,11 +48,16 @@ export default {
       this.avatar = event.target.files[0]
     },
     async setAvatar () {
-      const formData = new FormData()
-      formData.append('file', this.avatar)
-      const ret = await this.store.dispatch('setAvatar', formData)
-      if (ret) {
-        this.$emit('close')
+      if (this.avatar !== '') {
+        const formData = new FormData()
+        formData.append('file', this.avatar)
+        const ret = await this.store.dispatch('setAvatar', formData)
+        if (ret === 'Request failed with status code 400') {
+          this.$emit('alert')
+        } else {
+          this.$emit('updated')
+          this.$emit('close')
+        }
       }
     }
   }

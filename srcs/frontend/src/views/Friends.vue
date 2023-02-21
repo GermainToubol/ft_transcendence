@@ -117,7 +117,23 @@ export default {
         }
       }).then((t) => t.data)
     if (ret.length > 0) {
-      this.friend = ret
+      const onlineFriends = []
+      const playingFriends = []
+      const offlineFriends = []
+      for (const friend of ret) {
+        switch (friend.status) {
+          case 'online':
+            onlineFriends.push(friend)
+            break
+          case 'playing':
+            playingFriends.push(friend)
+            break
+          case 'offline':
+            offlineFriends.push(friend)
+            break
+        }
+      }
+      this.friend = [...onlineFriends, ...playingFriends, ...offlineFriends]
     }
   },
   computed: {
@@ -149,6 +165,9 @@ export default {
       }).then((t) => t.data)
       if (ret) {
         this.msgs = ret
+        if (ret.substring(0, 9) === 'You added') {
+          this.$router.go()
+        }
       }
     },
     async acceptFriend (pseudo: string) {
