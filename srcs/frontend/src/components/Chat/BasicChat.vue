@@ -109,7 +109,7 @@
         <q-card-section class="full-width q-gutter-y-xs">
           <q-btn label="Private message" @click="startPrivMsg(selected)" class="full-width" />
           <q-btn label="Profile" class="full-width" />
-          <q-btn label="Invite for game" class="full-width" />
+          <q-btn label="Invite for game" class="full-width" @click="sendGameInvitation"/>
           <q-btn-group spread>
             <q-btn label="Block" @click="blockChatter(selected, 1)"/>
             <q-btn label="Unblock" @click="unblockChatter(selected, 1)"/>
@@ -177,6 +177,35 @@
         </q-card>
       </div>
     </div>
+	<q-dialog v-model="alertAccept" persistent>
+      <q-card style="width: 300px">
+        <q-card-section>
+          <div class="text-h6">Game Invitation</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          {{ requester }} wants to play against you.
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Accept" @click="acceptGame(true)" v-close-popup />
+        </q-card-actions>
+		<q-card-actions align="left">
+          <q-btn flat label="Decline" @click="acceptGame(false)" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <q-dialog v-model="alertLoad">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Alert</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          If opponent accepts, you will be automatically redirect.
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -185,6 +214,7 @@ import { io, Socket } from 'socket.io-client'
 import { ref } from 'vue'
 import store from '@/store'
 import { BACK_SERVER } from '@/config'
+import router from '@/router'
 
 class UserInfo {
   name: string
@@ -222,7 +252,20 @@ export default {
       invitedUser: '',
       blockedUsers: [],
       userList: new Map<string, UserInfo>(),
-      selected: ''
+      selected: '',
+      alertLoad: ref(false),
+      alertAccept: ref(false),
+      requester: '',
+      requested: false
+    }
+  },
+  watch: {
+    async requested () {
+      if (this.requested === false && this.requester === this.store.state.login) {
+        this.cardLoad = true
+      } else if (this.requested === true) {
+        this.cardAccept = true
+      }
     }
   },
   methods: {
@@ -282,6 +325,16 @@ export default {
       }
       socket.emit('sendMessage', payload)
       this.message = ''
+    },
+    sendGameInvitation () {
+      const payload = {
+        content: '',
+        channel: this.chatid
+      }
+      socket.emit('sendGameInvitation', payload)
+    },
+	acceptGame (accept: boolean) {
+      socket.emit('acceptGameInvitation', accept, this.chatid)
     },
     createChannel () {
       const newChannel = {
@@ -512,6 +565,21 @@ export default {
       if (index === -1) {
         this.blockedUsers.push(message)
       }
+    })
+    socket.on('sendGameInvitation', (data) => {
+      if (data.login !== this.store.state.login) {
+        this.requested = true
+      }
+      this.requester = data
+    })
+    socket.on('acceptGameInvitation', (data) => {
+      this.cardLoad = false
+      this.cardAccept = false
+      if (data.accept) {
+        this.$router.push('/')
+      }
+      this.requester = ''
+      this.requested = false
     })
     socket.on('popBlock', (message) => {
       const index = this.blockedUsers.findIndex((user) => user.login === message.login)

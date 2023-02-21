@@ -104,6 +104,50 @@ export class ChatGateway {
         this.server.to(`channel${channel.id}`).emit('recvMessage', message)
     }
 
+    @SubscribeMessage("sendGameInvitation")
+    async handleGameRequest(client: UserSocket, payload: ChatMessageDto) {
+        const channel: ChatChannel = await this.chatService
+            .getChannelById(payload.channel, {
+                mutedUsers: true,
+                bannedUsers: true,
+                channelUsers: true
+            })
+            .catch(() => null)
+        const user: User = await this.usersService
+            .findOne(client.userLogin, ["chatter", "chatter.blocks"])
+            .catch(() => null)
+
+        if (!channel || !user)
+            return
+        if (!this.chatService.isChannelUser(user.chatter, channel)
+            || this.chatService.isBannedFromChannel(user.chatter, channel)
+            || this.chatService.isMutedFromChannel(user.chatter, channel))
+            return
+        this.server.to(`channel${channel.id}`).emit('sendGameInvitation', {login: user.login})
+    }
+
+	@SubscribeMessage("acceptGameInvitation")
+    async handleGameAcceptation(client: UserSocket, accept: boolean, chan: number) {
+        const channel: ChatChannel = await this.chatService
+            .getChannelById(chan, {
+                mutedUsers: true,
+                bannedUsers: true,
+                channelUsers: true
+            })
+            .catch(() => null)
+        const user: User = await this.usersService
+            .findOne(client.userLogin, ["chatter", "chatter.blocks"])
+            .catch(() => null)
+
+        if (!channel || !user)
+            return
+        if (!this.chatService.isChannelUser(user.chatter, channel)
+            || this.chatService.isBannedFromChannel(user.chatter, channel)
+            || this.chatService.isMutedFromChannel(user.chatter, channel))
+            return
+        this.server.to(`channel${channel.id}`).emit('acceptGameInvitation', {accept: accept})
+    }
+
     addUsersToChannel(room: string, userlist: string[]) {
         if (userlist.length === 0) {
             this.socketMap.forEach((userSocker: UserSocket) => {
