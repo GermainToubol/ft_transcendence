@@ -55,6 +55,9 @@ services:
     secrets:
       - transcendence_key
       - transcendence_crt
+    environment:
+      - DOMAIN_NAME="${DOMAIN_NAME}"
+      - DOLLAR='$'
 
   frontend:
     container_name: frontend
