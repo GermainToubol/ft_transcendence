@@ -22,8 +22,13 @@
           <q-item-label caption>Or take it easy!</q-item-label>
         </q-item-section>
       </q-item>
+      <q-item v-if="loading">
+        <q-item-section>
+          <q-item-label>{{ message }}</q-item-label>
+        </q-item-section>
+      </q-item>
       <q-card-actions vertical>
-        <q-btn :disable="btnDisabled" @click="waitQueue">Play</q-btn>
+        <q-btn :disable="btnDisabled" :loading="loading" @click="goPlay" color="secondary">Play</q-btn>
       </q-card-actions>
     </q-card>
   </div>
@@ -31,6 +36,9 @@
 
 <script lang="ts">
 import { ref } from 'vue'
+import router from '@/router'
+import store from '../store'
+import { io, Socket } from 'socket.io-client'
 
 export default {
   name: 'PlayMenu.vue',
@@ -38,7 +46,9 @@ export default {
     return {
       normalMode: ref(false),
       hardMode: ref(false),
-      colorBtn: ref('grey')
+      colorBtn: ref('grey'),
+      loading: ref(false),
+      message: ref('')
     }
   },
   computed: {
@@ -47,6 +57,18 @@ export default {
         return true
       }
       return false
+    }
+  },
+  methods: {
+    goPlay (): void {
+      store.dispatch('createSocket')
+      const socket = store.getters.getSocket
+      socket.on('waitingForPlayer', (data) => {
+        this.loading = true
+        this.message = data.message
+      }).once('updatePlayground', (data) => {
+        this.waitQueue()
+      })
     }
   },
   watch: {

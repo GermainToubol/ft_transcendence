@@ -99,6 +99,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/play',
     name: 'Game',
+    props: true,
     component: Game,
     meta: {
       requiresLogin: true,

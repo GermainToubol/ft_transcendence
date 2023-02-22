@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { InjectionKey } from 'vue'
+import { io } from 'socket.io-client'
 import { createStore, useStore as baseUseStore, Store } from 'vuex'
 import { BACK_SERVER } from '@/config'
 
@@ -10,7 +11,8 @@ export interface State {
   token: string,
   doubleFA: boolean,
   isAuthenticated: boolean,
-  url: string
+  url: string,
+  socket: unknown
 }
 
 export const key: InjectionKey<Store<State>> = Symbol('keyInjection')
@@ -23,7 +25,8 @@ export const store = createStore<State>({
     token: '',
     doubleFA: false,
     isAuthenticated: false,
-    url: BACK_SERVER
+    url: BACK_SERVER,
+    socket: null
   },
   getters: {
     getPseudo (state) {
@@ -40,6 +43,9 @@ export const store = createStore<State>({
     },
     getAvatar (state) {
       return state.avatar
+    },
+    getSocket (state) {
+      return state.socket
     }
   },
   actions: {
@@ -147,6 +153,17 @@ export const store = createStore<State>({
       })
       context.commit('SETDOUBLEFA', { is2fa: false })
       return response
+    },
+    createSocket (context) {
+      const socket = io('http://localhost:3000', {
+        path: '/game/',
+        query: {
+          accessToken: this.state.token,
+          role: 'player',
+          mode: 'normal'
+        }
+      })
+      context.commit('SETSOCKET', { socket: socket })
     }
   },
   mutations: {
@@ -170,6 +187,9 @@ export const store = createStore<State>({
     },
     SETAVATAR (state, params) {
       state.avatar = params.avatar
+    },
+    SETSOCKET (state, params) {
+      state.socket = params.socket
     }
   }
 })
