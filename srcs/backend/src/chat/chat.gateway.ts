@@ -12,6 +12,7 @@ import { ChannelExport } from './exports/channel.export';
 import { UserExport } from './exports/user.export';
 import { SendMessage } from './message/message.entity';
 import { MessageExceptionFilter } from './message/message.filter';
+import { AcceptDto } from './types/accept.dto';
 import { BanChatterDto } from './types/banchatter.dto';
 import { ChatChannelDto } from './types/channel.dto';
 import { InvitationDto } from './types/invitation.dto';
@@ -63,6 +64,7 @@ export class ChatGateway {
 
 
     handleDisconnect(client: UserSocket) {
+		this.server.emit('discoForGame', {login: client.userLogin})
         this.socketMap.delete(client.userLogin);
     }
 
@@ -105,6 +107,7 @@ export class ChatGateway {
 
     @SubscribeMessage("sendGameInvitation")
     async handleGameRequest(client: UserSocket, payload: ChatMessageDto) {
+		const mode = payload.content
         const channel: ChatChannel = await this.chatService
             .getChannelById(payload.channel, {
                 mutedUsers: true,
@@ -122,13 +125,19 @@ export class ChatGateway {
             || this.chatService.isBannedFromChannel(user.chatter, channel)
             || this.chatService.isMutedFromChannel(user.chatter, channel))
             return
-        this.server.to(`channel${channel.id}`).emit('receiveInvitation', {login: user.login})
+		console.log(this.server.sockets.adapter.rooms.get(`channel${channel.id}`).size)
+		if (this.server.sockets.adapter.rooms.get(`channel${channel.id}`).size == 2) {
+			this.server.to(`channel${channel.id}`).emit('receiveInvitation', {login: user.login, mode: mode})
+		} else {
+			this.server.to(`channel${channel.id}`).emit('cannotInvite', {login: user.login, mode: mode})
+		}
     }
 
 	@SubscribeMessage("acceptGameInvitation")
-    async handleGameAcceptation(client: UserSocket, accept: boolean, chan: number) {
+    async handleGameAcceptation(client: UserSocket, payload: AcceptDto) {
+		console.log('ii', payload)
         const channel: ChatChannel = await this.chatService
-            .getChannelById(chan, {
+            .getChannelById(payload.chan, {
                 mutedUsers: true,
                 bannedUsers: true,
                 channelUsers: true
@@ -144,7 +153,13 @@ export class ChatGateway {
             || this.chatService.isBannedFromChannel(user.chatter, channel)
             || this.chatService.isMutedFromChannel(user.chatter, channel))
             return
-        this.server.to(`channel${channel.id}`).emit('acceptInvitation', {accept: accept})
+		console.log(payload.mode)
+		if (payload.mode === 'true') {
+			this.server.to(`channel${channel.id}`).emit('acceptInvitation', {accept: payload.accept, mode: 'hard'})
+		}
+		else {
+			this.server.to(`channel${channel.id}`).emit('acceptInvitation', {accept: payload.accept, mode: 'normal'})
+		}
     }
 
     addUsersToChannel(room: string, userlist: string[]) {

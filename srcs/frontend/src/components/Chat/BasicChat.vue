@@ -244,6 +244,17 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="alertCant">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Alert</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          User actually not chatting, can't invite him
+        </q-card-section>
+      </q-card>
+    </q-dialog>
     </div>
   </div>
 </template>
@@ -296,9 +307,11 @@ export default {
       showUserList: false,
       showBlockedList: false,
       alertLoad: ref(false),
+      alertCant: ref(false),
       alertAccept: ref(false),
       requester: ref(''),
-      requested: ref(false)
+      requested: ref(false),
+      mode: ''
     }
   },
   watch: {
@@ -368,15 +381,17 @@ export default {
       socket.emit('sendMessage', payload)
       this.message = ''
     },
-    sendGameInvitation () {
+    sendGameInvitation (mode: boolean) {
       const payload = {
-        content: 'test',
+        content: `${mode}`,
         channel: this.chatid
       }
       socket.emit('sendGameInvitation', payload)
+      this.mode = `${mode}`
     },
     acceptGame (accept: boolean) {
-      socket.emit('acceptGameInvitation', accept, this.chatid)
+	  console.log('mode', this.mode)
+      socket.emit('acceptGameInvitation', {accept: accept, chan: this.chatid, mode: this.mode})
     },
     createChannel () {
       const newChannel = {
@@ -611,22 +626,38 @@ export default {
         this.blockedUsers.push(message)
       }
     })
+    socket.on('cannotInvite', (data) => {
+      this.alertCant = true
+      this.requested = false
+      this.requester = ''
+    })
+    socket.on('discoForGame', (data) => {
+      if (this.requested === true && this.requester === data.login) {
+        this.requested = false
+        this.requester = ''
+        this.alertAccept = false
+        this.mode = ''
+      }
+    })
     socket.on('receiveInvitation', (data) => {
-      console.log(data)
+      console.log('receive', data)
       if (data.login !== this.store.state.login) {
         this.requested = true
       }
       this.requester = data.login
+      this.mode = data.mode
     })
     socket.on('acceptInvitation', (data) => {
+		console.log('data', data)
       this.alertLoad = false
       this.alertAccept = false
       console.log(data.accept)
-      if (data.accept[0] === true) {
-        this.$router.push('/play?mode=hard&chat=chat&role=player')
-      }
       this.requester = ''
       this.requested = false
+      if (data.accept === true) {
+          this.$router.push(`/play?mode=${data.mode}&chat=chat&role=player`)
+        }
+      this.mode = ''
     })
     socket.on('popBlock', (message) => {
       const index = this.blockedUsers.findIndex((user) => user.login === message.login)

@@ -76,7 +76,6 @@ import store from '@/store'
 import { BACK_SERVER } from '@/config'
 import Friend from './Friend.vue'
 import { ref } from 'vue'
-import { getCurrentInstance } from 'vue'
 
 export default {
   name: 'Friends',
@@ -167,7 +166,7 @@ export default {
       if (ret) {
         this.msgs = ret
         if (ret.substring(0, 9) === 'You added') {
-		  this.$emit('refresh')
+          this.$emit('refresh')
         }
       }
     },
@@ -200,9 +199,9 @@ export default {
       this.friendPseudo = friend.pseudo
       this.cardFriend = true
     },
-	refresh() {
+    refresh () {
       this.$emit('refresh')
-	}
+    }
   }
 }
 </script>
