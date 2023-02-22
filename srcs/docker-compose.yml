@@ -28,7 +28,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: "/mnt/nfs/homes/gtoubol/Documents/ft_transcendence/srcs/frontend"
+      device: "${TR_FRONT_SRCS}"
   db_data:
     driver: local
   release-front: {}
@@ -54,7 +54,7 @@ services:
       - "8080:8080"
     depends_on:
       frontend:
-        condition: service_completed_successfully
+        condition: service_started #completed_successfully
     volumes:
       - "release-front:/var/www"
     networks:
@@ -72,11 +72,13 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    command: bash -c "/frontend/configure.sh /frontend/src && yarn build && rm -rf /frontbuild/* && cp -r ./dist /frontbuild"
+    command: bash -c "/frontend/configure.sh /frontend/src && yarn upgrade && yarn serve"
     volumes:
       - "front-data:/frontend"
       - release-front:/frontbuild
       - "frontend-node-modules:/frontend/node_modules"
+    networks:
+      - frontend-net
     depends_on:
       -  database
     env_file:

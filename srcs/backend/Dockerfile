@@ -16,4 +16,4 @@ RUN npm i -g @nestjs/cli
 RUN mkdir -p /root/srcs /var/front
 
 WORKDIR /root/srcs
-ENTRYPOINT ["sh", "-c", "npm install && npm run build && npm run start:prod"]
+ENTRYPOINT ["sh", "-c", "npm install && npm run build && npm run start:dev"]

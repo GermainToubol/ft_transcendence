@@ -527,7 +527,7 @@ export default {
   computed: {
     chanmsg: function () {
       return this.messages.filter((msg) => msg.channel === this.chatid)
-                 .filter((msg) => this.blockedUsers.findIndex((item) => { console.log(item, msg); return item.login === msg.authorLogin }) === -1)
+        .filter((msg) => this.blockedUsers.findIndex((item) => { console.log(item, msg); return item.login === msg.authorLogin }) === -1)
     },
     chanAdm: function (): boolean {
       const arr = this.channels.filter((chan) => chan.id === this.chatid)
