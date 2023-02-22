@@ -13,7 +13,7 @@ import { io, Socket } from 'socket.io-client'
 import store from '../store'
 import router from '@/router'
 
-import Draw from '../Draw'
+import Draw from '../pong/Draw'
 import { BACK_SERVER } from '@/config'
 
 export default {
@@ -30,24 +30,21 @@ export default {
       end: ref(false as boolean)
     }
   },
-  beforeUnmount () {
-    if (this.socket != null) {
-      this.socket.disconnect()
-    }
-  },
   mounted (): void {
     this.socket = io(BACK_SERVER, {
       path: '/api/game',
       transports: ['websocket'],
       query: {
         accessToken: this.store.getters.getToken,
-        role: 'player',
-        mode: 'hard'
+        role: router.currentRoute.value.query.role,
+        mode: router.currentRoute.value.query.mode,
+        chat: router.currentRoute.value.query.chat
       },
       auth: {
         accessToken: this.store.getters.getToken
       }
     })
+    console.log(this.socket)
     if (this.game) {
       this.context = this.game.getContext('2d')
       this.tokenError()

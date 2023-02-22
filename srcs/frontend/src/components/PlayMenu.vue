@@ -23,7 +23,7 @@
         </q-item-section>
       </q-item>
       <q-card-actions vertical>
-        <q-btn :disable="btnDisabled" color="secondary">Play</q-btn>
+        <q-btn :disable="btnDisabled" @click="waitQueue">Play</q-btn>
       </q-card-actions>
     </q-card>
   </div>
@@ -58,6 +58,15 @@ export default {
     hardMode (value): void {
       if (value) {
         this.normalMode = false
+      }
+    }
+  },
+  methods: {
+    waitQueue () {
+      if (this.normalMode === true) {
+        this.$router.push('/play?mode=normal&role=player')
+      } else {
+        this.$router.push('/play?mode=hard&role=player')
       }
     }
   }

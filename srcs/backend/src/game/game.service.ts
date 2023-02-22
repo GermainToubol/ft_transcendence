@@ -172,7 +172,6 @@ export class GameService {
 			if (!update)
 				this.logger.error('Couldn\'t Update Status')
 		} else if (client.handshake.query.role === 'player') {
-			console.log(playershard[playershard.length - 1])
 			if (players.length % 2 == 1 && players[players.length - 1].data.user === client.data.user) {
 				players.pop()
 			} else if (playershard.length % 2 == 1 && playershard[playershard.length - 1].data.user === client.data.user) {

@@ -623,7 +623,7 @@ export default {
       this.alertAccept = false
       console.log(data.accept)
       if (data.accept[0] === true) {
-        this.$router.push('/game')
+        this.$router.push('/play?mode=hard&chat=chat&role=player')
       }
       this.requester = ''
       this.requested = false
