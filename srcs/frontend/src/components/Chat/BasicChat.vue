@@ -193,6 +193,7 @@
             </q-item>
             </q-list>
         </q-card>
+    </div>
 
     <q-card v-if="blockedUsers.length > 0">
         <q-card-section class="bg-primary text-white full-width row q-gutter-sm justify-between" style="overflow-wrap: break-word">
@@ -214,7 +215,7 @@
           </q-item>
           </q-list>
         </q-card>
-    </div>
+
     <q-dialog v-model="alertAccept" persistent>
       <q-card style="width: 300px">
         <q-card-section>
