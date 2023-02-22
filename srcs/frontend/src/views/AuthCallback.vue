@@ -2,7 +2,7 @@
 import router from '@/router'
 import { useRoute } from 'vue-router'
 import { useStore } from '../store'
-import Form2FA from '../components/Form2FA.vue'
+import Form2FA from '../components/Form2FALogin.vue'
 import { ref } from '@vue/reactivity'
 
 export default {

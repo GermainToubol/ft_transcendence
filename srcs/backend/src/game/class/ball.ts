@@ -126,7 +126,8 @@ export class Ball {
 	public clean(x: number, y: number) {
 		this._x = x;
 		this._y = y;
-		this._speed = this._mode ? 7 : 5;
+		this._speed = this._mode ? 10 : 7;
 		this._speedX = Math.random() > 0.5 ? -5 : 5;
+		this._speedY = Math.random() > 0.5 ? -5 : 5;
 	}
 }

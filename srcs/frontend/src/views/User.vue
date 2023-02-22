@@ -247,7 +247,7 @@ export default {
       if (ret.length > 0) {
         this.history = ret
         const fix = this.user.wins / this.history.length * 100
-        this.winrate = fix.toFixed(2)
+        this.winrate = fix.toFixed(0)
       }
     }
   },

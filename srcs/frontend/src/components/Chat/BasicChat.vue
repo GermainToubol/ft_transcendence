@@ -311,7 +311,8 @@ export default {
       alertAccept: ref(false),
       requester: ref(''),
       requested: ref(false),
-      mode: ''
+      mode: '',
+      id: 0
     }
   },
   watch: {
@@ -321,9 +322,26 @@ export default {
       } else if (this.requested === true) {
         this.alertAccept = true
       }
+    },
+    async alertLoad () {
+      if (this.alertLoad === true) {
+        setTimeout(() => { this.endPop() }, 5000)
+      }
+    },
+    async alertAccept () {
+      if (this.alertAccept === true) {
+        setTimeout(() => { this.endPop() }, 5000)
+      }
     }
   },
   methods: {
+    endPop () {
+      this.alertLoad = false
+      this.alertAccept = false
+      this.requester = ''
+      this.requested = false
+      this.id = 0
+    },
     getChannelMsg (channel: number) {
       fetch(`${BACK_SERVER}/api/chat/messages/${channel}`, {
         headers: { Authorization: `Bearer ${this.store.state.token}` }
@@ -390,8 +408,8 @@ export default {
       this.mode = `${mode}`
     },
     acceptGame (accept: boolean) {
-	  console.log('mode', this.mode)
-      socket.emit('acceptGameInvitation', {accept: accept, chan: this.chatid, mode: this.mode})
+      console.log('mode', this.mode)
+      socket.emit('acceptGameInvitation', { accept: accept, chan: this.chatid, mode: this.mode, id: this.id })
     },
     createChannel () {
       const newChannel = {
@@ -630,6 +648,8 @@ export default {
       this.alertCant = true
       this.requested = false
       this.requester = ''
+      this.mode = ''
+      this.id = 0
     })
     socket.on('discoForGame', (data) => {
       if (this.requested === true && this.requester === data.login) {
@@ -637,26 +657,32 @@ export default {
         this.requester = ''
         this.alertAccept = false
         this.mode = ''
+        this.id = 0
       }
     })
     socket.on('receiveInvitation', (data) => {
       console.log('receive', data)
+      if (this.requester !== '') {
+        return
+      }
       if (data.login !== this.store.state.login) {
         this.requested = true
       }
       this.requester = data.login
       this.mode = data.mode
+      this.id = data.id
     })
     socket.on('acceptInvitation', (data) => {
-		console.log('data', data)
+      console.log('data', data)
       this.alertLoad = false
       this.alertAccept = false
       console.log(data.accept)
       this.requester = ''
       this.requested = false
+      this.id = 0
       if (data.accept === true) {
-          this.$router.push(`/play?mode=${data.mode}&chat=chat&role=player`)
-        }
+        this.$router.push(`/play?mode=${data.mode}&chat=chat&role=player`)
+      }
       this.mode = ''
     })
     socket.on('popBlock', (message) => {

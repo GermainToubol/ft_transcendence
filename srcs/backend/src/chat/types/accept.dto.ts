@@ -11,4 +11,8 @@ export class AcceptDto {
 	@IsString()
 	@Length(1, 7)
 	mode: string
+
+	@IsNumber()
+	@IsPositive()
+	id: number
 }

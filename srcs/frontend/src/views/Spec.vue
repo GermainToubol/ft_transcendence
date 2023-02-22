@@ -4,6 +4,17 @@
         <canvas id="responsive-canvas" ref="game"></canvas>
         <p class="mt-8 text-xl" style="color:aquamarine; text-align: center;">{{ message }}</p>
     </q-card>
+    <div class="row">
+    <div class="col-4"></div>
+    <div class="col-4">
+    <q-card style="margin-top: 10px;">
+        <q-card-actions align="center">
+        <q-btn color="primary" label="Exit" icon="exit_to_app" @click="exit" />
+        </q-card-actions>
+    </q-card>
+    </div>
+    <div class="col-4"></div>
+</div>
   </div>
 </template>
 
@@ -81,6 +92,11 @@ export default {
           (this.socket as Socket).emit('KeyDownUnpressed')
         }
       })
+    }
+  },
+  beforeUnmount () {
+    if (this.socket != null) {
+      this.socket.disconnect()
     }
   },
   methods: {
@@ -177,6 +193,9 @@ export default {
       (this.socket as Socket).on('tokenError', (data) => {
         this.router.push('/')
       })
+    },
+    exit () {
+      this.router.push('/game')
     }
   }
 }

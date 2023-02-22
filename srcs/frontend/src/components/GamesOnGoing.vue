@@ -4,7 +4,7 @@
       <q-toolbar class="bg-primary text-white">
         <q-toolbar-title>Games On Going</q-toolbar-title>
       </q-toolbar>
-      <q-list>
+      <q-list v-if="size">
         <div v-for="game in games" v-bind:key="game.playerOne">
           <q-item>
             <q-item-section>{{ game.playerOne }} VS {{ game.playerTwo }}</q-item-section>
@@ -15,6 +15,7 @@
           <q-separator />
         </div>
       </q-list>
+      <q-card-section v-else>No live games...</q-card-section>
     </q-card>
   </div>
 </template>
@@ -30,7 +31,8 @@ export default {
   name: 'GamesOnGoing',
   setup (): any {
     return {
-      games: ref([])
+      games: ref([]),
+      size: ref(false)
     }
   },
   async beforeMount (): Promise<void> {
@@ -40,6 +42,7 @@ export default {
 
     if (response.data.rooms.length > 0) {
       this.populateGames(response.data.rooms)
+      this.size = true
     }
   },
   methods: {

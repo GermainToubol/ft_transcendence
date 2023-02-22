@@ -4,6 +4,18 @@
         <canvas id="responsive-canvas" ref="game"></canvas>
         <p class="mt-8 text-xl" style="color:aquamarine; text-align: center;">{{ message }}</p>
     </q-card>
+    <div class="row">
+    <div class="col-4"></div>
+    <div class="col-4">
+    <q-card style="margin-top: 10px;">
+        <q-card-section class="text-center text-h5"><q-icon name="arrow_upward"></q-icon> W | <q-icon name="arrow_downward"></q-icon> S</q-card-section>
+        <q-card-actions align="center" v-if="end">
+        <q-btn color="primary" label="Exit" icon="exit_to_app" @click="exit" />
+        </q-card-actions>
+    </q-card>
+    </div>
+    <div class="col-4"></div>
+</div>
   </div>
 </template>
 
@@ -137,6 +149,7 @@ export default {
     },
     drawInterruptedGame () {
       (this.socket as Socket).on('interruptedGame', (data) => {
+        this.end = true
         this.playground = data.playground
         if (this.playground != null) {
           this.game.width = this.game.offsetWidth
@@ -154,6 +167,7 @@ export default {
     },
     endGame () {
       (this.socket as Socket).on('endGame', (data) => {
+        this.end = true
         const { winner, loser } = data
         if (winner && loser) {
           this.message = winner + ' wins against ' + loser
@@ -181,6 +195,9 @@ export default {
       (this.socket as Socket).on('tokenError', (data) => {
         this.router.push('/')
       })
+    },
+    exit () {
+      this.router.push('/game')
     }
   }
 }

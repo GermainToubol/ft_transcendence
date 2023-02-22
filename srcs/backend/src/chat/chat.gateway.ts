@@ -127,15 +127,14 @@ export class ChatGateway {
             return
 		console.log(this.server.sockets.adapter.rooms.get(`channel${channel.id}`).size)
 		if (this.server.sockets.adapter.rooms.get(`channel${channel.id}`).size == 2) {
-			this.server.to(`channel${channel.id}`).emit('receiveInvitation', {login: user.login, mode: mode})
+			this.server.to(`channel${channel.id}`).emit('receiveInvitation', {login: user.login, mode: mode, id: channel.id})
 		} else {
-			this.server.to(`channel${channel.id}`).emit('cannotInvite', {login: user.login, mode: mode})
+			this.server.to(`channel${channel.id}`).emit('cannotInvite', {login: user.login, mode: mode, id: channel.id})
 		}
     }
 
 	@SubscribeMessage("acceptGameInvitation")
     async handleGameAcceptation(client: UserSocket, payload: AcceptDto) {
-		console.log('ii', payload)
         const channel: ChatChannel = await this.chatService
             .getChannelById(payload.chan, {
                 mutedUsers: true,
@@ -155,10 +154,10 @@ export class ChatGateway {
             return
 		console.log(payload.mode)
 		if (payload.mode === 'true') {
-			this.server.to(`channel${channel.id}`).emit('acceptInvitation', {accept: payload.accept, mode: 'hard'})
+			this.server.to(`channel${payload.id}`).emit('acceptInvitation', {accept: payload.accept, mode: 'hard'})
 		}
 		else {
-			this.server.to(`channel${channel.id}`).emit('acceptInvitation', {accept: payload.accept, mode: 'normal'})
+			this.server.to(`channel${payload.id}`).emit('acceptInvitation', {accept: payload.accept, mode: 'normal'})
 		}
     }
 
