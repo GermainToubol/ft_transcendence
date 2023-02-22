@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="cardAvatar" persistent>
+  <q-dialog v-model="cardAvatar">
       <q-card flat bordered class="my-card">
 
         <q-card-section>
@@ -17,8 +17,6 @@
 
 <script lang="ts">
 import store from '../store'
-import { BACK_SERVER } from '@/config'
-import axios from 'axios'
 
 export default {
   name: 'Avatar',

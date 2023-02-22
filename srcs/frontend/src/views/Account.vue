@@ -164,11 +164,6 @@ export default {
     async disable2FA () {
       await this.store.dispatch('disable2FA')
       this.doubleFA = false
-    },
-    reloadPseudo () {
-      this.cardPseudo = false
-      this.$router.go()
-      this.cardPseudo = true
     }
   }
 }

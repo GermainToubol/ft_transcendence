@@ -59,7 +59,7 @@ export default {
           Authorization: `Bearer ${store.state.token}`
         }
       }).then()
-      this.$router.go()
+      this.$emit('refresh')
     },
     getProfile (name: string) {
       router.push(`/user?user=${name}`)

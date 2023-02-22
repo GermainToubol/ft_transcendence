@@ -60,6 +60,7 @@ export const store = createStore<State>({
     },
     async setAvatar (context, avatar: any) {
       try {
+		console.log(avatar)
         const response = await axios.post(`${BACK_SERVER}/api/user/avatar`,
           avatar,
           {

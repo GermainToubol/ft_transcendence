@@ -12,7 +12,6 @@ import { ref } from 'vue'
 import { io, Socket } from 'socket.io-client'
 import store from '../store'
 import router from '@/router'
-
 import Draw from '../pong/Draw'
 import { BACK_SERVER } from '@/config'
 

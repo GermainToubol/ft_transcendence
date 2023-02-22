@@ -132,7 +132,7 @@ export default {
           Authorization: `Bearer ${store.state.token}`
         }
       }).then((t) => t.data)
-	  if (ret.length > 0) {
+      if (ret.length > 0) {
         this.history = ret
       }
     }

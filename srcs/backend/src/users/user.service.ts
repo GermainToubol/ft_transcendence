@@ -208,7 +208,11 @@ export class UsersService {
     }
 
     async acceptFriend(user: User, pseudo: string): Promise<any> {
-        const friend = await this.usersRepository.findOneBy({ usual_full_name: pseudo }).then()
+		const friend = await this.usersRepository.findOneBy({ usual_full_name: pseudo }).then()
+		for (let i = 0; user.friends[i]; i++) {
+			if (friend.id === user.friends[i])
+				return
+		}
         user.friends.push(friend.id)
         await this.usersRepository.update(user.id, { friends: user.friends })
         friend.friends.push(user.id)
