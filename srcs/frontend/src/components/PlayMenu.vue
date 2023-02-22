@@ -59,18 +59,6 @@ export default {
       return false
     }
   },
-  methods: {
-    goPlay (): void {
-      store.dispatch('createSocket')
-      const socket = store.getters.getSocket
-      socket.on('waitingForPlayer', (data) => {
-        this.loading = true
-        this.message = data.message
-      }).once('updatePlayground', (data) => {
-        this.waitQueue()
-      })
-    }
-  },
   watch: {
     normalMode (value): void {
       if (value) {
@@ -90,6 +78,16 @@ export default {
       } else {
         this.$router.push('/play?mode=hard&role=player')
       }
+    },
+    goPlay (): void {
+      store.dispatch('createSocket')
+      const socket = store.getters.getSocket
+      socket.on('waitingForPlayer', (data) => {
+        this.loading = true
+        this.message = data.message
+      }).once('updatePlayground', (data) => {
+        this.waitQueue()
+      })
     }
   }
 }
