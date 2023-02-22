@@ -30,6 +30,11 @@ export default {
       end: ref(false as boolean)
     }
   },
+  beforeUnmount () {
+    if (this.socket != null) {
+      this.socket.disconnect()
+    }
+  },
   mounted (): void {
     this.socket = io(BACK_SERVER, {
       path: '/api/game',

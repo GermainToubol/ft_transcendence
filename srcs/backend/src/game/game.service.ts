@@ -125,7 +125,7 @@ export class GameService {
 			this.logger.error('Error trying to delete room')
 	}
 
-	async handleDisonnectedUser(client: Socket, server: Server) {
+	async handleDisonnectedUser(client: Socket, server: Server, players: Socket[], playershard: Socket[]) {
 		if (client.handshake.query.role === 'player' && client.data.gameInterval) {
 			if (client.data.gameInterval._destroyed === false) {
 				client.data.playground.ball.clean(client.data.playground.width / 2, client.data.playground.height / 2)
@@ -145,21 +145,39 @@ export class GameService {
 					this.logger.error('Error trying to delete room')
 				else
 					this.logger.log('Game in Room: ' + client.data.roomname + ' Finished')
-				let add = await this.gameHistoryService.addGameHistory({ userId: client.data.user.id as number, opponentId: client.data.opponentId as number, playerOneScore: client.data.playground.scoreBoard.playerOneScore as number, playerTwoScore: client.data.playground.scoreBoard.playerTwoScore as number, hard: client.data.playground.mode })
-				if (!add)
-					return
-				let add2 = await this.gameHistoryService.addGameHistory({ userId: client.data.opponentId as number, opponentId: client.data.user.id as number, playerOneScore: client.data.playground.scoreBoard.playerTwoScore as number, playerTwoScore: client.data.playground.scoreBoard.playerOneScore as number, hard: client.data.playground.mode })
-				if (!add2)
-					return
+				if (client.data.side !== 'left') {
+					let add = await this.gameHistoryService.addGameHistory({ userId: client.data.user.id as number, opponentId: client.data.opponentId as number, playerOneScore: client.data.playground.scoreBoard.playerTwoScore as number, playerTwoScore: client.data.playground.scoreBoard.playerOneScore as number, hard: client.data.playground.mode })
+					if (!add)
+						return
+					let add2 = await this.gameHistoryService.addGameHistory({ userId: client.data.opponentId as number, opponentId: client.data.user.id as number, playerOneScore: client.data.playground.scoreBoard.playerOneScore as number, playerTwoScore: client.data.playground.scoreBoard.playerTwoScore as number, hard: client.data.playground.mode })
+					if (!add2)
+						return
+				} else {					
+					let add = await this.gameHistoryService.addGameHistory({ userId: client.data.user.id as number, opponentId: client.data.opponentId as number, playerOneScore: client.data.playground.scoreBoard.playerOneScore as number, playerTwoScore: client.data.playground.scoreBoard.playerTwoScore as number, hard: client.data.playground.mode })
+					if (!add)
+						return
+					let add2 = await this.gameHistoryService.addGameHistory({ userId: client.data.opponentId as number, opponentId: client.data.user.id as number, playerOneScore: client.data.playground.scoreBoard.playerTwoScore as number, playerTwoScore: client.data.playground.scoreBoard.playerOneScore as number, hard: client.data.playground.mode })
+					if (!add2)
+						return
+				}
 				let wins = await this.usersService.updateWins(second.id as unknown as string, second.wins + 1)
 				if (!wins)
 					return
+				let update2 = await this.usersService.updateStatus(second.login, UserStatus.ONLINE)
+				if (!update2)
+					this.logger.error('Couldn\'t Update Status')
 			}
 			client.leave(client.data.roomname)
 			let update = await this.usersService.updateStatus(client.data.user.login, UserStatus.OFFLINE)
 			if (!update)
 				this.logger.error('Couldn\'t Update Status')
 		} else if (client.handshake.query.role === 'player') {
+			console.log(playershard[playershard.length - 1])
+			if (players.length % 2 == 1 && players[players.length - 1].data.user === client.data.user) {
+				players.pop()
+			} else if (playershard.length % 2 == 1 && playershard[playershard.length - 1].data.user === client.data.user) {
+				playershard.pop()
+			}
 			let update = await this.usersService.updateStatus(client.data.user.login, UserStatus.OFFLINE)
 			if (!update)
 				this.logger.error('Couldn\'t Update Status')

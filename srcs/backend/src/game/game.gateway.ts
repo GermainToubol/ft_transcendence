@@ -28,7 +28,7 @@ export class GameGateway
 		this.players = this.players.filter((client2) => {
 			return client2.id != client.id
 		})
-		await this.gameService.handleDisonnectedUser(client, this.server)
+		await this.gameService.handleDisonnectedUser(client, this.server, this.players, this.playershard)
 	}
 
 	@SubscribeMessage('KeyUp')
