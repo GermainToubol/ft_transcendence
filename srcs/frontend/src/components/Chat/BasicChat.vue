@@ -34,7 +34,7 @@
                 </div>
               </q-item-section>
             </q-item>
-            </q-list>
+          </q-list>
           <q-separator/>
           <q-form @submit="sendMessage" id="chan-input" class="q-gutter-y-sm" >
             <q-input v-model.trim="message" type="text" counter maxlength="255"/>
@@ -78,7 +78,8 @@
         <q-card-section class="full-width q-gutter-y-xs">
           <q-btn label="Private message" @click="startPrivMsg(selected)" class="full-width" />
           <q-btn label="Profile" @click="profileRoute(selected)" class="full-width" />
-          <q-btn label="Invite for game" class="full-width" />
+          <q-btn v-if="currentChannel && currentChannel.channelStatus === 3" label="Invite for game" class="full-width" @click="sendGameInvitation(false)"/>
+          <q-btn v-if="currentChannel && currentChannel.channelStatus === 3" label="Invite for game hard" class="full-width" @click="sendGameInvitation(true)"/>
           <q-btn-group spread>
             <q-btn label="Block" @click="blockChatter(selected, 1)"/>
             <q-btn label="Unblock" @click="unblockChatter(selected, 1)"/>
@@ -169,38 +170,8 @@
             <q-item-section>
               <q-btn label="invite" @click="inviteUser(user[1].login)"/>
             </q-item-section>
-          </q-item> 
+          </q-item>
         </q-list>
-      </q-card>
-
-      <q-card v-if="selected && selected !== store.state.login">
-        <q-card-section class="bg-primary text-white">
-          <div class="text-h6" style="overflow-wrap: break-word">
-            {{userList.get(selected).name}}
-          </div>
-        </q-card-section>
-        <q-card-section class="full-width q-gutter-y-xs">
-          <q-btn label="Private message" @click="startPrivMsg(selected)" class="full-width" />
-          <q-btn label="Profile" class="full-width" />
-          <q-btn v-if="currentChannel && currentChannel.channelStatus === 3" label="Invite for game" class="full-width" @click="sendGameInvitation(false)"/>
-		  <q-btn v-if="currentChannel && currentChannel.channelStatus === 3" label="Invite for game hard" class="full-width" @click="sendGameInvitation(true)"/>
-          <q-btn-group spread>
-            <q-btn label="Block" @click="blockChatter(selected, 1)"/>
-            <q-btn label="Unblock" @click="unblockChatter(selected, 1)"/>
-          </q-btn-group>
-          <q-btn-group spread v-if="chanAdm">
-            <q-btn label="Ban" @click="banChatter(selected, chatid)"/>
-            <q-btn label="Unban" @click="unbanChatter(selected, chatid)"/>
-          </q-btn-group>
-          <q-btn-group spread v-if="chanAdm">
-            <q-btn label="Mute" @click="muteChatter(selected, chatid)"/>
-            <q-btn label="Unmute" @click="unmuteChatter(selected, chatid)"/>
-          </q-btn-group>
-          <q-btn-group spread v-if="chanAdm">
-            <q-btn  label="Set admin" @click="adminChatter(selected, chatid)"/>
-            <q-btn  label="Unset admin" @click="unadminChatter(selected, chatid)"/>
-          </q-btn-group>
-        </q-card-section>
       </q-card>
 
       <!-- Invitation pannel -->
@@ -244,7 +215,7 @@
           </q-list>
         </q-card>
     </div>
-	<q-dialog v-model="alertAccept" persistent>
+    <q-dialog v-model="alertAccept" persistent>
       <q-card style="width: 300px">
         <q-card-section>
           <div class="text-h6">Game Invitation</div>
@@ -257,7 +228,7 @@
         <q-card-actions align="right">
           <q-btn flat label="Accept" @click="acceptGame(true)" v-close-popup />
         </q-card-actions>
-		<q-card-actions align="left">
+        <q-card-actions align="left">
           <q-btn flat label="Decline" @click="acceptGame(false)" v-close-popup />
         </q-card-actions>
       </q-card>
@@ -273,6 +244,7 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+    </div>
   </div>
 </template>
 
@@ -282,7 +254,6 @@ import { ref } from 'vue'
 import store from '@/store'
 import router from '@/router'
 import { BACK_SERVER } from '@/config'
-import router from '@/router'
 
 class UserInfo {
   name: string
@@ -323,11 +294,11 @@ export default {
       selected: '',
       showListInvitations: false,
       showUserList: false,
-      showBlockedList: false
+      showBlockedList: false,
       alertLoad: ref(false),
       alertAccept: ref(false),
       requester: ref(''),
-      requested: ref(false),
+      requested: ref(false)
     }
   },
   watch: {
@@ -404,7 +375,7 @@ export default {
       }
       socket.emit('sendGameInvitation', payload)
     },
-	acceptGame (accept: boolean) {
+    acceptGame (accept: boolean) {
       socket.emit('acceptGameInvitation', accept, this.chatid)
     },
     createChannel () {
@@ -556,7 +527,7 @@ export default {
   computed: {
     chanmsg: function () {
       return this.messages.filter((msg) => msg.channel === this.chatid)
-        .filter((msg) => this.blockedUsers.findIndex((item) => { console.log(item, msg); return item.login === msg.authorLogin }) === -1)
+                 .filter((msg) => this.blockedUsers.findIndex((item) => { console.log(item, msg); return item.login === msg.authorLogin }) === -1)
     },
     chanAdm: function (): boolean {
       const arr = this.channels.filter((chan) => chan.id === this.chatid)
@@ -641,7 +612,7 @@ export default {
       }
     })
     socket.on('receiveInvitation', (data) => {
-	console.log(data)
+      console.log(data)
       if (data.login !== this.store.state.login) {
         this.requested = true
       }
@@ -650,8 +621,8 @@ export default {
     socket.on('acceptInvitation', (data) => {
       this.alertLoad = false
       this.alertAccept = false
-	  console.log(data.accept)
-      if (data.accept[0] == true) {
+      console.log(data.accept)
+      if (data.accept[0] === true) {
         this.$router.push('/game')
       }
       this.requester = ''

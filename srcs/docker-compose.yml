@@ -22,6 +22,13 @@ volumes:
       type: none
       o: bind
       device: "${TR_BACK_SRCS}"
+  front-data:
+    name: front-data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "/mnt/nfs/homes/gtoubol/Documents/ft_transcendence/srcs/frontend"
   db_data:
     driver: local
   release-front: {}
@@ -65,9 +72,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    command: bash -c "/frontend/configure.sh /frontend/src && yarn upgrade && yarn build && rm -rf /frontbuild/* && cp -r ./dist /frontbuild"
+    command: bash -c "/frontend/configure.sh /frontend/src && yarn build && rm -rf /frontbuild/* && cp -r ./dist /frontbuild"
     volumes:
-      - ./frontend:/frontend
+      - "front-data:/frontend"
       - release-front:/frontbuild
       - "frontend-node-modules:/frontend/node_modules"
     depends_on:
