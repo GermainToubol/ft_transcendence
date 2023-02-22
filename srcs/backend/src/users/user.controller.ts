@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
+import { BadRequestException, Body, Controller, Get, HttpStatus, Param, ParseFilePipeBuilder, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common'
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 import { ReqUser } from './req-user.decorator'
 import { UsersService } from './user.service'
@@ -84,12 +84,16 @@ export class UserController {
 			  return callback(new BadRequestException('Provide a valid image'), false)
 			}
 			callback(null, true)
-		  },
-		  limits: {
-			fileSize: Math.pow(1024, 2) // 1MB
 		  }
 	}))
-	async setAvatar(@ReqUser() user: any, @UploadedFile() file: Express.Multer.File) {
+	async setAvatar(@ReqUser() user: any, @UploadedFile(
+		new ParseFilePipeBuilder()
+		  .addMaxSizeValidator({
+			maxSize: Math.pow(1024, 2)
+		  })
+		  .build({
+			errorHttpStatusCode: HttpStatus.BAD_REQUEST
+		  }),) file: Express.Multer.File) {
 		return this.usersService.addAvatar(user, {
 			path: file.path,
 			filename: file.originalname,

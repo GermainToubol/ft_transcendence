@@ -132,11 +132,11 @@
               <q-item v-if="entry.victory" class="bg-green-2 rounded-borders">
               <q-item-section avatar>
                 <q-avatar>
-                  <img :src='store.getters.getAvatar' />
+				  <img :src='getAvatar(user.avatar)' />
                 </q-avatar>
               </q-item-section>
               <q-item-section>
-                <q-item-label caption>{{ store.getters.getPseudo }}</q-item-label>
+                <q-item-label caption>{{ user.pseudo }}</q-item-label>
               </q-item-section>
               <q-item-section class="text-center text-h6">
                 <q-item-label>
@@ -161,11 +161,11 @@
             <q-item v-else class="bg-red-2 rounded-borders">
               <q-item-section avatar>
                 <q-avatar>
-                  <img :src='store.getters.getAvatar' />
+				  <img :src='getAvatar(user.avatar)' />
                 </q-avatar>
               </q-item-section>
               <q-item-section>
-                <q-item-label caption>{{ store.getters.getPseudo }}</q-item-label>
+                <q-item-label caption>{{ user.pseudo }}</q-item-label>
               </q-item-section>
               <q-item-section class="text-center text-h6">
                 <q-item-label>
