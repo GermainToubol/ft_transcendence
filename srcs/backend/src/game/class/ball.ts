@@ -21,11 +21,11 @@ export class Ball {
 	) {
 		this._x = x
 		this._y = y
-		this._speed = mode ? 7 : 5
+		this._speed = mode ? 18 : 6
 		this._color = color
 		this._radius = radius
-		this._speedX = 5
-		this._speedY = 5
+		this._speedX = mode ? 18 : 6
+		this._speedY = mode ? 18 : 6
 		this._mode = mode
 	}
 
@@ -126,8 +126,13 @@ export class Ball {
 	public clean(x: number, y: number) {
 		this._x = x;
 		this._y = y;
-		this._speed = this._mode ? 10 : 7;
-		this._speedX = Math.random() > 0.5 ? -5 : 5;
-		this._speedY = Math.random() > 0.5 ? -5 : 5;
+		this._speed = this._mode ? 18 : 6;
+		if (this._mode) {
+			this._speedX = Math.random() > 0.5 ? -18 : 18;
+			this._speedY = Math.random() > 0.5 ? -18 : 18;
+		} else {
+			this._speedX = Math.random() > 0.5 ? -6 : 6;
+			this._speedY = Math.random() > 0.5 ? -6 : 6;
+		}
 	}
 }
