@@ -675,6 +675,7 @@ export default {
       this.id = data.id
     })
     socket.on('acceptInvitation', (data) => {
+      const validInvite: boolean = data.id === this.id
       console.log('data', data)
       this.alertLoad = false
       this.alertAccept = false
@@ -682,7 +683,7 @@ export default {
       this.requester = ''
       this.requested = false
       this.id = 0
-      if (data.accept === true) {
+      if (data.accept === true && validInvite) {
         this.$router.push(`/play?mode=${data.mode}&chat=chat&role=player`)
       }
       this.mode = ''
