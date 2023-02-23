@@ -134,6 +134,10 @@ router.beforeEach(async (to, from, next) => {
     return next('/login')
   }
 
+  if (routes.findIndex((route) => route.path === to.path) === -1) {
+    return next('/')
+  }
+
   return next()
 })
 
