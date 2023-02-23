@@ -410,7 +410,7 @@ export default {
     },
     acceptGame (accept: boolean) {
       console.log('mode', this.mode)
-      socket.emit('acceptGameInvitation', { accept: accept, chan: this.chatid, mode: this.mode, id: this.id })
+      socket.emit('acceptGameInvitation', { accept: accept, chan: this.id, mode: this.mode, id: this.id })
     },
     createChannel () {
       const newChannel = {
@@ -663,8 +663,8 @@ export default {
     })
     socket.on('receiveInvitation', (data) => {
       console.log('receive', data)
-      if (this.requester !== ''
-        || this.blockedUsers.findIndex((usr) => usr.login === data.login) !== -1) {
+      if (this.requester !== '' ||
+        this.blockedUsers.findIndex((usr) => usr.login === data.login) !== -1) {
         return
       }
       if (data.login !== this.store.state.login) {
