@@ -174,27 +174,6 @@
         </q-list>
       </q-card>
 
-      <!-- Invitation pannel -->
-      <div v-if="invitations.length > 0 || (currentChannel && currentChannel.channelStatus == 2 && chanAdm)">
-        <q-card>
-            <q-list>
-            <q-item v-for="(chan, id) in invitations" :key='chan.id' class="row q-gutter-x-xs">
-              <q-item-section multiline>
-                <q-item-label style="overflow-wrap: break-word" class="full-width">
-                  {{chan.channelName}} (#{{chan.id}})
-                </q-item-label>
-              </q-item-section>
-              <q-item-section top side class="text-black">
-                <q-btn-group spread>
-                  <q-btn @click="acceptInvitation(id)" label="accept" />
-                  <q-btn @click="refuseInvitation(id)" label="refuse" />
-                </q-btn-group>
-              </q-item-section>
-            </q-item>
-            </q-list>
-        </q-card>
-    </div>
-
     <q-card v-if="blockedUsers.length > 0">
         <q-card-section class="bg-primary text-white full-width row q-gutter-sm justify-between" style="overflow-wrap: break-word">
             <div class="text-h6">
@@ -223,13 +202,11 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          {{ requester }} wants to play against you.
+          {{ requester }} wants to play against you. Invitation will expire after 5 seconds.
         </q-card-section>
 
         <q-card-actions align="right">
           <q-btn flat label="Accept" @click="acceptGame(true)" v-close-popup />
-        </q-card-actions>
-        <q-card-actions align="left">
           <q-btn flat label="Decline" @click="acceptGame(false)" v-close-popup />
         </q-card-actions>
       </q-card>
@@ -237,11 +214,11 @@
     <q-dialog v-model="alertLoad">
       <q-card>
         <q-card-section>
-          <div class="text-h6">Alert</div>
+          <div class="text-h6">Invitation sent</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          If opponent accepts, you will be automatically redirect.
+          If opponent accepts, you will be automatically redirect. Invitation will expire after 5 seconds.
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -252,7 +229,7 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          User actually not chatting, can't invite him
+          User actually not chatting, can't invite him.
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -352,7 +329,6 @@ export default {
           msgTab.forEach((msg) => {
             msg.channel = channel
             if (msg.authorLogin !== this.store.state.login) {
-              console.log('Push', msg.authorLogin, this.store.state.login)
               this.userList.set(msg.authorLogin, { name: msg.authorUsername, login: msg.authorLogin })
             }
             this.messages.push(msg)
@@ -409,7 +385,6 @@ export default {
       this.mode = `${mode}`
     },
     acceptGame (accept: boolean) {
-      console.log('mode', this.mode)
       socket.emit('acceptGameInvitation', { accept: accept, chan: this.id, mode: this.mode, id: this.id })
     },
     createChannel () {
@@ -561,7 +536,7 @@ export default {
   computed: {
     chanmsg: function () {
       return this.messages.filter((msg) => msg.channel === this.chatid)
-        .filter((msg) => this.blockedUsers.findIndex((item) => { console.log(item, msg); return item.login === msg.authorLogin }) === -1)
+        .filter((msg) => this.blockedUsers.findIndex((item) => { return item.login === msg.authorLogin }) === -1)
     },
     chanAdm: function (): boolean {
       const arr = this.channels.filter((chan) => chan.id === this.chatid)
@@ -581,7 +556,6 @@ export default {
         Authorization: `Bearer ${this.store.state.token}`
       }
     })
-    console.log(socket)
     this.getChannels()
     this.getInvitations()
     this.getBlocked()
@@ -606,8 +580,8 @@ export default {
       this.channels[index].channelUser = true
       this.getChannelMsg(message)
     })
-    socket.on('badMessage', (message) => {
-      console.log(message)
+    socket.on('badMessage', () => {
+      console.log('invalid message')
     })
     socket.on('updateAdmin', (message) => {
       const index = this.channels.findIndex((chan) => chan.id === message.channelId)
@@ -615,7 +589,6 @@ export default {
         this.channels[index].channelAdm = Boolean(message.adminStatus)
         this.channels[index].channelUser = true
       }
-      console.log(this.channels[index])
     })
     socket.on('addInvitation', (message) => {
       this.invitations.push(message)
@@ -629,9 +602,7 @@ export default {
     socket.on('leavedDone', (message) => {
       const index = this.channels.findIndex((chan) => chan.id === message.channelId)
       if (index !== -1) {
-        console.log('before leave:', this.channels[index].channelStatus)
         if (this.channels[index].channelStatus === 2) {
-          console.log('deleted')
           this.channels.splice(index, 1)
         } else {
           this.channels[index].channelUser = false
@@ -662,7 +633,6 @@ export default {
       }
     })
     socket.on('receiveInvitation', (data) => {
-      console.log('receive', data)
       if (this.requester !== '' ||
         this.blockedUsers.findIndex((usr) => usr.login === data.login) !== -1) {
         return
@@ -676,10 +646,8 @@ export default {
     })
     socket.on('acceptInvitation', (data) => {
       const validInvite: boolean = data.id === this.id
-      console.log('data', data)
       this.alertLoad = false
       this.alertAccept = false
-      console.log(data.accept)
       this.requester = ''
       this.requested = false
       this.id = 0

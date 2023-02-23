@@ -16,7 +16,7 @@ CERT	= $(addprefix ./srcs/cert_utils/$(DOMAIN), .cnf .crt .csr .key)
 
 .PHONY: all
 all: 	clean certificates
-		docker compose -f $(CONF) up --build --force-recreate -d
+		docker compose -f $(CONF) up --build -d
 
 .PHONY: clean
 clean:

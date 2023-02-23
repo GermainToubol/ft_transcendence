@@ -91,7 +91,7 @@ export const store = createStore<State>({
     },
     async logout (context) {
       const response = await axios.get(`${BACK_SERVER}/api/auth/logout`, {
-        headers: { Authorization: `Bearer ${localStorage.token}` }
+        headers: { Authorization: `Bearer ${this.state.token}` }
       })
       context.commit('DEAUTHENTICATE')
       localStorage.token = ''
@@ -103,7 +103,7 @@ export const store = createStore<State>({
       }).then((t) => t.data)
 
       if (!response) {
-        context.commit('DEAUTHENTICATE')
+        await context.dispatch('logout')
         return false
       }
       context.commit('AUTHENTICATED', {

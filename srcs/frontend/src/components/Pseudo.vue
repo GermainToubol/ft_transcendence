@@ -3,7 +3,7 @@
     <q-card flat bordered class="my-card">
 
       <q-card-section>
-        <q-input outlined v-model="pseudo" label="Pseudo" />
+        <q-input outlined v-model="pseudo" placeholder="Pseudo" type="text" maxlength="15"/>
       </q-card-section>
 
       <q-separator />

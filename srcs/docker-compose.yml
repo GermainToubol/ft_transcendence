@@ -72,7 +72,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    command: bash -c "/frontend/configure.sh /frontend/src && yarn upgrade && yarn serve"
+    command: bash -c "/frontend/configure.sh /frontend/src && yarn upgrade && yarn build && rm -rf /frontbuild/* && cp -r ./dist /frontbuild"
     volumes:
       - "front-data:/frontend"
       - release-front:/frontbuild

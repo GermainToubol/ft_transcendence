@@ -8,7 +8,6 @@ export class MessageExceptionFilter extends BaseWsExceptionFilter {
   }
 
   catch(exception: BadRequestException, host: ArgumentsHost) {
-    console.log(`Invalid message from ${host.getArgs()[0].id}`)
     host.getArgs()[0].emit("badMessage", this.message)
   }
 }

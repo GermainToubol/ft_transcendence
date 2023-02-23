@@ -55,7 +55,6 @@ export default {
         accessToken: this.store.getters.getToken
       }
     })
-    console.log(this.socket)
     if (this.game) {
       this.context = this.game.getContext('2d')
       this.tokenError()

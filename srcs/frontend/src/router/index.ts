@@ -104,7 +104,6 @@ const routes: Array<RouteRecordRaw> = [
       requiresLogin: true,
       hideNav: false
     }
-  },
   {
     path: '/spec',
     name: 'Spec',

@@ -122,7 +122,6 @@ export class ChatGateway {
     if (!this.chatService.isChannelUser(user.chatter, channel)
       || channel.channelStatus !== ChannelStatus.Locked)
       return
-    console.log(this.server.sockets.adapter.rooms.get(`channel${channel.id}`).size)
     if (this.server.sockets.adapter.rooms.get(`channel${channel.id}`).size == 2) {
       this.server.to(`channel${channel.id}`).emit('receiveInvitation', { login: user.login, mode: mode, id: channel.id })
     } else {
@@ -146,7 +145,6 @@ export class ChatGateway {
     if (!this.chatService.isChannelUser(user.chatter, channel)
       || channel.channelStatus !== ChannelStatus.Locked)
       return
-    console.log(payload.mode)
     if (payload.mode === 'true') {
       this.server.to(`channel${payload.id}`).emit('acceptInvitation', { accept: payload.accept, mode: 'hard', id: payload.chan })
     }
