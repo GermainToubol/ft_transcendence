@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # API description
 ---
 ## Login path:
@@ -13,3 +14,16 @@ sequenceDiagram
     al->>f: jwt auth cookie
     Note over f: store JWT for later
 ```
+=======
+To do :
+
+Logout: OK
+
+Friends: OK
+
+Avatar et Pseudo : OK
+
+User page : KO
+
+Message d'erreur à renvoyer du back
+>>>>>>> dev-release

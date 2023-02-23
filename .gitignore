@@ -1,0 +1,17 @@
+# dont save temporary files
+*~
+
+# dont save credentials
+.env
+*.cnf
+*.crt
+*.csr
+*.key
+
+# large files folder
+node_modules
+# compiled files
+dist
+public
+avatar
+**/frontend/src/config.ts

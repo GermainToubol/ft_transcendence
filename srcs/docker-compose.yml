@@ -1,0 +1,138 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    docker-compose.yml                                 :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: iouali <iouali@student.42.fr>              +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2022/12/13 09:12:15 by gtoubol           #+#    #+#              #
+#    Updated: 2023/01/23 20:56:34 by iouali           ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+# Volumes
+# ------------------------------------------------------------------------
+volumes:
+  frontend-node-modules:
+    driver: local
+  back_data:
+    name: back_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "${TR_BACK_SRCS}"
+  front-data:
+    name: front-data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "${TR_FRONT_SRCS}"
+  db_data:
+    driver: local
+  release-front: {}
+
+# Networks
+# ------------------------------------------------------------------------
+networks:
+  frontend-net:
+    name: "frontend-net"
+    driver: "bridge"
+  backend-net:
+    name: "backend-net"
+    driver: "bridge"
+
+
+# Servicies
+# ------------------------------------------------------------------------
+services:
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    ports:
+      - "8080:8080"
+    depends_on:
+      frontend:
+        condition: service_started #completed_successfully
+    volumes:
+      - "release-front:/var/www"
+    networks:
+      - frontend-net
+    secrets:
+      - transcendence_key
+      - transcendence_crt
+    environment:
+      DOMAIN_NAME: "${DOMAIN_NAME}"
+      DOLLAR: "$"
+
+  frontend:
+    container_name: frontend
+    image: notrexp_frontend:dev-latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    command: bash -c "/frontend/configure.sh /frontend/src && yarn upgrade && yarn build && rm -rf /frontbuild/* && cp -r ./dist /frontbuild"
+    volumes:
+      - "front-data:/frontend"
+      - release-front:/frontbuild
+      - "frontend-node-modules:/frontend/node_modules"
+    networks:
+      - frontend-net
+    depends_on:
+      -  database
+    env_file:
+      - .env
+
+  # --------------------------
+  backend:
+    container_name: backend
+    build: ./backend
+    volumes:
+      - "back_data:/root/srcs"
+    networks:
+      - backend-net
+      - frontend-net
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost:3000"]
+    environment:
+      - DOMAIN=${DOMAIN}
+      - FRONT_DOMAIN=${FRONT_DOMAIN}
+      - API_UID=${API_UID}
+      - API_SECRET=${API_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRESIN=${JWT_EXPIRESIN}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_NAME=${POSTGRES_USER}
+
+  # --------------------------
+  database:
+    container_name: "database"
+    image: postgres:alpine
+    restart: always
+    networks:
+      - backend-net
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: ${PGDATA}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  # --------------------------
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 5000:8080
+    networks:
+      - backend-net
+
+# Secrets
+# ------------------------------------------------------------------------
+secrets:
+  transcendence_key:
+    file: "./cert_utils/transcendence.42.fr.key"
+  transcendence_crt:
+    file: "./cert_utils/transcendence.42.fr.crt"
