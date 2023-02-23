@@ -9,10 +9,10 @@
 #    Updated: 2022/12/13 08:55:36 by gtoubol          ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
-CONF =	./srcs/docker-compose.yml
+CONF =	./docker-compose.yml
 SHELL	= '/bin/bash'
-DOMAIN	= transcendence.42.fr
-CERT	= $(addprefix ./srcs/cert_utils/$(DOMAIN), .cnf .crt .csr .key)
+DOMAIN	= e2r2p12
+CERT	= $(addprefix ./cert_utils/$(DOMAIN), .cnf .crt .csr .key)
 
 .PHONY: all
 all: 	clean certificates
@@ -38,4 +38,4 @@ re: fclean all
 certificates: $(CERT)
 
 $(CERT):
-		cd srcs/cert_utils && yes "no" | ./utils.sh $(DOMAIN)
+		cd cert_utils && yes "no" | ./utils.sh $(DOMAIN)

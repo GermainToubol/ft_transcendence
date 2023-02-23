@@ -133,6 +133,6 @@ services:
 # ------------------------------------------------------------------------
 secrets:
   transcendence_key:
-    file: "./cert_utils/transcendence.42.fr.key"
+    file: "./cert_utils/${DOMAIN_NAME}.key"
   transcendence_crt:
-    file: "./cert_utils/transcendence.42.fr.crt"
+    file: "./cert_utils/${DOMAIN_NAME}.crt"
