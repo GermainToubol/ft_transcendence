@@ -42,19 +42,7 @@ export default {
     }
   },
   mounted (): void {
-    this.socket = io(BACK_SERVER, {
-      path: '/api/game',
-      transports: ['websocket'],
-      query: {
-        accessToken: this.store.getters.getToken,
-        role: router.currentRoute.value.query.role,
-        mode: router.currentRoute.value.query.mode,
-        chat: router.currentRoute.value.query.chat
-      },
-      auth: {
-        accessToken: this.store.getters.getToken
-      }
-    })
+    this.socket = store.getters.getSocket
     console.log(this.socket)
     if (this.game) {
       this.context = this.game.getContext('2d')
